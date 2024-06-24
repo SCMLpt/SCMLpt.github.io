@@ -65,5 +65,35 @@
             <p>I am always open to connecting with super open-minded individuals interested in collaborative research and academic pursuits.</p>
         </section>
     </div>
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- IP Geolocation API JavaScript -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2); // 초기 위치와 줌 레벨 설정
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Fetch the geolocation data
+        fetch('https://ipapi.co/json/')
+          .then(response => response.json())
+          .then(data => {
+            var lat = data.latitude;
+            var lon = data.longitude;
+            var marker = L.marker([lat, lon]).addTo(map);
+            marker.bindPopup("<b>You are here!</b><br>Latitude: " + lat + "<br>Longitude: " + lon).openPopup();
+            map.setView([lat, lon], 10); // 사용자의 위치로 지도 중심 설정
+          })
+          .catch(error => console.log('Error fetching geolocation data: ' + error));
+      });
+    </script>
+
+
+
+    
 </body>
 </html>
