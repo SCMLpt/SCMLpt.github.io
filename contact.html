@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,19 +24,6 @@
       }
     </style>
 </head>
-
-    
-<!--html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - Dongseok Lee</title>
-    <link rel="stylesheet" href="styles.css">
-</head>-->
-
-
-
-    
 <body>
     <div class="container">
         <header>
@@ -53,6 +39,8 @@
         <section class="contact">
             <div class="contact-info">
                 <h2>Contact Me</h2>
+                <p>Office: 6175 Math Sciences building</p>
+                <p>Mail:</p>
                 <p>Dongseok Lee</p>
                 <p>KAIST</p>
                 <p>Department of Mathematics</p>
@@ -61,10 +49,13 @@
                 <p>Email Me: <a href="mailto:kamuitranslator@gmail.com">kamuitranslator@gmail.com</a></p>
             </div>
         </section>
+        <section id="map"></section>
         <section class="students">
+            <h2>Prospective Students and Post-Docs</h2>
             <p>I am always open to connecting with super open-minded individuals interested in collaborative research and academic pursuits.</p>
         </section>
     </div>
+
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- IP Geolocation API JavaScript -->
@@ -91,9 +82,6 @@
           .catch(error => console.log('Error fetching geolocation data: ' + error));
       });
     </script>
-
-
-
-    
 </body>
 </html>
+
