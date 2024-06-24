@@ -51,36 +51,56 @@
         </section>
         <section id="map"></section>
         <section class="students">
-            <h2>Prospective Students and Post-Docs</h2>
             <p>I am always open to connecting with super open-minded individuals interested in collaborative research and academic pursuits.</p>
-        </section>
     </div>
 
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- IP Geolocation API JavaScript -->
+    <!-- Google Analytics API JavaScript -->
+    <script src="https://apis.google.com/js/api.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        // Initialize the map
-        var map = L.map('map').setView([0, 0], 2); // 초기 위치와 줌 레벨 설정
+      function initMap() {
+        var map = L.map('map').setView([20, 0], 2); // 초기 위치와 줌 레벨 설정
 
-        // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Fetch the geolocation data
-        fetch('https://ipapi.co/json/')
-          .then(response => response.json())
-          .then(data => {
-            var lat = data.latitude;
-            var lon = data.longitude;
-            var marker = L.marker([lat, lon]).addTo(map);
-            marker.bindPopup("<b>You are here!</b><br>Latitude: " + lat + "<br>Longitude: " + lon).openPopup();
-            map.setView([lat, lon], 10); // 사용자의 위치로 지도 중심 설정
-          })
-          .catch(error => console.log('Error fetching geolocation data: ' + error));
-      });
+        // Fetch the Google Analytics data
+        gapi.load('client:auth2', function() {
+          gapi.auth2.init({client_id: 'YOUR_CLIENT_ID'}).then(function() {
+            gapi.client.load('analytics', 'v3').then(function() {
+              gapi.client.analytics.data.ga.get({
+                'ids': 'ga:YOUR_VIEW_ID',
+                'start-date': '30daysAgo',
+                'end-date': 'today',
+                'metrics': 'ga:pageviews',
+                'dimensions': 'ga:country'
+              }).then(function(response) {
+                var data = response.result.rows;
+                data.forEach(function(row) {
+                  var country = row[0];
+                  var pageviews = row[1];
+
+                  // Geocode the country name to get the latitude and longitude
+                  fetch(`https://nominatim.openstreetmap.org/search?country=${country}&format=json`)
+                    .then(response => response.json())
+                    .then(locations => {
+                      if (locations.length > 0) {
+                        var lat = locations[0].lat;
+                        var lon = locations[0].lon;
+                        var marker = L.marker([lat, lon]).addTo(map);
+                        marker.bindPopup(`<b>${country}</b><br>Pageviews: ${pageviews}`).openPopup();
+                      }
+                    });
+                });
+              });
+            });
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", initMap);
     </script>
 </body>
 </html>
