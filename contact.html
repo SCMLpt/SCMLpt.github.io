@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Dongseok Lee</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZJ9R0KRJQM"></script>
     <script>
@@ -17,10 +15,15 @@
       gtag('config', 'G-ZJ9R0KRJQM');
     </script>
     <!-- End Google Analytics -->
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
       #map {
         height: 400px; /* 지도 높이 조정 */
         width: 100%; /* 지도 너비 조정 */
+      }
+      #pageviews {
+        margin-top: 20px;
       }
     </style>
 </head>
@@ -50,8 +53,13 @@
             </div>
         </section>
         <section id="map"></section>
+        <section id="pageviews">
+            <h2>Page Views</h2>
+            <ul id="pageview-list"></ul>
+        </section>
         <section class="students">
             <p>I am always open to connecting with super open-minded individuals interested in collaborative research and academic pursuits.</p>
+        </section>
     </div>
 
     <!-- Leaflet JavaScript -->
@@ -74,13 +82,13 @@
                 'ids': 'ga:YOUR_VIEW_ID',
                 'start-date': '30daysAgo',
                 'end-date': 'today',
-                'metrics': 'ga:pageviews',
+                'metrics': 'ga:sessions',
                 'dimensions': 'ga:country'
               }).then(function(response) {
                 var data = response.result.rows;
                 data.forEach(function(row) {
                   var country = row[0];
-                  var pageviews = row[1];
+                  var sessions = row[1];
 
                   // Geocode the country name to get the latitude and longitude
                   fetch(`https://nominatim.openstreetmap.org/search?country=${country}&format=json`)
@@ -90,7 +98,7 @@
                         var lat = locations[0].lat;
                         var lon = locations[0].lon;
                         var marker = L.marker([lat, lon]).addTo(map);
-                        marker.bindPopup(`<b>${country}</b><br>Pageviews: ${pageviews}`).openPopup();
+                        marker.bindPopup(`<b>${country}</b><br>Sessions: ${sessions}`).openPopup();
                       }
                     });
                 });
@@ -100,7 +108,50 @@
         });
       }
 
-      document.addEventListener("DOMContentLoaded", initMap);
+      function initClient() {
+        gapi.client.init({
+          'apiKey': 'YOUR_API_KEY',
+          'clientId': 'YOUR_CLIENT_ID',
+          'discoveryDocs': ['https://analyticsreporting.googleapis.com/$discovery/rest?version=v4'],
+          'scope': 'https://www.googleapis.com/auth/analytics.readonly'
+        }).then(function() {
+          return gapi.client.analyticsreporting.reports.batchGet({
+            "reportRequests": [
+              {
+                "viewId": "YOUR_VIEW_ID",
+                "dateRanges": [
+                  {
+                    "startDate": "30daysAgo",
+                    "endDate": "today"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "expression": "ga:pageviews"
+                  }
+                ],
+                "dimensions": [
+                  {
+                    "name": "ga:country"
+                  }
+                ]
+              }
+            ]
+          });
+        }).then(function(response) {
+          var pageviews = response.result.reports[0].data.rows;
+          var pageviewList = document.getElementById('pageview-list');
+          pageviews.forEach(function(row) {
+            var li = document.createElement('li');
+            li.textContent = row.dimensions[0] + ": " + row.metrics[0].values[0] + " pageviews";
+            pageviewList.appendChild(li);
+          });
+        }, function(reason) {
+          console.error('Error: ' + reason.result.error.message);
+        });
+      }
+
+      gapi.load('client:auth2', initClient);
     </script>
 </body>
 </html>
