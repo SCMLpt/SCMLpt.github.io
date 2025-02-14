@@ -3,58 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Research Chat</title>
+    <meta name="google-adsense-account" content="ca-pub-3192627407292290">
+    <title>My CV</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    <script>
-        // Firebase 설정
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+</head> 
 
-        function sendMessage() {
-            const message = document.getElementById("messageInput").value;
-            if (message.trim() === "") return;
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZJ9R0KRJQM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-            db.ref("messages").push({
-                text: message,
-                timestamp: Date.now()
-            });
+  gtag('config', 'G-ZJ9R0KRJQM');
+</script>
 
-            document.getElementById("messageInput").value = "";
-        }
-
-        function loadMessages() {
-            db.ref("messages").on("child_added", (snapshot) => {
-                const msg = snapshot.val();
-                const msgList = document.getElementById("chatMessages");
-                const msgItem = document.createElement("p");
-                msgItem.textContent = msg.text;
-                msgList.appendChild(msgItem);
-            });
-        }
-
-        window.onload = loadMessages;
-    </script>
-</head>
 <body>
     <div class="container">
         <header>
-            <h1>Open Research Chat</h1>
+            <h1>Dongseok Lee</h1>
         </header>
-        <section id="chatContainer">
-            <div id="chatMessages"></div>
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="publications.html">Publications</a></li>
+                <li><a href="activities.html">Activities</a></li>
+                <li><a href="philosophy.html">Philosophy</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="open_research_chat.html">Open Research Chat</a></li> <!-- 추가된 부분 -->
+            </ul>
+        </nav>
+        <section class="profile">
+            <img src="Gospers_glider_gun.gif" alt="Profile Picture" style="width: 150px; height: 180px;">
+            <div class="profile-info">
+                <h2>Dongseok Lee</h2>
+            </div>
+        </section>
+        <section class="about">
+            <p>I am deeply interested in complex systems in nature.</p>
+            <p>In particular, I am passionate about creating models that generate or simulate natural phenomena.</p>
         </section>
     </div>
 </body>
