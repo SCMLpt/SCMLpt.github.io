@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussion Room</title>
+    <script type="module">
+        // Firebase SDK 로드
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyC48AC7zT_omqIrBr_c7SzFZ84qV2ZiKc",
+            authDomain: "open-research-chat.firebaseapp.com",
+            projectId: "open-research-chat",
+            storageBucket: "open-research-chat.appspot.com",
+            messagingSenderId: "766383804557",
+            appId: "1:766383804557:web:74fcdfeed93ad98c4952c4"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // URL에서 토론방 이름 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomName = urlParams.get("room") || "general";
+
+        // Firestore에서 실시간 댓글 불러오기
+        const messagesRef = collection(db, `rooms/${roomName}/comments`);
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("roomTitle").innerText = `Discussion Room: ${roomName.replace("-", " ")}`;
+
+            onSnapshot(q, (snapshot) => {
+                const commentList = document.getElementById("commentList");
+                commentList.innerHTML = ""; // 기존 댓글 초기화
+                snapshot.forEach((doc) => {
+                    const comment = doc.data();
+                    const commentItem = document.createElement("div");
+                    commentItem.classList.add("comment");
+                    commentItem.innerHTML = `
+                        <p>${comment.text}</p>
+                        <span class="timestamp">${comment.timestamp?.toDate ? new Date(comment.timestamp.toDate()).toLocaleString() : "No Timestamp"}</span>
+                        <button onclick="deleteComment('${doc.id}')">Delete</button>
+                    `;
+                    commentList.appendChild(commentItem);
+                });
+            });
+        });
+
+        // 댓글 추가 함수
+        async function postComment() {
+            const commentInput = document.getElementById("commentInput").value;
+            if (commentInput.trim() === "") return;
+
+            await addDoc(messagesRef, {
+                text: commentInput,
+                timestamp: serverTimestamp() // Firestore에서 자동으로 timestamp 설정
+            });
+
+            document.getElementById("commentInput").value = "";
+        }
+
+        // 댓글 삭제 함수
+        async function deleteComment(commentId) {
+            await deleteDoc(doc(db, `rooms/${roomName}/comments`, commentId));
+        }
+
+        window.postComment = postComment;
+        window.deleteComment = deleteComment;
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: lightblue;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2em;
+            color: lightblue;
+        }
+        .comment-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            font-size: 1em;
+        }
+        .comment {
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: gray;
+            display: block;
+        }
+        button {
+            margin-top: 5px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="open_research_chat.html">Back to Rooms</a>
+    </nav>
+    <div class="container">
+        <h1 id="roomTitle"></h1>
+        <section id="commentContainer">
+            <h2>Leave a Comment</h2>
+            <textarea id="commentInput" class="comment-box" placeholder="Type your comment..."></textarea>
+            <button onclick="postComment()">Post</button>
+        </section>
+        <section id="commentsSection">
+            <h2>Comments</h2>
+            <div id="commentList"></div>
+        </section>
+    </div>
+</body>
+</html>
