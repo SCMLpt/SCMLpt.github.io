@@ -31,17 +31,28 @@
         }
         h1 {
             font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .rooms {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
         .room {
             background: #222;
             padding: 15px;
             border-radius: 10px;
-            margin: 15px;
-            cursor: pointer;
+            width: 60%;
             font-size: 1.5em;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
         }
         .room:hover {
             background: #333;
+            box-shadow: 3px 3px 15px rgba(255, 255, 255, 0.4);
         }
     </style>
 </head>
@@ -57,8 +68,10 @@
         <h1>Open Research Chat</h1>
         <p>Choose a discussion room to join:</p>
         
-        <div class="room" onclick="enterRoom('foundational-model')">📚 Foundational Model</div>
-        <div class="room" onclick="enterRoom('gpu-redistribution')">🎮 GPU의 재분배</div>
+        <div class="rooms">
+            <div class="room" onclick="enterRoom('foundational-model')">📚 Foundational Model</div>
+            <div class="room" onclick="enterRoom('gpu-redistribution')">🎮 GPU Redistribution</div>
+        </div>
     </div>
 
     <script>
@@ -68,6 +81,7 @@
     </script>
 </body>
 </html>
+
 
 
 
