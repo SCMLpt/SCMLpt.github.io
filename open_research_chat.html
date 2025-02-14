@@ -21,40 +21,92 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function sendMessage() {
-            const message = document.getElementById("messageInput").value;
-            if (message.trim() === "") return;
+        // 댓글 작성 함수
+        function postComment() {
+            const commentInput = document.getElementById("commentInput").value;
+            if (commentInput.trim() === "") return;
 
-            db.ref("messages").push({
-                text: message,
-                timestamp: Date.now()
-            });
+            const commentData = {
+                text: commentInput,
+                timestamp: new Date().toLocaleString()
+            };
 
-            document.getElementById("messageInput").value = "";
+            db.ref("comments").push(commentData);
+            document.getElementById("commentInput").value = "";
         }
 
-        function loadMessages() {
-            db.ref("messages").on("child_added", (snapshot) => {
-                const msg = snapshot.val();
-                const msgList = document.getElementById("chatMessages");
-                const msgItem = document.createElement("p");
-                msgItem.textContent = msg.text;
-                msgList.appendChild(msgItem);
+        // 댓글 불러오기 함수
+        function loadComments() {
+            db.ref("comments").on("child_added", (snapshot) => {
+                const comment = snapshot.val();
+                const commentList = document.getElementById("commentList");
+
+                const commentItem = document.createElement("div");
+                commentItem.classList.add("comment");
+                commentItem.innerHTML = `
+                    <p>${comment.text}</p>
+                    <span class="timestamp">${comment.timestamp}</span>
+                    <button onclick="deleteComment('${snapshot.key}')">Delete</button>
+                `;
+
+                commentList.appendChild(commentItem);
             });
         }
 
-        window.onload = loadMessages;
+        // 댓글 삭제 함수 (관리자용)
+        function deleteComment(commentId) {
+            db.ref("comments/" + commentId).remove();
+            location.reload(); // 삭제 후 새로고침
+        }
+
+        window.onload = loadComments;
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .comment-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+        }
+        .comment {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: gray;
+            display: block;
+        }
+        button {
+            margin-top: 5px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Open Research Chat</h1>
         </header>
-        <section id="chatContainer">
-            <div id="chatMessages"></div>
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
+        <section id="commentContainer">
+            <h2>Leave a Comment</h2>
+            <textarea id="commentInput" class="comment-box" placeholder="Type your comment..."></textarea>
+            <button onclick="postComment()">Post</button>
+        </section>
+        <section id="commentsSection">
+            <h2>Comments</h2>
+            <div id="commentList"></div>
         </section>
     </div>
 </body>
