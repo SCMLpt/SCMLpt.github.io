@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discussion Room</title>
+    <title>Open Research Chat</title>
     <script type="module">
         // Firebase SDK 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -23,31 +23,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // URL에서 토론방 이름 가져오기
+        // URL에서 방 이름 가져오기
         const urlParams = new URLSearchParams(window.location.search);
-        const roomName = urlParams.get("room") || "general";
+        const roomName = urlParams.get("room") || "general"; // 기본값 "general"
 
-        // Firestore에서 실시간 댓글 불러오기
+        // Firestore에서 해당 방의 댓글 컬렉션 참조
         const messagesRef = collection(db, `rooms/${roomName}/comments`);
         const q = query(messagesRef, orderBy("timestamp", "asc"));
 
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("roomTitle").innerText = `Discussion Room: ${roomName.replace("-", " ")}`;
-
-            onSnapshot(q, (snapshot) => {
-                const commentList = document.getElementById("commentList");
-                commentList.innerHTML = ""; // 기존 댓글 초기화
-                snapshot.forEach((doc) => {
-                    const comment = doc.data();
-                    const commentItem = document.createElement("div");
-                    commentItem.classList.add("comment");
-                    commentItem.innerHTML = `
-                        <p>${comment.text}</p>
-                        <span class="timestamp">${comment.timestamp?.toDate ? new Date(comment.timestamp.toDate()).toLocaleString() : "No Timestamp"}</span>
-                        <button onclick="deleteComment('${doc.id}')">Delete</button>
-                    `;
-                    commentList.appendChild(commentItem);
-                });
+        // 댓글 실시간 업데이트
+        onSnapshot(q, (snapshot) => {
+            const commentList = document.getElementById("commentList");
+            commentList.innerHTML = ""; // 기존 댓글 초기화
+            snapshot.forEach((doc) => {
+                const comment = doc.data();
+                const commentItem = document.createElement("div");
+                commentItem.classList.add("comment");
+                commentItem.innerHTML = `
+                    <p>${comment.text}</p>
+                    <span class="timestamp">${comment.timestamp?.toDate ? new Date(comment.timestamp.toDate()).toLocaleString() : "No Timestamp"}</span>
+                    <button onclick="deleteComment('${doc.id}')">Delete</button>
+                `;
+                commentList.appendChild(commentItem);
             });
         });
 
@@ -58,7 +55,7 @@
 
             await addDoc(messagesRef, {
                 text: commentInput,
-                timestamp: serverTimestamp() // Firestore에서 자동으로 timestamp 설정
+                timestamp: serverTimestamp()
             });
 
             document.getElementById("commentInput").value = "";
@@ -69,8 +66,14 @@
             await deleteDoc(doc(db, `rooms/${roomName}/comments`, commentId));
         }
 
+        // HTML 버튼에서 직접 호출할 수 있도록 window 객체에 함수 등록
         window.postComment = postComment;
         window.deleteComment = deleteComment;
+
+        // 방 제목 표시
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("roomTitle").innerText = roomName.replace("-", " ");
+        });
     </script>
     <style>
         body {
@@ -84,8 +87,21 @@
             margin: auto;
             padding: 20px;
         }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: black;
+            padding: 10px 0;
+            font-size: 1.2em;
+        }
+        nav a {
+            color: lightblue;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
         h1 {
-            font-size: 2em;
+            font-size: 2.5em;
             color: lightblue;
         }
         .comment-box {
@@ -120,10 +136,16 @@
 </head>
 <body>
     <nav>
-        <a href="open_research_chat.html">Back to Rooms</a>
+        <a href="index.html">Home</a>
+        <a href="publications.html">Publications</a>
+        <a href="activities.html">Activities</a>
+        <a href="philosophy.html">Philosophy</a>
+        <a href="contact.html">Contact</a>
     </nav>
     <div class="container">
-        <h1 id="roomTitle"></h1>
+        <header>
+            <h1 id="roomTitle">Discussion Room</h1>
+        </header>
         <section id="commentContainer">
             <h2>Leave a Comment</h2>
             <textarea id="commentInput" class="comment-box" placeholder="Type your comment..."></textarea>
@@ -136,3 +158,4 @@
     </div>
 </body>
 </html>
+
