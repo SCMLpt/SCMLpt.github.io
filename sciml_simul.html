@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SciML Simulation</title>
+  
+  <!-- MathJax for LaTeX rendering -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -38,6 +45,11 @@
       margin-bottom: 20px;
       color: lightblue;
       line-height: 1.5;
+      text-align: left;
+      display: inline-block;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
     }
     textarea {
       width: 80%;
@@ -81,23 +93,37 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
+    
+    <!-- 설명 부분 -->
     <div class="description">
-      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\). 
-         The PDE might look like: \(-\epsilon \Delta u^\epsilon - u^\epsilon_x = f(x,y)\) in \(\Omega\), 
-         with \(u^\epsilon = 0\) on \(\partial \Omega\).</p>
-      <p>Please provide your JSON input in the form:</p>
-      <pre style="text-align:left; display:inline-block; background-color:#333; padding:10px;">
+      <p>
+        This is an example of a foundational model on the domain 
+        \([0,1] \times [0,1]\). The PDE might look like:
+      </p>
+      <p style="text-align:center;">
+        $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y) 
+        \quad \text{in}\; \Omega,\quad
+        u^\epsilon = 0 \quad \text{on} \; \partial\Omega. $$
+      </p>
+      <p>
+        Please provide your JSON input in the form:
+      </p>
+      <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
   "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
   "unknown": [[[0.5,0.6,0.7],[0.7,0.2,0.1]]],
   "epsilons": [0.01]
 }
       </pre>
-      <p>where <strong>known</strong> and <strong>unknown</strong> represent domain/solution pairs, 
-         and <strong>epsilons</strong> is an array of \(\epsilon\) values.</p>
+      <p>
+        Here, <strong>known</strong> and <strong>unknown</strong> represent domain/solution 
+        pairs in \([0,1]\times[0,1]\), and <strong>epsilons</strong> is an array of \(\epsilon\) values.
+      </p>
     </div>
     
-    <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'></textarea>
+    <!-- 입력 영역 -->
+    <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'>
+    </textarea>
     <br>
     <button onclick="submitInput()">Submit</button>
     <div class="result" id="resultDisplay"></div>
@@ -116,8 +142,8 @@
       }
       
       try {
-        // ngrok Forwarding 주소 + /predict
-        const ngrokURL = "https://5b09-125-186-24-176.ngrok-free.app/predict"; // 예시 주소
+        // ngrok Forwarding 주소 (예시)
+        const ngrokURL = "https://5b09-125-186-24-176.ngrok-free.app/predict";
         
         const response = await fetch(ngrokURL, {
           method: "POST",
@@ -135,9 +161,17 @@
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
           // output, boundary_prob 등 표시
-          document.getElementById("resultDisplay").innerText = 
-            "Output: " + JSON.stringify(data.output) + "\n" +
-            "Boundary: " + JSON.stringify(data.boundary_prob);
+          // (만약 서버가 "output"과 "boundary_prob"를 반환한다면)
+          // 만약 "result"만 있다면 아래를 적절히 수정하세요.
+          if (data.output && data.boundary_prob) {
+            document.getElementById("resultDisplay").innerText = 
+              "Output: " + JSON.stringify(data.output) + "\n" +
+              "Boundary: " + JSON.stringify(data.boundary_prob);
+          } else {
+            // 예: 서버가 "result"만 반환할 수도 있음
+            document.getElementById("resultDisplay").innerText = 
+              "Result: " + JSON.stringify(data.result);
+          }
         }
       } catch (err) {
         document.getElementById("resultDisplay").innerText = "Error: " + err;
@@ -146,5 +180,6 @@
   </script>
 </body>
 </html>
+
 
 
