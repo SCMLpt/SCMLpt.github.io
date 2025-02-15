@@ -1,133 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scientific ML Simulation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: black;
-            color: lightblue;
-            text-align: center;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background: black;
-            padding: 10px 0;
-            font-size: 1.2em;
-        }
-        nav a {
-            color: lightblue;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-        canvas {
-            border: 1px solid white;
-            background-color: #111;
-        }
-        .controls {
-            margin-top: 20px;
-        }
-        label, input {
-            font-size: 1.2em;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciML Simulation</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: lightblue;
+      text-align: center;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 10px 0;
+      font-size: 1.2em;
+    }
+    nav a {
+      color: lightblue;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 80%;
+      height: 150px;
+      font-size: 1.2em;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: lightblue;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
+    button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.5em;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+  </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="publications.html">Publications</a>
-        <a href="activities.html">Activities</a>
-        <a href="philosophy.html">Philosophy</a>
-        <a href="contact.html">Contact</a>
-        <a href="sciml_simul.html">SciML Simulations</a>
-    </nav>
-
-    <div class="container">
-        <h1>Scientific ML Simulation</h1>
-        <p>Adjust the refractive index to observe how light bends (Snell's Law).</p>
-        <canvas id="simulationCanvas" width="600" height="400"></canvas>
-        
-        <div class="controls">
-            <label for="n1">Medium 1 Refractive Index (n₁): </label>
-            <input type="number" id="n1" value="1.0" step="0.1" min="1" max="3">
-            
-            <label for="n2">Medium 2 Refractive Index (n₂): </label>
-            <input type="number" id="n2" value="1.5" step="0.1" min="1" max="3">
-            
-            <button onclick="updateSimulation()">Simulate</button>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById("simulationCanvas");
-        const ctx = canvas.getContext("2d");
-
-        function drawSimulation(n1, n2) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Define the interface
-            const midY = canvas.height / 2;
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, midY);
-            ctx.lineTo(canvas.width, midY);
-            ctx.stroke();
-
-            // Incident Ray
-            const incidentAngle = Math.PI / 6; // 30 degrees
-            const incidentX = 100;
-            const incidentY = midY - 100;
-            
-            ctx.strokeStyle = "yellow";
-            ctx.beginPath();
-            ctx.moveTo(incidentX, incidentY);
-            ctx.lineTo(incidentX + 150, midY);
-            ctx.stroke();
-
-            // Refracted Ray using Snell's Law: n1 * sin(theta1) = n2 * sin(theta2)
-            const theta1 = incidentAngle;
-            const sinTheta2 = (n1 / n2) * Math.sin(theta1);
-            let theta2 = Math.asin(sinTheta2);
-
-            if (isNaN(theta2)) {
-                // Total Internal Reflection
-                ctx.strokeStyle = "red";
-                ctx.beginPath();
-                ctx.moveTo(incidentX + 150, midY);
-                ctx.lineTo(incidentX + 300, midY - 100);
-                ctx.stroke();
-            } else {
-                // Normal Refraction
-                ctx.strokeStyle = "cyan";
-                ctx.beginPath();
-                ctx.moveTo(incidentX + 150, midY);
-                ctx.lineTo(incidentX + 300, midY + 100 * Math.tan(theta2));
-                ctx.stroke();
-            }
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="publications.html">Publications</a>
+    <a href="activities.html">Activities</a>
+    <a href="philosophy.html">Philosophy</a>
+    <a href="contact.html">Contact</a>
+    <a href="open_research_chat.html">Open Research Chat</a>
+    <a href="sciml_simul.html">SciML Simulations</a>
+  </nav>
+  <div class="container">
+    <h1>SciML Simulation</h1>
+    <p>Enter your input values as a JSON array of shape [m,3] (e.g., 10 rows, 3 columns):</p>
+    <textarea id="userInput" placeholder='[[val1, val2, val3], [val1, val2, val3], ...]'></textarea>
+    <br>
+    <button onclick="submitInput()">Submit</button>
+    <div class="result" id="resultDisplay"></div>
+  </div>
+  
+  <script>
+    async function submitInput() {
+      const inputText = document.getElementById("userInput").value;
+      let inputArray;
+      try {
+        inputArray = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      
+      // Validate: Check if inputArray is an array of arrays of length 3
+      if (!Array.isArray(inputArray) || inputArray.some(row => !Array.isArray(row) || row.length !== 3)) {
+        alert("Input must be an array of arrays of length 3");
+        return;
+      }
+      
+      try {
+        const response = await fetch("http://localhost:5001/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ input: inputArray })
+        });
+        const data = await response.json();
+        if (data.error) {
+          document.getElementById("resultDisplay").innerText = "Error: " + data.error;
+        } else {
+          document.getElementById("resultDisplay").innerText = "Prediction Result: " + JSON.stringify(data.result);
         }
-
-        function updateSimulation() {
-            const n1 = parseFloat(document.getElementById("n1").value);
-            const n2 = parseFloat(document.getElementById("n2").value);
-            drawSimulation(n1, n2);
-        }
-
-        // 초기화
-        drawSimulation(1.0, 1.5);
-    </script>
+      } catch (err) {
+        document.getElementById("resultDisplay").innerText = "Error: " + err;
+      }
+    }
+  </script>
 </body>
 </html>
