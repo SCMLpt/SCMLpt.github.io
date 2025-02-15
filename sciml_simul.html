@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SciML Simulation</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -76,8 +75,16 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
-    <p>Enter your input values as a JSON array of shape [m,3] (e.g., 10 rows, 3 columns):</p>
-    <textarea id="userInput" placeholder='[[val1, val2, val3], [val1, val2, val3], ...]'></textarea>
+    <p>Enter JSON for <strong>known</strong>, <strong>unknown</strong>, and <strong>epsilons</strong> below.</p>
+    
+    <!-- 예: 
+         {
+           "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
+           "unknown": [[[0.5,0.6,0.7],[0.7,0.2,0.1]]],
+           "epsilons": [0.01]
+         }
+    -->
+    <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'></textarea>
     <br>
     <button onclick="submitInput()">Submit</button>
     <div class="result" id="resultDisplay"></div>
@@ -86,33 +93,31 @@
   <script>
     async function submitInput() {
       const inputText = document.getElementById("userInput").value;
-      let inputArray;
+      let jsonData;
       try {
-        inputArray = JSON.parse(inputText);
+        jsonData = JSON.parse(inputText);
       } catch (e) {
         alert("Invalid JSON input!");
         return;
       }
       
-      // Validate: Check if inputArray is an array of arrays of length 3
-      if (!Array.isArray(inputArray) || inputArray.some(row => !Array.isArray(row) || row.length !== 3)) {
-        alert("Input must be an array of arrays of length 3");
-        return;
-      }
-      
       try {
-        const response = await fetch("http://localhost:5001/predict", {
+        // PythonAnywhere에서 호스팅 중인 Flask 서버 엔드포인트
+        const response = await fetch("https://Dongseok28.pythonanywhere.com/predict", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ input: inputArray })
+          body: JSON.stringify(jsonData)
         });
         const data = await response.json();
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
-          document.getElementById("resultDisplay").innerText = "Prediction Result: " + JSON.stringify(data.result);
+          // output, boundary_prob 등 표시
+          document.getElementById("resultDisplay").innerText = 
+            "Output: " + JSON.stringify(data.output) + "\n" +
+            "Boundary: " + JSON.stringify(data.boundary_prob);
         }
       } catch (err) {
         document.getElementById("resultDisplay").innerText = "Error: " + err;
