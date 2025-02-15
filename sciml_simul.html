@@ -160,17 +160,20 @@
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
-          // output, boundary_prob 등 표시
-          // (만약 서버가 "output"과 "boundary_prob"를 반환한다면)
-          // 만약 "result"만 있다면 아래를 적절히 수정하세요.
-          if (data.output && data.boundary_prob) {
+          /*
+            여기서 'boundary'를 제거하고 'output'만 표시
+            서버가 'result'만 준다면 적절히 수정
+          */
+          if (data.output) {
             document.getElementById("resultDisplay").innerText = 
-              "Output: " + JSON.stringify(data.output) + "\n" +
-              "Boundary: " + JSON.stringify(data.boundary_prob);
-          } else {
-            // 예: 서버가 "result"만 반환할 수도 있음
+              "Output: " + JSON.stringify(data.output);
+          } else if (data.result) {
+            // 만약 서버가 "result"만 반환한다면
             document.getElementById("resultDisplay").innerText = 
               "Result: " + JSON.stringify(data.result);
+          } else {
+            document.getElementById("resultDisplay").innerText = 
+              "No 'output' or 'result' field found in response.";
           }
         }
       } catch (err) {
@@ -180,6 +183,7 @@
   </script>
 </body>
 </html>
+
 
 
 
