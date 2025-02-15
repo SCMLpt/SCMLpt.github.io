@@ -33,6 +33,12 @@
       font-size: 2.5em;
       margin-bottom: 20px;
     }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      color: lightblue;
+      line-height: 1.5;
+    }
     textarea {
       width: 80%;
       height: 150px;
@@ -75,15 +81,22 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
-    <p>Enter JSON for <strong>known</strong>, <strong>unknown</strong>, and <strong>epsilons</strong> below.</p>
+    <div class="description">
+      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\). 
+         The PDE might look like: \(-\epsilon \Delta u^\epsilon - u^\epsilon_x = f(x,y)\) in \(\Omega\), 
+         with \(u^\epsilon = 0\) on \(\partial \Omega\).</p>
+      <p>Please provide your JSON input in the form:</p>
+      <pre style="text-align:left; display:inline-block; background-color:#333; padding:10px;">
+{
+  "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
+  "unknown": [[[0.5,0.6,0.7],[0.7,0.2,0.1]]],
+  "epsilons": [0.01]
+}
+      </pre>
+      <p>where <strong>known</strong> and <strong>unknown</strong> represent domain/solution pairs, 
+         and <strong>epsilons</strong> is an array of \(\epsilon\) values.</p>
+    </div>
     
-    <!-- 예: 
-         {
-           "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
-           "unknown": [[[0.5,0.6,0.7],[0.7,0.2,0.1]]],
-           "epsilons": [0.01]
-         }
-    -->
     <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'></textarea>
     <br>
     <button onclick="submitInput()">Submit</button>
@@ -104,8 +117,8 @@
       
       try {
         // ngrok Forwarding 주소 + /predict
-        const ngrokURL = "https://5b09-125-186-24-176.ngrok-free.app/predict";
-
+        const ngrokURL = "https://5b09-125-186-24-176.ngrok-free.app/predict"; // 예시 주소
+        
         const response = await fetch(ngrokURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -133,4 +146,5 @@
   </script>
 </body>
 </html>
+
 
