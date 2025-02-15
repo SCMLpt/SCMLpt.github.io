@@ -89,39 +89,42 @@
     <button onclick="submitInput()">Submit</button>
     <div class="result" id="resultDisplay"></div>
   </div>
-  
   <script>
-    async function submitInput() {
-      const inputText = document.getElementById("userInput").value;
-      let jsonData;
-      try {
-        jsonData = JSON.parse(inputText);
-      } catch (e) {
-        alert("Invalid JSON input!");
-        return;
-      }
-      
-      try {
-        const response = await fetch("https://dongseok28.pythonanywhere.com/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData)
-        });
-
-        
-        const data = await response.json();
-        if (data.error) {
-          document.getElementById("resultDisplay").innerText = "Error: " + data.error;
-        } else {
-          // output, boundary_prob 등 표시
-          document.getElementById("resultDisplay").innerText = 
-            "Output: " + JSON.stringify(data.output) + "\n" +
-            "Boundary: " + JSON.stringify(data.boundary_prob);
-        }
-      } catch (err) {
-        document.getElementById("resultDisplay").innerText = "Error: " + err;
-      }
+  async function submitInput() {
+    const inputText = document.getElementById("userInput").value;
+    let jsonData;
+    try {
+      jsonData = JSON.parse(inputText);
+    } catch (e) {
+      alert("Invalid JSON input!");
+      return;
     }
-  </script>
+    
+    try {
+      const response = await fetch("https://dongseok28.pythonanywhere.com/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData)
+      });
+
+      // 응답 JSON 파싱
+      const data = await response.json();
+
+      // [1] 콘솔에 전체 응답 로그 찍기 (디버깅용)
+      console.log("Response data:", data);
+
+      if (data.error) {
+        document.getElementById("resultDisplay").innerText = "Error: " + data.error;
+      } else {
+        // output, boundary_prob 등 표시
+        document.getElementById("resultDisplay").innerText = 
+          "Output: " + JSON.stringify(data.output) + "\n" +
+          "Boundary: " + JSON.stringify(data.boundary_prob);
+      }
+    } catch (err) {
+      document.getElementById("resultDisplay").innerText = "Error: " + err;
+    }
+  }
+  </script> 
 </body>
 </html>
