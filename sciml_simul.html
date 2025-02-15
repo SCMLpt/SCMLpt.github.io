@@ -1,38 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SciML Simulation</title>
-
-  <!-- 1) Plotly.js for 3D plotting (MUST come before we use Plotly) -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-  <!-- 2) MathJax for LaTeX rendering -->
+  
+  <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script
-    id="MathJax-script"
-    async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
-  ></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
 
   <style>
-    /* Basic styling */
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
       text-align: center;
-      margin: 0;
-      padding: 0;
     }
-
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
     }
-
     nav {
       display: flex;
       justify-content: center;
@@ -40,19 +30,16 @@
       padding: 10px 0;
       font-size: 1.2em;
     }
-
     nav a {
       color: lightblue;
       text-decoration: none;
       margin: 0 15px;
       font-weight: bold;
     }
-
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
     }
-
     .description {
       font-size: 1.1em;
       margin-bottom: 20px;
@@ -64,7 +51,6 @@
       padding: 10px;
       border-radius: 5px;
     }
-
     textarea {
       width: 80%;
       height: 150px;
@@ -76,7 +62,6 @@
       border: 1px solid #333;
       border-radius: 5px;
     }
-
     button {
       background: red;
       color: white;
@@ -86,7 +71,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-
     .result {
       margin-top: 20px;
       font-size: 1.5em;
@@ -94,15 +78,6 @@
       padding: 20px;
       border-radius: 5px;
       word-wrap: break-word;
-    }
-
-    /* 3D Plot div styling */
-    #plotDiv {
-      margin-top: 40px;
-      width: 80%;
-      height: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
   </style>
 </head>
@@ -118,15 +93,15 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
-
+    
     <!-- 설명 부분 -->
     <div class="description">
       <p>
-        This is an example of a foundational model on the domain
+        This is an example of a foundational model on the domain 
         \([0,1] \times [0,1]\). The PDE might look like:
       </p>
       <p style="text-align:center;">
-        $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y)
+        $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y) 
         \quad \text{in}\; \Omega,\quad
         u^\epsilon = 0 \quad \text{on} \; \partial\Omega. $$
       </p>
@@ -135,70 +110,71 @@
       </p>
       <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
-  "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
-  "unknown": [[[0.5,0.6,-1],[0.7,0.2,-1]]],
+  "known": [
+    [[0.1, 0.2, 0.9], [0.3, 0.4, 0.8]]
+  ],
+  "unknown": [
+    [[0.5, 0.6, -1], [0.7, 0.2, -1]]
+  ],
   "epsilons": [0.01]
 }
       </pre>
       <p>
-        Here, <strong>known</strong> represents domain/solution pairs, and <strong>unknown</strong>
-        represents points in the X-Y domain \([0,1] \times [0,1]\) where the last value is
-        always <code>-1</code>. The model will predict \(u(x,y)\) at these points.
+        Here, <strong>known</strong> might represent (x, y, solution) for observed points, 
+        and <strong>unknown</strong> might represent (x, y, -1) for unobserved or boundary 
+        points, ensuring the last value is always <code>-1</code>. 
         Meanwhile, <strong>epsilons</strong> is an array of \(\epsilon\) values.
       </p>
     </div>
-
+    
     <!-- 입력 영역 -->
     <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'>
     </textarea>
-    <br />
+    <br>
     <button onclick="submitInput()">Submit</button>
     <div class="result" id="resultDisplay"></div>
-
-    <!-- 3D Plot 영역 -->
-    <div id="plotDiv"></div>
   </div>
-
+  
   <script>
-    // Submit 함수
     async function submitInput() {
       const inputText = document.getElementById("userInput").value;
       let jsonData;
       try {
+        // JSON 파싱
         jsonData = JSON.parse(inputText);
       } catch (e) {
         alert("Invalid JSON input!");
         return;
       }
-
+      
       try {
         // ngrok Forwarding 주소 (예시)
         const ngrokURL = "https://5b09-125-186-24-176.ngrok-free.app/predict";
-
+        
         const response = await fetch(ngrokURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData),
+          body: JSON.stringify(jsonData)
         });
 
+        // 응답 JSON 파싱
         const data = await response.json();
+
+        // 콘솔에 전체 응답 로그 찍기 (디버깅용)
         console.log("Response data:", data);
 
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
-          // 여기서는 output만 표시
+          // 여기서는 boundary 값 없이 output만 표시
           if (data.output) {
-            document.getElementById("resultDisplay").innerText =
+            document.getElementById("resultDisplay").innerText = 
               "Output: " + JSON.stringify(data.output);
-            // 3D Plot
-            create3DPlot(jsonData.unknown, data.output);
           } else if (data.result) {
-            document.getElementById("resultDisplay").innerText =
+            document.getElementById("resultDisplay").innerText = 
               "Result: " + JSON.stringify(data.result);
-            create3DPlot(jsonData.unknown, data.result);
           } else {
-            document.getElementById("resultDisplay").innerText =
+            document.getElementById("resultDisplay").innerText = 
               "No 'output' or 'result' field found in response.";
           }
         }
@@ -206,74 +182,10 @@
         document.getElementById("resultDisplay").innerText = "Error: " + err;
       }
     }
-
-    // Plotly 3D Plot 생성 함수
-    function create3DPlot(unknownData, outputData) {
-      /*
-        unknownData가 3차원 배열(batch=1)인지, 2차원 배열인지 확인
-        예: 
-          3D => [[[x,y,-1],[x2,y2,-1]]] 
-          2D => [[x,y,-1],[x2,y2,-1]]
-      */
-      if (!Array.isArray(unknownData)) {
-        console.log("Unknown data is not an array:", unknownData);
-        return;
-      }
-
-      // batch=1 가정 시, 3D -> 2D로 변환
-      if (
-        Array.isArray(unknownData[0]) &&
-        Array.isArray(unknownData[0][0])
-      ) {
-        // unknownData = [[[...], [...]]] => batch=1
-        unknownData = unknownData[0];
-      }
-
-      // 이제 unknownData는 2D: [[x,y,-1], [x2,y2,-1], ...]
-      let xs = [];
-      let ys = [];
-      let zs = [];
-
-      for (let i = 0; i < unknownData.length; i++) {
-        let pt = unknownData[i]; // [x, y, -1]
-        if (!Array.isArray(pt) || pt.length < 2) {
-          console.log("Invalid point format:", pt);
-          continue;
-        }
-        xs.push(pt[0]);
-        ys.push(pt[1]);
-        // outputData[i]가 예측값
-        zs.push(outputData[i]);
-      }
-
-      let trace = {
-        x: xs,
-        y: ys,
-        z: zs,
-        mode: "markers",
-        type: "scatter3d",
-        marker: {
-          size: 5,
-          color: zs,
-          colorscale: "Viridis",
-          opacity: 0.8,
-        },
-      };
-
-      let layout = {
-        title: "3D Plot of Predicted u(x,y)",
-        scene: {
-          xaxis: { title: "x" },
-          yaxis: { title: "y" },
-          zaxis: { title: "u(x,y)" },
-        },
-      };
-
-      Plotly.newPlot("plotDiv", [trace], layout);
-    }
   </script>
 </body>
 </html>
+
 
 
 
