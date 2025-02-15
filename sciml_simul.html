@@ -103,8 +103,10 @@
       }
       
       try {
-        // PythonAnywhere에서 호스팅 중인 Flask 서버 엔드포인트
-        const response = await fetch("https://dongseok28.pythonanywhere.com/predict", {
+        // ngrok Forwarding 주소 + /predict
+        const ngrokURL = "https://f395-125-186-24-176.ngrok-free.app/predict";
+
+        const response = await fetch(ngrokURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(jsonData)
