@@ -110,14 +110,20 @@
       </p>
       <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
-  "known": [[[0.1,0.2,0.9],[0.3,0.4,0.8]]],
-  "unknown": [[[0.5,0.6,0.7],[0.7,0.2,0.1]]],
+  "known": [
+    [[0.1, 0.2, 0.9], [0.3, 0.4, 0.8]]
+  ],
+  "unknown": [
+    [[0.5, 0.6, -1], [0.7, 0.2, -1]]
+  ],
   "epsilons": [0.01]
 }
       </pre>
       <p>
-        Here, <strong>known</strong> and <strong>unknown</strong> represent domain/solution 
-        pairs in \([0,1]\times[0,1]\), and <strong>epsilons</strong> is an array of \(\epsilon\) values.
+        Here, <strong>known</strong> might represent (x, y, solution) for observed points, 
+        and <strong>unknown</strong> might represent (x, y, -1) for unobserved or boundary 
+        points, ensuring the last value is always <code>-1</code>. 
+        Meanwhile, <strong>epsilons</strong> is an array of \(\epsilon\) values.
       </p>
     </div>
     
@@ -160,15 +166,11 @@
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
-          /*
-            여기서 'boundary'를 제거하고 'output'만 표시
-            서버가 'result'만 준다면 적절히 수정
-          */
+          // 여기서는 boundary 값 없이 output만 표시
           if (data.output) {
             document.getElementById("resultDisplay").innerText = 
               "Output: " + JSON.stringify(data.output);
           } else if (data.result) {
-            // 만약 서버가 "result"만 반환한다면
             document.getElementById("resultDisplay").innerText = 
               "Result: " + JSON.stringify(data.result);
           } else {
@@ -183,6 +185,7 @@
   </script>
 </body>
 </html>
+
 
 
 
