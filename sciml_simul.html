@@ -143,8 +143,8 @@
       <p>
         Here, <strong>known</strong> represents domain/solution pairs, and <strong>unknown</strong>
         represents points in the X-Y domain \([0,1] \times [0,1]\) where the last value is
-        always <code>-1</code>. The model will predict \(u(x,y)\) at these points. Meanwhile,
-        <strong>epsilons</strong> is an array of \(\epsilon\) values.
+        always <code>-1</code>. The model will predict \(u(x,y)\) at these points.
+        Meanwhile, <strong>epsilons</strong> is an array of \(\epsilon\) values.
       </p>
     </div>
 
@@ -194,7 +194,6 @@
             // 3D Plot
             create3DPlot(jsonData.unknown, data.output);
           } else if (data.result) {
-            // 만약 서버가 "result"만 반환한다면
             document.getElementById("resultDisplay").innerText =
               "Result: " + JSON.stringify(data.result);
             create3DPlot(jsonData.unknown, data.result);
@@ -210,20 +209,41 @@
 
     // Plotly 3D Plot 생성 함수
     function create3DPlot(unknownData, outputData) {
-      // unknownData[0] 형태: [[x, y, -1], [x2, y2, -1], ...]
-      // outputData: [u1, u2, ...] (예측값)
-      if (!Array.isArray(unknownData)) return;
+      /*
+        unknownData가 3차원 배열(batch=1)인지, 2차원 배열인지 확인
+        예: 
+          3D => [[[x,y,-1],[x2,y2,-1]]] 
+          2D => [[x,y,-1],[x2,y2,-1]]
+      */
+      if (!Array.isArray(unknownData)) {
+        console.log("Unknown data is not an array:", unknownData);
+        return;
+      }
 
-      let points = Array.isArray(unknownData[0]) ? unknownData[0] : unknownData; // batch=1 가정
+      // batch=1 가정 시, 3D -> 2D로 변환
+      if (
+        Array.isArray(unknownData[0]) &&
+        Array.isArray(unknownData[0][0])
+      ) {
+        // unknownData = [[[...], [...]]] => batch=1
+        unknownData = unknownData[0];
+      }
+
+      // 이제 unknownData는 2D: [[x,y,-1], [x2,y2,-1], ...]
       let xs = [];
       let ys = [];
       let zs = [];
 
-      for (let i = 0; i < points.length; i++) {
-        let pt = points[i]; // [x, y, -1]
+      for (let i = 0; i < unknownData.length; i++) {
+        let pt = unknownData[i]; // [x, y, -1]
+        if (!Array.isArray(pt) || pt.length < 2) {
+          console.log("Invalid point format:", pt);
+          continue;
+        }
         xs.push(pt[0]);
         ys.push(pt[1]);
-        zs.push(outputData[i]); // 예측값
+        // outputData[i]가 예측값
+        zs.push(outputData[i]);
       }
 
       let trace = {
@@ -254,6 +274,7 @@
   </script>
 </body>
 </html>
+
 
 
 
