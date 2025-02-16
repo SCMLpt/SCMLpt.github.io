@@ -10,11 +10,8 @@
 
   <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script
-    id="MathJax-script"
-    async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
-  ></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
     body {
@@ -117,11 +114,11 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
-
+    
     <!-- 설명 부분 -->
     <div class="description">
       <p>
-        This is an example of a foundational model on the domain
+        This is an example of a foundational model on the domain 
         \([0,1] \times [0,1]\). The PDE might look like:
       </p>
       <p style="text-align:center;">
@@ -135,25 +132,30 @@
       <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
   "known": [
-    [[0.1, 0.2, 0.9], [0.3, 0.4, 0.8]]
-  ],
-  "unknown": [
-    [[0.5, 0.6, -1], [0.7, 0.2, -1]]
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.3, 0.1, 0.5],
+      [0.4, 0.4, 0.8],
+      [0.1, 0.7, 0.6],
+      [0.6, 0.2, 0.5],
+      [0.7, 0.3, 0.4],
+      [0.9, 0.1, 0.8],
+      [0.8, 0.8, 0.7],
+      [0.5, 0.5, 0.9]
+    ]
   ],
   "epsilons": [0.01]
 }
       </pre>
       <p>
-        Here, <strong>known</strong> might represent (x, y, solution) for observed points, 
-        and <strong>unknown</strong> might represent (x, y, -1) for unobserved or boundary 
-        points, ensuring the last value is always <code>-1</code>. 
-        Meanwhile, <strong>epsilons</strong> is an array of \(\epsilon\) values.
+        Note: The <strong>unknown</strong> points will be automatically generated as a grid of 100 points
+        over \([0,1] \times [0,1]\) with the last value set to <code>-1</code>.
       </p>
     </div>
-
+    
     <!-- 입력 영역 -->
-    <textarea id="userInput" placeholder='{"known": [...], "unknown": [...], "epsilons": [...]}'>
-    </textarea>
+    <textarea id="userInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
     <br />
     <button onclick="submitInput()">Submit</button>
     <div class="result" id="resultDisplay"></div>
@@ -161,7 +163,7 @@
     <!-- 3D Plot 영역 -->
     <div id="plotDiv"></div>
   </div>
-
+  
   <script>
     async function submitInput() {
       const inputText = document.getElementById("userInput").value;
@@ -171,6 +173,19 @@
       } catch (e) {
         alert("Invalid JSON input!");
         return;
+      }
+
+      // 만약 사용자가 unknown을 입력하지 않았다면, [0,1]×[0,1]에서 10×10 격자를 생성
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            // x, y 값을 0,0.1,...,0.9로 생성, 마지막 값은 -1
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        // 배치 차원을 추가 (배치=1)
+        jsonData.unknown = [unknownTokens];
       }
 
       try {
@@ -189,18 +204,16 @@
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
-          // 여기서는 boundary 값 없이 output만 표시
           if (data.output) {
-            document.getElementById("resultDisplay").innerText = 
+            document.getElementById("resultDisplay").innerText =
               "Output: " + JSON.stringify(data.output);
-            // 3D Plot
             create3DPlot(jsonData.unknown, data.output);
           } else if (data.result) {
-            document.getElementById("resultDisplay").innerText = 
+            document.getElementById("resultDisplay").innerText =
               "Result: " + JSON.stringify(data.result);
             create3DPlot(jsonData.unknown, data.result);
           } else {
-            document.getElementById("resultDisplay").innerText = 
+            document.getElementById("resultDisplay").innerText =
               "No 'output' or 'result' field found in response.";
           }
         }
@@ -215,32 +228,29 @@
       console.log("unknownData:", unknownData);
       console.log("outputData:", outputData);
 
-      // unknownData: [[[x,y,-1],[x2,y2,-1]]] (batch=1) or [[x,y,-1],[...]]
+      // unknownData: [[[x,y,-1],[...]]] (배치=1) 또는 [[x,y,-1], [...]]
       if (!Array.isArray(unknownData)) {
         console.log("Unknown data is not an array at all:", unknownData);
         return;
       }
 
-      // 만약 3차원 => 2차원으로 변환
-      // e.g. unknownData = [[[x,y,-1],[x2,y2,-1]]]
+      // 만약 3차원 배열 (배치=1)라면 2차원으로 변환
       if (
         Array.isArray(unknownData[0]) &&
         Array.isArray(unknownData[0][0])
       ) {
-        unknownData = unknownData[0]; 
+        unknownData = unknownData[0];
       }
 
-      // outputData도 3차원으로 올 수 있으니 체크
-      // e.g. outputData = [[[0.0034],[ -0.707185]]]
+      // outputData도 3차원일 경우 2차원으로 변환
       if (
         Array.isArray(outputData) &&
         Array.isArray(outputData[0]) &&
         Array.isArray(outputData[0][0])
       ) {
-        outputData = outputData[0]; 
+        outputData = outputData[0];
       }
 
-      // 만약 outputData[i]가 배열일 경우 [val]만 추출
       let xs = [];
       let ys = [];
       let zs = [];
@@ -254,7 +264,7 @@
         let xVal = pt[0];
         let yVal = pt[1];
 
-        // outputData[i]가 배열이면 [val] 형태일 수 있음
+        // outputData[i]가 배열이면 [val] 형태를 추출
         let zVal = (Array.isArray(outputData[i]) && outputData[i].length > 0)
                    ? outputData[i][0]
                    : outputData[i];
@@ -292,3 +302,4 @@
   </script>
 </body>
 </html>
+
