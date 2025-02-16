@@ -10,8 +10,11 @@
 
   <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+  ></script>
 
   <style>
     body {
@@ -96,7 +99,7 @@
     #plotDiv {
       margin-top: 40px;
       width: 80%;
-      height: 500px;
+      height: 600px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -114,11 +117,11 @@
   </nav>
   <div class="container">
     <h1>SciML Simulation</h1>
-    
+
     <!-- 설명 부분 -->
     <div class="description">
       <p>
-        This is an example of a foundational model on the domain 
+        This is an example of a foundational model on the domain
         \([0,1] \times [0,1]\). The PDE might look like:
       </p>
       <p style="text-align:center;">
@@ -127,7 +130,8 @@
         u^\epsilon = 0 \quad \text{on} \; \partial\Omega. $$
       </p>
       <p>
-        Please provide your JSON input in the form:
+        Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong> only. 
+        We will automatically generate a 10×10 grid for <strong>unknown</strong> points in \([0,1]\times[0,1]\).
       </p>
       <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
@@ -135,25 +139,18 @@
     [
       [0.1, 0.2, 0.9],
       [0.2, 0.3, 0.7],
-      [0.3, 0.1, 0.5],
-      [0.4, 0.4, 0.8],
-      [0.1, 0.7, 0.6],
-      [0.6, 0.2, 0.5],
-      [0.7, 0.3, 0.4],
-      [0.9, 0.1, 0.8],
-      [0.8, 0.8, 0.7],
-      [0.5, 0.5, 0.9]
+      [0.4, 0.4, 0.8]
     ]
   ],
   "epsilons": [0.01]
 }
       </pre>
       <p>
-        Note: The <strong>unknown</strong> points will be automatically generated as a grid of 100 points
-        over \([0,1] \times [0,1]\) with the last value set to <code>-1</code>.
+        The <strong>unknown</strong> grid of 100 points will be automatically appended and sent to the server.
+        The server should return 100 predicted values, which we'll plot as a surface.
       </p>
     </div>
-    
+
     <!-- 입력 영역 -->
     <textarea id="userInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
     <br />
@@ -175,21 +172,21 @@
         return;
       }
 
-      // 만약 사용자가 unknown을 입력하지 않았다면, [0,1]×[0,1]에서 10×10 격자를 생성
+      // 자동으로 unknown(10×10 grid) 생성
       if (!jsonData.hasOwnProperty("unknown")) {
         let unknownTokens = [];
         for (let i = 0; i < 10; i++) {
           for (let j = 0; j < 10; j++) {
-            // x, y 값을 0,0.1,...,0.9로 생성, 마지막 값은 -1
+            // x, y = i*0.1, j*0.1; last value -1
             unknownTokens.push([i * 0.1, j * 0.1, -1]);
           }
         }
-        // 배치 차원을 추가 (배치=1)
+        // batch=1
         jsonData.unknown = [unknownTokens];
       }
 
       try {
-        // ngrok Forwarding 주소 (예시)
+        // ngrok 주소 (예시)
         const ngrokURL = "https://66a6-125-186-24-176.ngrok-free.app/predict";
 
         const response = await fetch(ngrokURL, {
@@ -204,16 +201,14 @@
         if (data.error) {
           document.getElementById("resultDisplay").innerText = "Error: " + data.error;
         } else {
+          // 여기서는 텍스트 output 표시를 생략 or minimal
+          // createSurfacePlot에만 전달
           if (data.output) {
-            document.getElementById("resultDisplay").innerText =
-              "Output: " + JSON.stringify(data.output);
-            create3DPlot(jsonData.unknown, data.output);
+            createSurfacePlot(jsonData.unknown, data.output);
           } else if (data.result) {
-            document.getElementById("resultDisplay").innerText =
-              "Result: " + JSON.stringify(data.result);
-            create3DPlot(jsonData.unknown, data.result);
+            createSurfacePlot(jsonData.unknown, data.result);
           } else {
-            document.getElementById("resultDisplay").innerText =
+            document.getElementById("resultDisplay").innerText = 
               "No 'output' or 'result' field found in response.";
           }
         }
@@ -222,74 +217,63 @@
       }
     }
 
-    // Plotly 3D Plot 생성 함수
-    function create3DPlot(unknownData, outputData) {
-      console.log("=== create3DPlot Debug ===");
+    // Surface Plot
+    function createSurfacePlot(unknownData, outputData) {
+      console.log("=== createSurfacePlot Debug ===");
       console.log("unknownData:", unknownData);
       console.log("outputData:", outputData);
 
-      // unknownData: [[[x,y,-1],[...]]] (배치=1) 또는 [[x,y,-1], [...]]
-      if (!Array.isArray(unknownData)) {
-        console.log("Unknown data is not an array at all:", unknownData);
-        return;
+      // 1) Flatten unknownData if batch=1
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0]; 
       }
 
-      // 만약 3차원 배열 (배치=1)라면 2차원으로 변환
-      if (
-        Array.isArray(unknownData[0]) &&
-        Array.isArray(unknownData[0][0])
-      ) {
-        unknownData = unknownData[0];
-      }
-
-      // outputData도 3차원일 경우 2차원으로 변환
-      if (
-        Array.isArray(outputData) &&
-        Array.isArray(outputData[0]) &&
-        Array.isArray(outputData[0][0])
-      ) {
+      // 2) Flatten outputData if batch=1
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
         outputData = outputData[0];
       }
 
-      let xs = [];
-      let ys = [];
-      let zs = [];
+      // 이제 unknownData는 100개의 점 [[x,y,-1], ...]
+      // outputData는 100개의 예측값 (또는 [val] 형태)
+      // We want to reshape to 10×10
+      let size = 10;
+      // X, Y, Z를 2D 배열로 생성
+      let X = [];
+      let Y = [];
+      let Z = [];
 
-      for (let i = 0; i < unknownData.length; i++) {
-        let pt = unknownData[i]; // [x, y, -1]
-        if (!Array.isArray(pt) || pt.length < 2) {
-          console.log("Invalid point at index", i, ":", pt);
-          continue;
-        }
+      for (let i = 0; i < size; i++) {
+        X.push([]);
+        Y.push([]);
+        Z.push([]);
+      }
+
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let i = Math.floor(idx / size); // row
+        let j = idx % size;            // col
+        let pt = unknownData[idx];
         let xVal = pt[0];
         let yVal = pt[1];
 
-        // outputData[i]가 배열이면 [val] 형태를 추출
-        let zVal = (Array.isArray(outputData[i]) && outputData[i].length > 0)
-                   ? outputData[i][0]
-                   : outputData[i];
+        let zVal = Array.isArray(outputData[idx]) 
+                    ? outputData[idx][0]
+                    : outputData[idx];
 
-        xs.push(xVal);
-        ys.push(yVal);
-        zs.push(zVal);
+        X[i][j] = xVal;
+        Y[i][j] = yVal;
+        Z[i][j] = zVal;
       }
 
       let trace = {
-        x: xs,
-        y: ys,
-        z: zs,
-        mode: "markers",
-        type: "scatter3d",
-        marker: {
-          size: 5,
-          color: zs,
-          colorscale: "Viridis",
-          opacity: 0.8
-        }
+        type: "surface",
+        x: X,
+        y: Y,
+        z: Z,
+        colorscale: "Viridis"
       };
 
       let layout = {
-        title: "3D Plot of Predicted u(x,y)",
+        title: "Surface Plot of Predicted u(x,y)",
         scene: {
           xaxis: { title: "x" },
           yaxis: { title: "y" },
@@ -302,4 +286,5 @@
   </script>
 </body>
 </html>
+
 
