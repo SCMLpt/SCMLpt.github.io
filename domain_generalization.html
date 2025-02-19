@@ -2,43 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>Domain Creator</title>
-  
-  <!-- Plotly.js for 2D plotting -->
+  <title>Domain Creator with Invisible Grid</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0;
-      padding: 0;
       text-align: center;
+      margin: 0; padding: 0;
     }
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
     }
-    h1 {
-      margin: 20px 0;
-    }
-    .description {
-      font-size: 1.1em;
-      margin-bottom: 20px;
-      color: lightblue;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 5px;
-      text-align: left;
-      display: inline-block;
-    }
     #clickPlot {
       width: 600px;
       height: 400px;
       margin: auto;
       background-color: #222;
+    }
+    .description {
+      text-align: left;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
     }
     button {
       background: red;
@@ -50,7 +40,7 @@
       border-radius: 5px;
       margin-top: 20px;
     }
-    #clickFeedback {
+    #feedback {
       margin-top: 15px;
       font-size: 1.1em;
       color: cyan;
@@ -64,132 +54,117 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Domain Creator</h1>
-    
-    <div class="description">
-      <p>
-        Click exactly 4 points on the 2D plot to define a domain. The domain is interpreted as the rectangle defined by 
-        \(\( x_{\min}, x_{\max}, y_{\min}, y_{\max} \)\). Once 4 points are selected, a red translucent rectangle will be drawn.
-      </p>
-      <p>
-        Below the plot, you'll see text feedback for each click, making it clear that your clicks have registered.
-      </p>
-    </div>
-    
-    <!-- 2D click plot for picking domain corners -->
-    <div id="clickPlot"></div>
-    
-    <!-- Text feedback for clicks -->
-    <div id="clickFeedback">No points clicked yet.</div>
-    
-    <!-- Button to clear domain and reset -->
-    <button onclick="clearDomain()">Clear Domain</button>
+<div class="container">
+  <h1>Domain Creator with Invisible Grid</h1>
+  <div class="description">
+    <p>
+      Click anywhere in the plot. This version uses an invisible \(100\times100\) grid of points, 
+      so Plotly recognizes your click as a “nearest point.” Once you have clicked 4 times, 
+      we’ll draw the rectangle between \((x_{\min}, y_{\min})\) and \((x_{\max}, y_{\max})\).
+    </p>
   </div>
-  
-  <script>
-    // Array to store the 4 corner points
-    let domainPoints = [];
-    
-    // Plot layout with empty shapes array
-    let layout2D = {
-      title: "Click 4 Points for Domain Corners",
-      xaxis: { range: [0, 1], title: "x" },
-      yaxis: { range: [0, 1], title: "y" },
-      shapes: []
-    };
-    
-    // Single scatter trace with a larger marker size for visibility
-    let trace = {
-      x: [], 
-      y: [], 
-      mode: 'markers',
-      marker: {
-        color: 'cyan',
-        size: 12  // bigger marker size so clicks are more obvious
-      }
-    };
-    
-    Plotly.newPlot("clickPlot", [trace], layout2D);
-    
-    // Listen for click events on the plot
-    document.getElementById("clickPlot").on("plotly_click", (data) => {
-      if (domainPoints.length >= 4) {
-        alert("You have already selected 4 points. Click 'Clear Domain' to start over.");
-        return;
-      }
-      
-      let xVal = data.points[0].x;
-      let yVal = data.points[0].y;
-      domainPoints.push([xVal, yVal]);
-      
-      // Add this point to the scatter trace
-      let update = {
-        x: [[xVal]],
-        y: [[yVal]]
+  <div id="clickPlot"></div>
+  <div id="feedback">No points clicked yet.</div>
+  <button onclick="clearDomain()">Clear Domain</button>
+</div>
+
+<script>
+  let domainPoints = [];
+
+  // 1) Generate a dense grid of invisible points
+  let resolution = 100;
+  let xVals = [];
+  let yVals = [];
+  for (let i = 0; i <= resolution; i++) {
+    for (let j = 0; j <= resolution; j++) {
+      xVals.push(i / resolution);
+      yVals.push(j / resolution);
+    }
+  }
+
+  // 2) Create a single trace with invisible markers
+  let invisibleGridTrace = {
+    x: xVals,
+    y: yVals,
+    mode: 'markers',
+    marker: {
+      color: 'rgba(0,0,0,0)', // fully transparent
+      size: 1
+    },
+    hoverinfo: 'none' // no hover labels
+  };
+
+  // 3) Plot layout
+  let layout2D = {
+    title: "Click anywhere to select domain corners",
+    xaxis: { range: [0, 1], title: "x" },
+    yaxis: { range: [0, 1], title: "y" },
+    shapes: []
+  };
+
+  Plotly.newPlot("clickPlot", [invisibleGridTrace], layout2D);
+
+  // 4) Listen for plotly_click events on the invisible grid
+  let clickPlotDiv = document.getElementById("clickPlot");
+  clickPlotDiv.on("plotly_click", (data) => {
+    // data.points[0].x, data.points[0].y => nearest grid point
+    if (domainPoints.length >= 4) {
+      alert("Already have 4 points. Click 'Clear Domain' to reset.");
+      return;
+    }
+    let xVal = data.points[0].x;
+    let yVal = data.points[0].y;
+    domainPoints.push([xVal, yVal]);
+
+    updateFeedback();
+
+    // Once we have 4 points, draw the rectangle
+    if (domainPoints.length === 4) {
+      let xs = domainPoints.map(p => p[0]);
+      let ys = domainPoints.map(p => p[1]);
+      let xmin = Math.min(...xs);
+      let xmax = Math.max(...xs);
+      let ymin = Math.min(...ys);
+      let ymax = Math.max(...ys);
+
+      let rectShape = {
+        type: 'rect',
+        xref: 'x',
+        yref: 'y',
+        x0: xmin,
+        x1: xmax,
+        y0: ymin,
+        y1: ymax,
+        fillcolor: 'rgba(255,0,0,0.2)',
+        line: { color: 'red' }
       };
-      Plotly.extendTraces("clickPlot", update, [0]);
-      
-      // Update textual feedback
-      updateClickFeedback();
-      
-      // Once 4 points are selected, draw the domain rectangle
-      if (domainPoints.length === 4) {
-        let xs = domainPoints.map(p => p[0]);
-        let ys = domainPoints.map(p => p[1]);
-        let xmin = Math.min(...xs);
-        let xmax = Math.max(...xs);
-        let ymin = Math.min(...ys);
-        let ymax = Math.max(...ys);
-        
-        let rectShape = {
-          type: 'rect',
-          xref: 'x',
-          yref: 'y',
-          x0: xmin,
-          x1: xmax,
-          y0: ymin,
-          y1: ymax,
-          fillcolor: 'rgba(255,0,0,0.2)',
-          line: { color: 'red' }
-        };
-        
-        layout2D.shapes.push(rectShape);
-        Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
-      }
+      layout2D.shapes.push(rectShape);
+      Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
+    }
+  });
+
+  function updateFeedback() {
+    if (domainPoints.length === 0) {
+      document.getElementById("feedback").innerText = "No points clicked yet.";
+      return;
+    }
+    let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+    domainPoints.forEach((pt, idx) => {
+      msg += `Point ${idx + 1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
     });
-    
-    // Display the list of clicked points in the #clickFeedback div
-    function updateClickFeedback() {
-      if (domainPoints.length === 0) {
-        document.getElementById("clickFeedback").innerText = "No points clicked yet.";
-        return;
-      }
-      
-      let feedback = "You have clicked " + domainPoints.length + " point(s):<br>";
-      domainPoints.forEach((pt, idx) => {
-        feedback += "Point " + (idx + 1) + ": (" + pt[0].toFixed(3) + ", " + pt[1].toFixed(3) + ")<br>";
-      });
-      document.getElementById("clickFeedback").innerHTML = feedback;
-    }
-    
-    // Function to clear the domain and reset the plot
-    function clearDomain() {
-      domainPoints = [];
-      layout2D.shapes = [];
-      
-      // Reset the scatter trace data
-      let resetData = { x: [[]], y: [[]] };
-      Plotly.restyle("clickPlot", resetData, [0]);
-      
-      // Update layout to remove shapes
-      Plotly.relayout("clickPlot", { shapes: [] });
-      
-      // Reset text feedback
-      updateClickFeedback();
-    }
-  </script>
+    document.getElementById("feedback").innerHTML = msg;
+  }
+
+  // 5) Clear Domain
+  function clearDomain() {
+    domainPoints = [];
+    layout2D.shapes = [];
+    Plotly.relayout("clickPlot", { shapes: [] });
+    updateFeedback();
+  }
+</script>
 </body>
 </html>
+
 
 
