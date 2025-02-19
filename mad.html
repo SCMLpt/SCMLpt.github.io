@@ -279,35 +279,36 @@
     }
 
     /************************************************************
-     * 3) createTimeLapse3D (mesh3d 버전)
+     * 3) createTimeLapse3D (scatter3d 버전)
      ************************************************************/
     function createTimeLapse3D(plot_points) {
-      // 시간(t*) 키를 정렬
+      // 시간(t*) 키를 정렬 (문자열 -> 숫자)
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
         console.log("No times in plot_points!");
         return;
       }
 
-      // 첫 번째 시간
+      // 첫 번째 시간 데이터
       let initialTime = times[0];
       let x0 = plot_points[initialTime].map(pt => pt[0]);
       let y0 = plot_points[initialTime].map(pt => pt[1]);
       let z0 = plot_points[initialTime].map(pt => pt[2]);
 
-      // 초기 mesh3d 트레이스 (alphahull=2 예시)
+      // scatter3d로 표시 (점)
       let initialData = [{
-        type: 'mesh3d',
+        type: 'scatter3d',
         x: x0,
         y: y0,
         z: z0,
-        colorscale: 'Viridis',
-        intensity: z0,       
-        alphahull: 2,        
-        opacity: 0.8
+        mode: 'markers',
+        marker: {
+          color: 'cyan',
+          size: 4
+        }
       }];
 
-      // frames 구성
+      // 각 시간별 frames
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
@@ -318,20 +319,21 @@
         frames.push({
           name: t,
           data: [{
-            type: 'mesh3d',
+            type: 'scatter3d',
             x: xArr,
             y: yArr,
             z: zArr,
-            colorscale: 'Viridis',
-            intensity: zArr,
-            alphahull: 2, // 동일하게 2
-            opacity: 0.8
+            mode: 'markers',
+            marker: {
+              color: 'cyan',
+              size: 4
+            }
           }]
         });
       }
 
       let layout = {
-        title: "Time-lapse 3D Plot of Predictions",
+        title: "Time-lapse 3D Plot (Scatter3D)",
         scene: {
           xaxis: { title: "X" },
           yaxis: { title: "Y" },
@@ -390,7 +392,7 @@
       }
       let payload = { points: domainPoints };
 
-      // 실제 서버 URL로 교체
+      // Replace with your actual /predict_points endpoint
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -404,7 +406,7 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
-          // 예: relative_errors가 있으면 표시
+          // relative_errors가 있으면 표시
           if (data.relative_errors) {
             let errDiv = document.createElement("div");
             errDiv.style.textAlign = "center";
@@ -413,11 +415,11 @@
             errDiv.innerText = "Relative Error: " + data.relative_errors[0].toFixed(4);
             displayDiv.appendChild(errDiv);
           }
-          // plot_points가 있으면 3D 애니메이션 생성
+          // plot_points가 있으면 scatter3d 애니메이션 생성
           if (data.plot_points) {
             createTimeLapse3D(data.plot_points);
           }
-          // pred만 있다면 텍스트로 표시
+          // pred가 있으면 텍스트로 표시
           if (data.pred) {
             let predDiv = document.createElement("div");
             predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
