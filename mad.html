@@ -203,7 +203,7 @@
       }
       try {
         // 실제 서버 URL로 교체
-        const ngrokURL = "https://0386-125-186-24-176.ngrok-free.app/predict";
+        const ngrokURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(ngrokURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -452,7 +452,7 @@
       }
       let payload = { points: domainPoints };
       // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
-      fetch("https://0386-125-186-24-176.ngrok-free.app/predict_points", {
+      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
