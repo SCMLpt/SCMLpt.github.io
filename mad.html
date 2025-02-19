@@ -205,7 +205,7 @@
       }
       try {
         // Replace with your actual ngrok URL for /predict endpoint
-        const ngrokURL = "https://0386-125-186-24-176.ngrok-free.app/predict";
+        const ngrokURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(ngrokURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -347,7 +347,7 @@
       }
       let payload = { points: domainPoints };
       // Replace with your actual ngrok URL for /predict_points endpoint
-      fetch("https://0386-125-186-24-176.ngrok-free.app/predict_points", {
+      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
