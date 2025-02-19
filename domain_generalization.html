@@ -161,7 +161,8 @@
         return;
       }
       let payload = { points: domainPoints };
-      fetch("https://your-server-address/predict_points", {
+      // 여기에 ngrok 포워딩 주소를 적용합니다.
+      fetch("https://0386-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
