@@ -7,14 +7,6 @@
   <!-- Plotly.js for 2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   
-  <!-- MathJax (optional for LaTeX rendering) -->
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script 
-    id="MathJax-script"
-    async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-  </script>
-  
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -58,6 +50,17 @@
       border-radius: 5px;
       margin-top: 20px;
     }
+    #clickFeedback {
+      margin-top: 15px;
+      font-size: 1.1em;
+      color: cyan;
+      text-align: left;
+      width: 600px;
+      margin: 15px auto;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -69,10 +72,18 @@
         Click exactly 4 points on the 2D plot to define a domain. The domain is interpreted as the rectangle defined by 
         \(\( x_{\min}, x_{\max}, y_{\min}, y_{\max} \)\). Once 4 points are selected, a red translucent rectangle will be drawn.
       </p>
+      <p>
+        Below the plot, you'll see text feedback for each click, making it clear that your clicks have registered.
+      </p>
     </div>
     
     <!-- 2D click plot for picking domain corners -->
     <div id="clickPlot"></div>
+    
+    <!-- Text feedback for clicks -->
+    <div id="clickFeedback">No points clicked yet.</div>
+    
+    <!-- Button to clear domain and reset -->
     <button onclick="clearDomain()">Clear Domain</button>
   </div>
   
@@ -80,7 +91,7 @@
     // Array to store the 4 corner points
     let domainPoints = [];
     
-    // Initial 2D scatter plot layout with empty shapes array
+    // Plot layout with empty shapes array
     let layout2D = {
       title: "Click 4 Points for Domain Corners",
       xaxis: { range: [0, 1], title: "x" },
@@ -88,12 +99,18 @@
       shapes: []
     };
     
-    Plotly.newPlot("clickPlot", [{
+    // Single scatter trace with a larger marker size for visibility
+    let trace = {
       x: [], 
       y: [], 
       mode: 'markers',
-      marker: { color: 'cyan' }
-    }], layout2D);
+      marker: {
+        color: 'cyan',
+        size: 12  // bigger marker size so clicks are more obvious
+      }
+    };
+    
+    Plotly.newPlot("clickPlot", [trace], layout2D);
     
     // Listen for click events on the plot
     document.getElementById("clickPlot").on("plotly_click", (data) => {
@@ -105,14 +122,16 @@
       let xVal = data.points[0].x;
       let yVal = data.points[0].y;
       domainPoints.push([xVal, yVal]);
-      console.log("Clicked:", xVal, yVal);
       
-      // Update the scatter trace with the new point
+      // Add this point to the scatter trace
       let update = {
         x: [[xVal]],
         y: [[yVal]]
       };
       Plotly.extendTraces("clickPlot", update, [0]);
+      
+      // Update textual feedback
+      updateClickFeedback();
       
       // Once 4 points are selected, draw the domain rectangle
       if (domainPoints.length === 4) {
@@ -135,24 +154,42 @@
           line: { color: 'red' }
         };
         
-        // Update the layout to include the rectangle shape
         layout2D.shapes.push(rectShape);
         Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
       }
     });
     
+    // Display the list of clicked points in the #clickFeedback div
+    function updateClickFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("clickFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      
+      let feedback = "You have clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, idx) => {
+        feedback += "Point " + (idx + 1) + ": (" + pt[0].toFixed(3) + ", " + pt[1].toFixed(3) + ")<br>";
+      });
+      document.getElementById("clickFeedback").innerHTML = feedback;
+    }
+    
     // Function to clear the domain and reset the plot
     function clearDomain() {
       domainPoints = [];
       layout2D.shapes = [];
-      Plotly.newPlot("clickPlot", [{
-        x: [],
-        y: [],
-        mode: 'markers',
-        marker: { color: 'cyan' }
-      }], layout2D);
+      
+      // Reset the scatter trace data
+      let resetData = { x: [[]], y: [[]] };
+      Plotly.restyle("clickPlot", resetData, [0]);
+      
+      // Update layout to remove shapes
+      Plotly.relayout("clickPlot", { shapes: [] });
+      
+      // Reset text feedback
+      updateClickFeedback();
     }
   </script>
 </body>
 </html>
+
 
