@@ -9,8 +9,8 @@
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
     .container {
@@ -36,16 +36,22 @@
       margin: auto;
       background-color: #222;
     }
-    #feedback {
+    #feedback, #predDisplay {
       margin-top: 15px;
       font-size: 1.1em;
-      color: cyan;
-      text-align: left;
       width: 600px;
       margin: 15px auto;
       background-color: #222;
       padding: 10px;
       border-radius: 5px;
+    }
+    #feedback {
+      color: cyan;
+      text-align: left;
+    }
+    #predDisplay {
+      color: yellow;
+      text-align: left;
     }
     button {
       background: red;
@@ -60,113 +66,119 @@
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Domain Creator (Exactly 4 Points)</h1>
-  <div class="description">
-    <p>
-      Click exactly 4 points in the plot. The polygon is drawn in the order you click, 
-      with a solid fill.
-    </p>
-    <p>
-      After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.
-    </p>
+  <div class="container">
+    <h1>Domain Creator (Exactly 4 Points)</h1>
+    <div class="description">
+      <p>Click exactly 4 points in the plot. The polygon is drawn in the order you click, with a solid fill.</p>
+      <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+    </div>
+    
+    <div id="plot"></div>
+    <div id="feedback">No points clicked yet.</div>
+    <button onclick="clearDomain()">Clear Domain</button>
+    <button onclick="submitDomain()">Submit Domain</button>
+    <div id="predDisplay"></div>
   </div>
-  
-  <div id="plot"></div>
-  <div id="feedback">No points clicked yet.</div>
-  <button onclick="clearDomain()">Clear Domain</button>
-</div>
 
-<script>
-  // We'll store exactly 4 clicked points in order
-  let domainPoints = [];
-  let gd; // The Plotly graph div
+  <script>
+    let domainPoints = [];
+    let gd;
 
-  // 1) A scatter trace with fill: "toself" to create a filled polygon
-  let polygonTrace = {
-    x: [],
-    y: [],
-    mode: 'lines+markers',
-    fill: 'toself',
-    fillcolor: 'rgba(255,0,0,0.2)',
-    line: { color: 'red' },
-    marker: { color: 'cyan', size: 8 },
-    name: "Polygon"
-  };
+    // 다각형을 그리기 위한 trace
+    let polygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(255,0,0,0.2)',
+      line: { color: 'red' },
+      marker: { color: 'cyan', size: 8 },
+      name: "Polygon"
+    };
 
-  // 2) Layout with x,y in [0,1] by default
-  let layout = {
-    title: "Click exactly 4 points",
-    xaxis: { range: [0, 1], title: "x" },
-    yaxis: { range: [0, 1], title: "y" }
-  };
+    // 기본 레이아웃 (x,y 범위: [0,1])
+    let layout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1], title: "x" },
+      yaxis: { range: [0, 1], title: "y" }
+    };
 
-  // 3) Initialize the plot
-  Plotly.newPlot("plot", [polygonTrace], layout).then(function(plotDiv) {
-    gd = plotDiv;
-    // Listen for raw mouse events
-    gd.addEventListener("mousedown", onMouseDown);
-  });
-
-  function onMouseDown(evt) {
-    // If we already have 4 points, do not allow more
-    if (domainPoints.length >= 4) {
-      alert("You already have 4 points. Click 'Clear Domain' to reset.");
-      return;
-    }
-
-    // Convert pixel coords to data coords
-    let rect = gd.getBoundingClientRect();
-    let xPixel = evt.clientX - rect.left;
-    let yPixel = evt.clientY - rect.top;
-
-    let xAxis = gd._fullLayout.xaxis;
-    let yAxis = gd._fullLayout.yaxis;
-
-    let xMinPix = xAxis._offset;
-    let xMaxPix = xAxis._offset + xAxis._length;
-    let yMinPix = yAxis._offset + yAxis._length;
-    let yMaxPix = yAxis._offset;
-
-    let xDataMin = xAxis.range[0];
-    let xDataMax = xAxis.range[1];
-    let yDataMin = yAxis.range[0];
-    let yDataMax = yAxis.range[1];
-
-    let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
-    let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
-    // Add new point
-    domainPoints.push([xData, yData]);
-
-    // Update the polygon trace
-    let xs = domainPoints.map(pt => pt[0]);
-    let ys = domainPoints.map(pt => pt[1]);
-    Plotly.update("plot", { x: [xs], y: [ys] }, {}, [0]);
-
-    updateFeedback();
-  }
-
-  function updateFeedback() {
-    if (domainPoints.length === 0) {
-      document.getElementById("feedback").innerText = "No points clicked yet.";
-      return;
-    }
-    let msg = "Clicked " + domainPoints.length + " point(s):<br>";
-    domainPoints.forEach((pt, i) => {
-      msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+    Plotly.newPlot("plot", [polygonTrace], layout).then(function(plotDiv) {
+      gd = plotDiv;
+      gd.addEventListener("mousedown", onMouseDown);
     });
-    document.getElementById("feedback").innerHTML = msg;
-  }
 
-  // Reset everything
-  function clearDomain() {
-    domainPoints = [];
-    // Clear the scatter trace
-    Plotly.update("plot", { x: [[]], y: [[]] }, {}, [0]);
-    updateFeedback();
-  }
-</script>
+    function onMouseDown(evt) {
+      if (domainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      // 픽셀 좌표를 데이터 좌표로 변환
+      let rect = gd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = gd._fullLayout.xaxis;
+      let yAxis = gd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+      domainPoints.push([xData, yData]);
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
+      Plotly.update("plot", { x: [xs], y: [ys] }, {}, [0]);
+      updateFeedback();
+    }
+
+    function updateFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("feedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, i) => {
+        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      });
+      document.getElementById("feedback").innerHTML = msg;
+    }
+
+    function clearDomain() {
+      domainPoints = [];
+      Plotly.update("plot", { x: [[]], y: [[]] }, {}, [0]);
+      updateFeedback();
+      document.getElementById("predDisplay").innerText = "";
+    }
+
+    function submitDomain() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+      fetch("https://your-server-address/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.error) {
+          document.getElementById("predDisplay").innerText = "Error: " + data.error;
+        } else {
+          document.getElementById("predDisplay").innerText = "Prediction: " + JSON.stringify(data.pred);
+        }
+      })
+      .catch(err => {
+        document.getElementById("predDisplay").innerText = "Error: " + err;
+      });
+    }
+  </script>
 </body>
 </html>
 
