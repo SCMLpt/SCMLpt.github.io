@@ -9,7 +9,7 @@
 
   <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
+  <script id="MathJax-script" async 
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
@@ -17,58 +17,115 @@
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
     nav {
-      display: flex; justify-content: center;
-      background: black; padding: 10px 0; font-size: 1.2em;
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 10px 0;
+      font-size: 1.2em;
     }
     nav a {
-      color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold;
+      color: lightblue;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
     }
     .container {
-      width: 80%; margin: auto; padding: 20px; text-align: left;
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+      text-align: left;
     }
     h1 {
-      font-size: 2em; margin-bottom: 20px; text-align: center;
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-align: center;
     }
     .description {
-      font-size: 1.1em; margin-bottom: 20px; color: lightblue; line-height: 1.5;
-      background-color: #333; padding: 10px; border-radius: 5px;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      color: lightblue;
+      line-height: 1.5;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
     }
     textarea {
-      width: 80%; height: 150px; font-size: 1.2em; padding: 10px;
-      margin-bottom: 20px; background-color: #111; color: lightblue;
-      border: 1px solid #333; border-radius: 5px;
+      width: 80%;
+      height: 150px;
+      font-size: 1.2em;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: lightblue;
+      border: 1px solid #333;
+      border-radius: 5px;
     }
     button {
-      background: red; color: white; border: none; padding: 10px 20px;
-      font-size: 1.2em; cursor: pointer; border-radius: 5px; margin-top: 20px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
     }
     .result {
-      margin-top: 20px; font-size: 1.5em; background-color: #222;
-      padding: 20px; border-radius: 5px; word-wrap: break-word;
+      margin-top: 20px;
+      font-size: 1.5em;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 5px;
+      word-wrap: break-word;
     }
+    /* SciML Simulation 3D Plot (기존) */
     #scimlPlotDiv {
-      margin-top: 40px; width: 80%; height: 600px; margin-left: auto; margin-right: auto;
+      margin-top: 40px;
+      width: 80%;
+      height: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
+    /* Domain Creator styling */
     #domainPlot {
-      width: 600px; height: 400px; margin: auto; background-color: #222;
+      width: 600px;
+      height: 400px;
+      margin: auto;
+      background-color: #222;
     }
     #domainFeedback, #domainPredDisplay {
-      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
-      background-color: #222; padding: 10px; border-radius: 5px; color: cyan; text-align: left;
+      margin-top: 15px;
+      font-size: 1.1em;
+      width: 600px;
+      margin: 15px auto;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      color: cyan;
+      text-align: left;
     }
     #domainPredDisplay img {
-      display: block; margin: 10px auto; max-width: 100%; border: 1px solid #555;
+      display: block;
+      margin: 10px auto;
+      max-width: 100%;
+      border: 1px solid #555;
     }
     #domainPredDisplay .plot-title {
-      font-weight: bold; color: yellow; text-align: center;
+      font-weight: bold;
+      color: yellow;
+      text-align: center;
     }
-    /* 새로 추가할 3D Plot 영역 */
+    /* 새로 추가: 시간 애니메이션 3D Plot 영역 */
     #domain3DPlot {
-      width: 800px; height: 600px; margin: 30px auto; /* 원하는 크기로 */
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #555;
     }
   </style>
 </head>
@@ -82,16 +139,41 @@
     <a href="open_research_chat.html">Open Research Chat</a>
   </nav>
 
-  <!-- 1) SciML Simulation Container -->
+  <!-- 1) SciML Simulation Container (생략 가능) -->
   <div class="container" id="scimlContainer">
-    <!-- ... (기존 PDE 시뮬레이션 부분 생략) ... -->
+    <h1>SciML Simulation</h1>
+    <div class="description">
+      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+      <p>The PDE might look like:</p>
+      <p style="text-align:center;">
+        $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega. $$
+      </p>
+      <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+      <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
+{
+  "known": [
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.4, 0.4, 0.8]
+    ]
+  ],
+  "epsilons": [0.01]
+}
+      </pre>
+    </div>
+    <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+    <br />
+    <button onclick="scimlSubmitInput()">Submit</button>
+    <div class="result" id="scimlResultDisplay"></div>
+    <div id="scimlPlotDiv"></div>
   </div>
 
   <!-- 2) Domain Creator Container -->
   <div class="container" id="domainContainer">
     <h1>Domain Creator (Exactly 4 Points)</h1>
     <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon is drawn in the order you click, with a solid fill.</p>
+      <p>Click exactly 4 points in the plot. The polygon will be drawn in the order you click with a solid fill.</p>
       <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
     </div>
 
@@ -100,16 +182,20 @@
     <button onclick="domainClear()">Clear Domain</button>
     <button onclick="domainSubmit()">Submit Domain</button>
     <div id="domainPredDisplay"></div>
-
-    <!-- 새로 추가: 3D 애니메이션을 표시할 DIV -->
+    <!-- 3D 애니메이션 3D Plot 영역 -->
     <div id="domain3DPlot"></div>
   </div>
 
   <script>
     /************************************************************
-     * 1) (기존) SciML Simulation JS
+     * 1) SciML Simulation JS (생략 가능한 부분)
      ************************************************************/
-    /* ... 생략 ... (scimlSubmitInput, createSurfacePlot 등) ... */
+    async function scimlSubmitInput() {
+      // 기존 함수 내용 (생략)
+    }
+    function createSurfacePlot(unknownData, outputData) {
+      // 기존 함수 내용 (생략)
+    }
 
     /************************************************************
      * 2) Domain Creator JS
@@ -117,7 +203,8 @@
     let domainPoints = [];
     let domainGd;
     let polygonTrace = {
-      x: [], y: [],
+      x: [],
+      y: [],
       mode: 'lines+markers',
       fill: 'toself',
       fillcolor: 'rgba(255,0,0,0.2)',
@@ -134,7 +221,6 @@
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
-
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -177,40 +263,37 @@
       Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
       domainUpdateFeedback();
       document.getElementById("domainPredDisplay").innerText = "";
-      // 3D Plot도 지우려면:
-      let domain3DPlotDiv = document.getElementById("domain3DPlot");
-      domain3DPlotDiv.innerHTML = "";
+      document.getElementById("domain3DPlot").innerHTML = "";
     }
 
-    /* 
-     * === 3) createTimeLapse3D 함수: 
-     * 서버에서 plot_points = { t_star: [ [x,y,val], ... ], ... } 형태를
-     * 받았다고 가정하고, Plotly 애니메이션(슬라이더)로 그리는 예시 
-     */
+    /************************************************************
+     * 3) createTimeLapse3D 함수: Plotly 애니메이션 생성
+     ************************************************************/
     function createTimeLapse3D(plot_points) {
-      // 1) t* 리스트 (문자열 키이므로 float 정렬)
-      let times = Object.keys(plot_points).sort((a,b) => parseFloat(a) - parseFloat(b));
-      if(times.length === 0) {
+      // 시간(t*) 키들을 정렬 (문자열 -> 숫자)
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
         console.log("No times in plot_points!");
         return;
       }
 
-      // 2) 첫 번째 t*에 해당하는 초기 trace
+      // 초기 데이터: 첫번째 시간에 해당하는 점들
       let initialTime = times[0];
       let x0 = plot_points[initialTime].map(pt => pt[0]);
       let y0 = plot_points[initialTime].map(pt => pt[1]);
       let z0 = plot_points[initialTime].map(pt => pt[2]);
 
       let initialData = [{
-        x: x0, y: y0, z: z0,
+        x: x0,
+        y: y0,
+        z: z0,
         mode: 'markers',
         type: 'scatter3d',
-        marker: { color: 'cyan', size: 3 },
-        name: `t*=${initialTime}`
+        marker: { color: 'cyan', size: 4 },
+        name: `t* = ${initialTime}`
       }];
 
-      // 3) frames 구성
-      // frames: [{ name: '0.00', data: [{x:[], y:[], z:[]}] }, ... ]
+      // 프레임 구성: 각 시간별 데이터
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
@@ -224,20 +307,20 @@
         });
       }
 
-      // 4) 레이아웃에 updatemenus(Play 버튼) + sliders
+      // 레이아웃 설정: 슬라이더와 Play 버튼 포함
       let layout = {
         title: "Time-lapse 3D Plot of Predictions",
         scene: {
-          xaxis: { title: 'X' },
-          yaxis: { title: 'Y' },
-          zaxis: { title: 'Value' }
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          zaxis: { title: "Predicted Value" }
         },
         margin: { l: 0, r: 0, b: 0, t: 50 },
         updatemenus: [{
           type: 'buttons',
           showactive: false,
           x: 0, y: 0, xanchor: 'left', yanchor: 'top',
-          pad: {t: 50, r: 10},
+          pad: { t: 50, r: 10 },
           buttons: [{
             label: 'Play',
             method: 'animate',
@@ -262,22 +345,22 @@
               method: 'animate',
               args: [[t], {
                 mode: 'immediate',
-                frame: { redraw: true, duration: 300 }
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
               }]
             };
           })
         }]
       };
 
-      // 5) Plotly.newPlot -> addFrames
       Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
         Plotly.addFrames('domain3DPlot', frames);
       });
     }
 
-    /*
-     * 4) domainSubmit: 서버에 /predict_points 요청 -> 응답에 plot_points가 있으면 3D 애니메이션 표시
-     */
+    /************************************************************
+     * 4) domainSubmit 함수: 서버 요청 후 결과 처리
+     ************************************************************/
     function domainSubmit() {
       if (domainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
@@ -285,6 +368,7 @@
       }
       let payload = { points: domainPoints };
 
+      // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -293,20 +377,11 @@
       .then(response => response.json())
       .then(data => {
         console.log("Response from /predict_points:", data);
-        if(data.error) {
-          document.getElementById("domainPredDisplay").innerText = "Error: " + data.error;
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
         } else {
-          let displayDiv = document.getElementById("domainPredDisplay");
-          displayDiv.innerHTML = "";
-
-          // (1) 만약 이전처럼 pred만 있으면
-          if (data.pred) {
-            let predDiv = document.createElement("div");
-            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
-            displayDiv.appendChild(predDiv);
-          }
-
-          // (2) 상대 에러가 있다면
           if (data.relative_errors) {
             let errDiv = document.createElement("div");
             errDiv.style.textAlign = "center";
@@ -315,10 +390,15 @@
             errDiv.innerText = "Relative Error: " + data.relative_errors[0].toFixed(4);
             displayDiv.appendChild(errDiv);
           }
-
-          // (3) 만약 서버가 time-lapse용 plot_points를 준다면 -> 3D 애니메이션
+          // 만약 서버가 시간별 plot_points를 반환하면, 3D 애니메이션 생성
           if (data.plot_points) {
             createTimeLapse3D(data.plot_points);
+          }
+          // 이전 방식의 pred가 있다면 텍스트로도 표시
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
           }
         }
       })
@@ -330,5 +410,6 @@
   </script>
 </body>
 </html>
+
 
 
