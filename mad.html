@@ -83,7 +83,7 @@
       border-radius: 5px;
       word-wrap: break-word;
     }
-    /* SciML Simulation 3D Plot (기존) */
+    /* SciML Simulation 3D Plot (task1) */
     #scimlPlotDiv {
       margin-top: 40px;
       width: 80%;
@@ -91,7 +91,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    /* Domain Creator styling */
+    /* Domain Creator styling (task2) */
     #domainPlot {
       width: 600px;
       height: 400px;
@@ -109,18 +109,10 @@
       color: cyan;
       text-align: left;
     }
-    #domainPredDisplay img {
-      display: block;
-      margin: 10px auto;
-      max-width: 100%;
-      border: 1px solid #555;
-    }
-    #domainPredDisplay .plot-title {
-      font-weight: bold;
+    #domainPredDisplay {
       color: yellow;
-      text-align: center;
     }
-    /* 새로 추가: 시간 애니메이션 3D Plot 영역 */
+    /* 새로 추가: 시간 애니메이션 3D Plot 영역 (scatter3d 디버깅용) */
     #domain3DPlot {
       width: 800px;
       height: 600px;
@@ -139,7 +131,7 @@
     <a href="open_research_chat.html">Open Research Chat</a>
   </nav>
 
-  <!-- 1) SciML Simulation Container (생략 가능) -->
+  <!-- 1) SciML Simulation Container (task1) -->
   <div class="container" id="scimlContainer">
     <h1>SciML Simulation</h1>
     <div class="description">
@@ -169,7 +161,7 @@
     <div id="scimlPlotDiv"></div>
   </div>
 
-  <!-- 2) Domain Creator Container -->
+  <!-- 2) Domain Creator Container (task2) -->
   <div class="container" id="domainContainer">
     <h1>Domain Creator (Exactly 4 Points)</h1>
     <div class="description">
@@ -182,22 +174,105 @@
     <button onclick="domainClear()">Clear Domain</button>
     <button onclick="domainSubmit()">Submit Domain</button>
     <div id="domainPredDisplay"></div>
-    <!-- 3D 애니메이션 3D Plot 영역 -->
+    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d 디버깅용) -->
     <div id="domain3DPlot"></div>
+  </div>
 
   <script>
     /************************************************************
-     * 1) SciML Simulation JS (생략 or 수정)
+     * 1) SciML Simulation JS (task1) - 기존 내용 유지
      ************************************************************/
     async function scimlSubmitInput() {
-      // (생략) 서버에 /predict POST 후, 결과 surface plot 예시...
+      const inputText = document.getElementById("scimlUserInput").value;
+      let jsonData;
+      try {
+        jsonData = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      // 자동으로 10x10 grid 생성 (unknown이 없을 경우)
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        jsonData.unknown = [unknownTokens];
+      }
+      try {
+        // 실제 서버 URL로 교체
+        const ngrokURL = "https://0386-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(ngrokURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        });
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.error) {
+          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
+        } else {
+          if (data.output) {
+            createSurfacePlot(jsonData.unknown, data.output);
+          } else if (data.result) {
+            createSurfacePlot(jsonData.unknown, data.result);
+          } else {
+            document.getElementById("scimlResultDisplay").innerText =
+              "No 'output' or 'result' field found in response.";
+          }
+        }
+      } catch (err) {
+        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+      }
     }
+
     function createSurfacePlot(unknownData, outputData) {
-      // (생략) 3D surface 예시...
+      console.log("=== createSurfacePlot Debug ===");
+      console.log("unknownData:", unknownData);
+      console.log("outputData:", outputData);
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0]; 
+      }
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
+        outputData = outputData[0];
+      }
+      let size = 10;
+      let X = [], Y = [], Z = [];
+      for (let i = 0; i < size; i++) {
+        X.push([]); Y.push([]); Z.push([]);
+      }
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let row = Math.floor(idx / size);
+        let col = idx % size;
+        let pt = unknownData[idx];
+        let xVal = pt[0], yVal = pt[1];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
+        X[row][col] = xVal;
+        Y[row][col] = yVal;
+        Z[row][col] = zVal;
+      }
+      let trace = {
+        type: "surface",
+        x: X,
+        y: Y,
+        z: Z,
+        colorscale: "Viridis"
+      };
+      let layout = {
+        title: "Surface Plot of Predicted u(x,y)",
+        scene: {
+          xaxis: { title: "x" },
+          yaxis: { title: "y" },
+          zaxis: { title: "u(x,y)" }
+        }
+      };
+      Plotly.newPlot("scimlPlotDiv", [trace], layout);
     }
 
     /************************************************************
-     * 2) Domain Creator JS
+     * 2) Domain Creator JS (task2)
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -217,13 +292,11 @@
       yaxis: { range: [0, 1], title: "y" }
     };
 
-    // 초기 Plot 생성
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
 
-    // 클릭 핸들러
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -242,21 +315,15 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
-      // 픽셀 -> 데이터 좌표 변환
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       domainPoints.push([xData, yData]);
-
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
-
       domainUpdateFeedback();
     }
 
-    // 갯수 표시
     function domainUpdateFeedback() {
       if (domainPoints.length === 0) {
         document.getElementById("domainFeedback").innerText = "No points clicked yet.";
@@ -269,7 +336,6 @@
       document.getElementById("domainFeedback").innerHTML = msg;
     }
 
-    // Clear Domain
     function domainClear() {
       domainPoints = [];
       Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -288,14 +354,12 @@
         console.log("No times in plot_points!");
         return;
       }
-
       // 첫 번째 시간 데이터
       let initialTime = times[0];
       let x0 = plot_points[initialTime].map(pt => pt[0]);
       let y0 = plot_points[initialTime].map(pt => pt[1]);
       let z0 = plot_points[initialTime].map(pt => pt[2]);
-
-      // scatter3d로 표시 (점)
+      // scatter3d 초기 데이터 (점 형태)
       let initialData = [{
         type: 'scatter3d',
         x: x0,
@@ -307,15 +371,13 @@
           size: 4
         }
       }];
-
-      // 각 시간별 frames
+      // frames 구성 (각 시간별 scatter3d 데이터)
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
         let xArr = arr.map(pt => pt[0]);
         let yArr = arr.map(pt => pt[1]);
         let zArr = arr.map(pt => pt[2]);
-
         frames.push({
           name: t,
           data: [{
@@ -331,9 +393,8 @@
           }]
         });
       }
-
       let layout = {
-        title: "Time-lapse 3D Plot (Scatter3D)",
+        title: "Time-lapse 3D Plot (Scatter3D Debug)",
         scene: {
           xaxis: { title: "X" },
           yaxis: { title: "Y" },
@@ -376,7 +437,6 @@
           })
         }]
       };
-
       Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
         Plotly.addFrames('domain3DPlot', frames);
       });
@@ -391,9 +451,8 @@
         return;
       }
       let payload = { points: domainPoints };
-
-      // Replace with your actual /predict_points endpoint
-      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
+      // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
+      fetch("https://0386-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -406,20 +465,11 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
-          // relative_errors가 있으면 표시
-          if (data.relative_errors) {
-            let errDiv = document.createElement("div");
-            errDiv.style.textAlign = "center";
-            errDiv.style.fontWeight = "bold";
-            errDiv.style.marginTop = "10px";
-            errDiv.innerText = "Relative Error: " + data.relative_errors[0].toFixed(4);
-            displayDiv.appendChild(errDiv);
-          }
-          // plot_points가 있으면 scatter3d 애니메이션 생성
+          // 만약 서버가 plot_points를 반환하면 scatter3d 애니메이션 생성
           if (data.plot_points) {
             createTimeLapse3D(data.plot_points);
           }
-          // pred가 있으면 텍스트로 표시
+          // pred가 있다면 텍스트로 표시
           if (data.pred) {
             let predDiv = document.createElement("div");
             predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
@@ -435,6 +485,7 @@
   </script>
 </body>
 </html>
+
 
 
 
