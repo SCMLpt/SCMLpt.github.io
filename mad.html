@@ -7,9 +7,9 @@
   <!-- Plotly.js for 3D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- MathJax for LaTeX rendering -->
+  <!-- MathJax for LaTeX rendering (optional) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async 
+  <script id="MathJax-script" async
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
@@ -112,7 +112,7 @@
     #domainPredDisplay {
       color: yellow;
     }
-    /* 새로 추가: 시간 애니메이션 3D Plot 영역 (scatter3d 디버깅용) */
+    /* 새로 추가: 시간 애니메이션 3D Plot 영역 (scatter3d) */
     #domain3DPlot {
       width: 800px;
       height: 600px;
@@ -174,13 +174,12 @@
     <button onclick="domainClear()">Clear Domain</button>
     <button onclick="domainSubmit()">Submit Domain</button>
     <div id="domainPredDisplay"></div>
-    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d 디버깅용) -->
+    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d with color) -->
     <div id="domain3DPlot"></div>
-  </div>
 
   <script>
     /************************************************************
-     * 1) SciML Simulation JS (task1) - 기존 내용 유지
+     * 1) SciML Simulation JS (task1)
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -202,7 +201,7 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // 실제 서버 URL로 교체
+        // 실제 서버 URL로 교체 (예시)
         const ngrokURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(ngrokURL, {
           method: "POST",
@@ -292,11 +291,13 @@
       yaxis: { range: [0, 1], title: "y" }
     };
 
+    // 초기 Plot
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
 
+    // 클릭 핸들러
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -315,12 +316,17 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
+
+      // 픽셀 -> 데이터 좌표 변환
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
       domainPoints.push([xData, yData]);
+
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+
       domainUpdateFeedback();
     }
 
@@ -345,56 +351,79 @@
     }
 
     /************************************************************
-     * 3) createTimeLapse3D (scatter3d 버전)
+     * 3) createTimeLapse3D (scatter3d + color by z)
      ************************************************************/
     function createTimeLapse3D(plot_points) {
-      // 시간(t*) 키를 정렬 (문자열 -> 숫자)
+      // 1) 시간별 z값 모두 모아 minZ, maxZ 찾기
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
         console.log("No times in plot_points!");
         return;
       }
-      // 첫 번째 시간 데이터
+      let allZ = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        for (let pt of arr) {
+          allZ.push(pt[2]); // z
+        }
+      }
+      let minZ = Math.min(...allZ);
+      let maxZ = Math.max(...allZ);
+      console.log("minZ=", minZ, " maxZ=", maxZ);
+
+      // 첫 시점
       let initialTime = times[0];
-      let x0 = plot_points[initialTime].map(pt => pt[0]);
-      let y0 = plot_points[initialTime].map(pt => pt[1]);
-      let z0 = plot_points[initialTime].map(pt => pt[2]);
-      // scatter3d 초기 데이터 (점 형태)
+      let arr0 = plot_points[initialTime];
+      let x0 = arr0.map(pt => pt[0]);
+      let y0 = arr0.map(pt => pt[1]);
+      let z0 = arr0.map(pt => pt[2]);
+
       let initialData = [{
         type: 'scatter3d',
+        mode: 'markers',
         x: x0,
         y: y0,
         z: z0,
-        mode: 'markers',
         marker: {
-          color: 'cyan',
-          size: 4
+          size: 4,
+          color: z0,
+          cmin: minZ,
+          cmax: maxZ,
+          colorscale: 'Viridis',
+          showscale: true
         }
       }];
-      // frames 구성 (각 시간별 scatter3d 데이터)
+
+      // frames
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
         let xArr = arr.map(pt => pt[0]);
         let yArr = arr.map(pt => pt[1]);
         let zArr = arr.map(pt => pt[2]);
+
         frames.push({
           name: t,
           data: [{
             type: 'scatter3d',
+            mode: 'markers',
             x: xArr,
             y: yArr,
             z: zArr,
-            mode: 'markers',
             marker: {
-              color: 'cyan',
-              size: 4
+              size: 4,
+              color: zArr,
+              cmin: minZ,
+              cmax: maxZ,
+              colorscale: 'Viridis',
+              showscale: true
             }
           }]
         });
       }
+
       let layout = {
-        title: "Time-lapse 3D Plot (Scatter3D Debug)",
+        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
         scene: {
           xaxis: { title: "X" },
           yaxis: { title: "Y" },
@@ -437,6 +466,7 @@
           })
         }]
       };
+
       Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
         Plotly.addFrames('domain3DPlot', frames);
       });
@@ -451,7 +481,8 @@
         return;
       }
       let payload = { points: domainPoints };
-      // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
+
+      // Replace with your actual /predict_points endpoint
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -465,7 +496,7 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
-          // 만약 서버가 plot_points를 반환하면 scatter3d 애니메이션 생성
+          // plot_points가 있으면 scatter3d 애니메이션 생성
           if (data.plot_points) {
             createTimeLapse3D(data.plot_points);
           }
@@ -485,3 +516,4 @@
   </script>
 </body>
 </html>
+
