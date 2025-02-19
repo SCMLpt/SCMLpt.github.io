@@ -184,7 +184,6 @@
     <div id="domainPredDisplay"></div>
     <!-- 3D 애니메이션 3D Plot 영역 -->
     <div id="domain3DPlot"></div>
-  </div>
 
   <script>
     /************************************************************
@@ -296,15 +295,15 @@
       let y0 = plot_points[initialTime].map(pt => pt[1]);
       let z0 = plot_points[initialTime].map(pt => pt[2]);
 
-      // 초기 mesh3d 트레이스
+      // 초기 mesh3d 트레이스 (alphahull=2 예시)
       let initialData = [{
         type: 'mesh3d',
         x: x0,
         y: y0,
         z: z0,
         colorscale: 'Viridis',
-        intensity: z0,       // z값에 따라 색깔
-        alphahull: 2,       // 알파 쉘 파라미터 (필요시 조절)
+        intensity: z0,       
+        alphahull: 2,        
         opacity: 0.8
       }];
 
@@ -325,13 +324,12 @@
             z: zArr,
             colorscale: 'Viridis',
             intensity: zArr,
-            alphahull: 10,
+            alphahull: 2, // 동일하게 2
             opacity: 0.8
           }]
         });
       }
 
-      // 레이아웃 (슬라이더 + Play 버튼)
       let layout = {
         title: "Time-lapse 3D Plot of Predictions",
         scene: {
@@ -435,6 +433,7 @@
   </script>
 </body>
 </html>
+
 
 
 
