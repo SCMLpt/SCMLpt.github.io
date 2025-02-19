@@ -2,32 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>Filled Polygon</title>
+  <title>Domain Creator (Exactly 4 Points)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0; padding: 0; text-align: center;
+      margin: 0; 
+      padding: 0; 
+      text-align: center;
     }
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
     }
+    h1 {
+      margin: 20px 0;
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+      display: inline-block;
+    }
     #plot {
       width: 600px;
       height: 400px;
       margin: auto;
       background-color: #222;
-    }
-    .description {
-      text-align: left;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 5px;
-      display: inline-block;
     }
     #feedback {
       margin-top: 15px;
@@ -54,41 +61,42 @@
 </head>
 <body>
 <div class="container">
-  <h1>Domain Creator (Filled Polygon)</h1>
+  <h1>Domain Creator (Exactly 4 Points)</h1>
   <div class="description">
     <p>
-      This version uses raw mouse events for exact (x,y) coordinates, and then draws 
-      a single “filled” polygon with <code>fill: "toself"</code>.
+      Click exactly 4 points in the plot. The polygon is drawn in the order you click, 
+      with a solid fill (<code>fill: "toself"</code>).
     </p>
     <p>
-      It does <strong>not</strong> generate a triangular mesh inside; it simply 
-      fills the polygon with a solid color.
+      After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.
     </p>
   </div>
+  
   <div id="plot"></div>
   <div id="feedback">No points clicked yet.</div>
-  <button onclick="clearPolygon()">Clear Polygon</button>
+  <button onclick="clearDomain()">Clear Domain</button>
 </div>
 
 <script>
-  let domainPoints = [];  // Store clicked points in order
-  let gd;                 // The plot DOM element
+  // We'll store exactly 4 clicked points in order
+  let domainPoints = [];
+  let gd; // The Plotly graph div
 
-  // 1) Create an empty scatter trace that we'll update as user clicks
+  // 1) A scatter trace with fill: "toself" to create a filled polygon
   let polygonTrace = {
     x: [],
     y: [],
     mode: 'lines+markers',
-    fill: 'toself',             // fill the polygon
-    fillcolor: 'rgba(255, 0, 0, 0.2)',  // translucent red
+    fill: 'toself',
+    fillcolor: 'rgba(255,0,0,0.2)',
     line: { color: 'red' },
     marker: { color: 'cyan', size: 8 },
     name: "Polygon"
   };
 
-  // 2) Layout with default range [0,1] for x and y
+  // 2) Layout with x,y in [0,1] by default
   let layout = {
-    title: "Click anywhere to define a polygon",
+    title: "Click exactly 4 points",
     xaxis: { range: [0, 1], title: "x" },
     yaxis: { range: [0, 1], title: "y" }
   };
@@ -101,6 +109,13 @@
   });
 
   function onMouseDown(evt) {
+    // If we already have 4 points, do not allow more
+    if (domainPoints.length >= 4) {
+      alert("You already have 4 points. Click 'Clear Domain' to reset.");
+      return;
+    }
+
+    // Convert pixel coords to data coords
     let rect = gd.getBoundingClientRect();
     let xPixel = evt.clientX - rect.left;
     let yPixel = evt.clientY - rect.top;
@@ -118,23 +133,16 @@
     let yDataMin = yAxis.range[0];
     let yDataMax = yAxis.range[1];
 
-    // Convert pixel -> data coords
     let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
     let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
 
-    // Add new point to domainPoints
+    // Add new point
     domainPoints.push([xData, yData]);
 
-    // Update polygonTrace with the new list of points
+    // Update the polygon trace
     let xs = domainPoints.map(pt => pt[0]);
     let ys = domainPoints.map(pt => pt[1]);
-
-    // For fill: "toself" to close properly, we typically repeat the first point at the end
-    // Or rely on "fill: 'toself'" automatically closing. Let's rely on it automatically.
-    Plotly.update("plot", {
-      x: [xs],
-      y: [ys]
-    }, {}, [0]);
+    Plotly.update("plot", { x: [xs], y: [ys] }, {}, [0]);
 
     updateFeedback();
   }
@@ -144,23 +152,23 @@
       document.getElementById("feedback").innerText = "No points clicked yet.";
       return;
     }
-    let msg = "You have clicked " + domainPoints.length + " point(s):<br>";
+    let msg = "Clicked " + domainPoints.length + " point(s):<br>";
     domainPoints.forEach((pt, i) => {
       msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
     });
     document.getElementById("feedback").innerHTML = msg;
   }
 
-  // Clear the polygon
-  function clearPolygon() {
+  // Reset everything
+  function clearDomain() {
     domainPoints = [];
+    // Clear the scatter trace
     Plotly.update("plot", { x: [[]], y: [[]] }, {}, [0]);
     updateFeedback();
   }
 </script>
 </body>
 </html>
-
 
 
 
