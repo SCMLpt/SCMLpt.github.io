@@ -348,12 +348,15 @@
       domainUpdateFeedback();
       document.getElementById("domainPredDisplay").innerText = "";
     }
+
+    /* ====================== domainSubmit 수정 ====================== */
     function domainSubmit() {
       if (domainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
         return;
       }
       let payload = { points: domainPoints };
+
       // Replace with your actual ngrok URL for /predict_points endpoint
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
@@ -362,23 +365,27 @@
       })
       .then(response => response.json())
       .then(data => {
+        // 1) 콘솔에 찍어서 실제 응답(JSON)을 확인
+        console.log("Response from /predict_points:", data);
+
+        // 2) 응답에서 error 또는 plot_images/relative_errors를 확인
         if(data.error) {
           document.getElementById("domainPredDisplay").innerText = "Error: " + data.error;
         } else {
-          // data.plot_images: dictionary of { t*: base64_image }
-          // data.relative_errors: array of relative errors (if needed)
           let displayDiv = document.getElementById("domainPredDisplay");
           displayDiv.innerHTML = "";
-          for (let t in data.plot_images) {
-            let div = document.createElement("div");
-            div.innerHTML = `<div class="plot-title">t* = ${t}</div>`;
-            let img = document.createElement("img");
-            img.src = "data:image/png;base64," + data.plot_images[t];
-            div.appendChild(img);
-            displayDiv.appendChild(div);
+          if (data.plot_images) {
+            // data.plot_images: dictionary of { t*: base64_image }
+            for (let t in data.plot_images) {
+              let div = document.createElement("div");
+              div.innerHTML = `<div class="plot-title">t* = ${t}</div>`;
+              let img = document.createElement("img");
+              img.src = "data:image/png;base64," + data.plot_images[t];
+              div.appendChild(img);
+              displayDiv.appendChild(div);
+            }
           }
-          // Optionally display relative error(s)
-          if(data.relative_errors) {
+          if (data.relative_errors) {
             let errDiv = document.createElement("div");
             errDiv.style.textAlign = "center";
             errDiv.style.fontWeight = "bold";
@@ -386,12 +393,21 @@
             errDiv.innerText = "Relative Error: " + data.relative_errors[0].toFixed(4);
             displayDiv.appendChild(errDiv);
           }
+          // 만약 예전처럼 pred만 반환한다면:
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
         }
       })
       .catch(err => {
+        console.error("Fetch error:", err);
         document.getElementById("domainPredDisplay").innerText = "Error: " + err;
       });
     }
+    /* =============================================================== */
   </script>
 </body>
 </html>
+
