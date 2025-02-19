@@ -191,10 +191,10 @@
      * 1) SciML Simulation JS (생략 가능한 부분)
      ************************************************************/
     async function scimlSubmitInput() {
-      // 기존 함수 내용 (생략)
+      // 기존 함수 내용 (생략 or 작성)
     }
     function createSurfacePlot(unknownData, outputData) {
-      // 기존 함수 내용 (생략)
+      // 기존 함수 내용 (생략 or 작성)
     }
 
     /************************************************************
@@ -217,10 +217,14 @@
       xaxis: { range: [0, 1], title: "x" },
       yaxis: { range: [0, 1], title: "y" }
     };
+
+    // 초기 Plot 생성
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
+
+    // 클릭 핸들러
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -239,14 +243,21 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
+
+      // 픽셀 -> 데이터 좌표 변환
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
       domainPoints.push([xData, yData]);
+
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+
       domainUpdateFeedback();
     }
+
+    // 갯수 표시
     function domainUpdateFeedback() {
       if (domainPoints.length === 0) {
         document.getElementById("domainFeedback").innerText = "No points clicked yet.";
@@ -258,6 +269,8 @@
       });
       document.getElementById("domainFeedback").innerHTML = msg;
     }
+
+    // Clear Domain
     function domainClear() {
       domainPoints = [];
       Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -267,47 +280,58 @@
     }
 
     /************************************************************
-     * 3) createTimeLapse3D 함수: Plotly 애니메이션 생성
+     * 3) createTimeLapse3D (mesh3d 버전)
      ************************************************************/
     function createTimeLapse3D(plot_points) {
-      // 시간(t*) 키들을 정렬 (문자열 -> 숫자)
+      // 시간(t*) 키를 정렬
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
         console.log("No times in plot_points!");
         return;
       }
 
-      // 초기 데이터: 첫번째 시간에 해당하는 점들
+      // 첫 번째 시간
       let initialTime = times[0];
       let x0 = plot_points[initialTime].map(pt => pt[0]);
       let y0 = plot_points[initialTime].map(pt => pt[1]);
       let z0 = plot_points[initialTime].map(pt => pt[2]);
 
+      // 초기 mesh3d 트레이스
       let initialData = [{
+        type: 'mesh3d',
         x: x0,
         y: y0,
         z: z0,
-        mode: 'markers',
-        type: 'scatter3d',
-        marker: { color: 'cyan', size: 4 },
-        name: `t* = ${initialTime}`
+        colorscale: 'Viridis',
+        intensity: z0,       // z값에 따라 색깔
+        alphahull: 10,       // 알파 쉘 파라미터 (적절히 조절)
+        opacity: 0.8
       }];
 
-      // 프레임 구성: 각 시간별 데이터
+      // frames 구성
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+
         frames.push({
           name: t,
           data: [{
-            x: arr.map(pt => pt[0]),
-            y: arr.map(pt => pt[1]),
-            z: arr.map(pt => pt[2])
+            type: 'mesh3d',
+            x: xArr,
+            y: yArr,
+            z: zArr,
+            colorscale: 'Viridis',
+            intensity: zArr,
+            alphahull: 10,
+            opacity: 0.8
           }]
         });
       }
 
-      // 레이아웃 설정: 슬라이더와 Play 버튼 포함
+      // 레이아웃 (슬라이더 + Play 버튼)
       let layout = {
         title: "Time-lapse 3D Plot of Predictions",
         scene: {
@@ -359,7 +383,7 @@
     }
 
     /************************************************************
-     * 4) domainSubmit 함수: 서버 요청 후 결과 처리
+     * 4) domainSubmit
      ************************************************************/
     function domainSubmit() {
       if (domainPoints.length !== 4) {
@@ -368,7 +392,7 @@
       }
       let payload = { points: domainPoints };
 
-      // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
+      // 실제 서버 URL로 교체
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -382,6 +406,7 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
+          // 예: relative_errors가 있으면 표시
           if (data.relative_errors) {
             let errDiv = document.createElement("div");
             errDiv.style.textAlign = "center";
@@ -390,11 +415,11 @@
             errDiv.innerText = "Relative Error: " + data.relative_errors[0].toFixed(4);
             displayDiv.appendChild(errDiv);
           }
-          // 만약 서버가 시간별 plot_points를 반환하면, 3D 애니메이션 생성
+          // plot_points가 있으면 3D 애니메이션 생성
           if (data.plot_points) {
             createTimeLapse3D(data.plot_points);
           }
-          // 이전 방식의 pred가 있다면 텍스트로도 표시
+          // pred만 있다면 텍스트로 표시
           if (data.pred) {
             let predDiv = document.createElement("div");
             predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
