@@ -1,44 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Domain Creator with Invisible Grid</title>
+  <meta charset="UTF-8" />
+  <title>Domain Creator (Raw Mouse Events)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
+      margin: 0; 
+      padding: 0; 
       text-align: center;
-      margin: 0; padding: 0;
     }
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
     }
+    h1 {
+      margin: 20px 0;
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      color: lightblue;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+      display: inline-block;
+    }
     #clickPlot {
       width: 600px;
       height: 400px;
       margin: auto;
       background-color: #222;
-    }
-    .description {
-      text-align: left;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 5px;
-      display: inline-block;
-    }
-    button {
-      background: red;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1.2em;
-      cursor: pointer;
-      border-radius: 5px;
-      margin-top: 20px;
     }
     #feedback {
       margin-top: 15px;
@@ -51,16 +48,29 @@
       padding: 10px;
       border-radius: 5px;
     }
+    button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>Domain Creator with Invisible Grid</h1>
+  <h1>Domain Creator (Exact Coordinates)</h1>
   <div class="description">
     <p>
-      Click anywhere in the plot. This version uses an invisible \(100\times100\) grid of points, 
-      so Plotly recognizes your click as a “nearest point.” Once you have clicked 4 times, 
-      we’ll draw the rectangle between \((x_{\min}, y_{\min})\) and \((x_{\max}, y_{\max})\).
+      This version captures raw mouse clicks anywhere in the plot and converts 
+      them to exact <strong>(x,y)</strong> coordinates using Plotly's internal axis info.
+    </p>
+    <p>
+      Click up to 4 times to define a domain. After the 4th point, a red translucent 
+      rectangle will be drawn between <em>(xmin, ymin)</em> and <em>(xmax, ymax)</em>.
     </p>
   </div>
   <div id="clickPlot"></div>
@@ -69,32 +79,22 @@
 </div>
 
 <script>
+  // We'll store up to 4 clicked points in data coordinates
   let domainPoints = [];
 
-  // 1) Generate a dense grid of invisible points
-  let resolution = 100;
-  let xVals = [];
-  let yVals = [];
-  for (let i = 0; i <= resolution; i++) {
-    for (let j = 0; j <= resolution; j++) {
-      xVals.push(i / resolution);
-      yVals.push(j / resolution);
-    }
-  }
-
-  // 2) Create a single trace with invisible markers
-  let invisibleGridTrace = {
-    x: xVals,
-    y: yVals,
+  // Prepare an empty scatter trace so we can show the clicked points on the plot
+  let scatterTrace = {
+    x: [],
+    y: [],
     mode: 'markers',
     marker: {
-      color: 'rgba(0,0,0,0)', // fully transparent
-      size: 1
+      color: 'cyan',
+      size: 10
     },
-    hoverinfo: 'none' // no hover labels
+    name: "Clicked Points"
   };
 
-  // 3) Plot layout
+  // Plot layout with no shapes initially
   let layout2D = {
     title: "Click anywhere to select domain corners",
     xaxis: { range: [0, 1], title: "x" },
@@ -102,26 +102,71 @@
     shapes: []
   };
 
-  Plotly.newPlot("clickPlot", [invisibleGridTrace], layout2D);
+  // 1) Create the initial plot
+  // We'll store the resulting graph div in a variable `gd`
+  let gd; // Will hold the plot DOM element
 
-  // 4) Listen for plotly_click events on the invisible grid
-  let clickPlotDiv = document.getElementById("clickPlot");
-  clickPlotDiv.on("plotly_click", (data) => {
-    // data.points[0].x, data.points[0].y => nearest grid point
+  Plotly.newPlot("clickPlot", [scatterTrace], layout2D)
+    .then(function(plotDiv) {
+      gd = plotDiv;
+      // 2) Attach a raw mouse event listener for exact (x,y)
+      gd.addEventListener("mousedown", onPlotMouseDown);
+    });
+
+  // 3) Handler for raw mouse down events
+  function onPlotMouseDown(evt) {
+    // If we already have 4 points, do nothing
     if (domainPoints.length >= 4) {
       alert("Already have 4 points. Click 'Clear Domain' to reset.");
       return;
     }
-    let xVal = data.points[0].x;
-    let yVal = data.points[0].y;
-    domainPoints.push([xVal, yVal]);
 
+    // (a) Get bounding rectangle of the plot
+    let rect = gd.getBoundingClientRect();
+    // (b) Pixel coordinates inside the plot <div>
+    let xPixel = evt.clientX - rect.left;
+    let yPixel = evt.clientY - rect.top;
+
+    // (c) Use Plotly's internal axis data
+    //     We assume there's only one xaxis and one yaxis
+    let xAxis = gd._fullLayout.xaxis;
+    let yAxis = gd._fullLayout.yaxis;
+
+    // The offset and length for each axis
+    let xMinPixel = xAxis._offset;
+    let xMaxPixel = xAxis._offset + xAxis._length;
+    let yMinPixel = yAxis._offset + yAxis._length;
+    let yMaxPixel = yAxis._offset;
+
+    // The data range
+    let xDataMin = xAxis.range[0];
+    let xDataMax = xAxis.range[1];
+    let yDataMin = yAxis.range[0];
+    let yDataMax = yAxis.range[1];
+
+    // (d) Convert pixel to data coordinates
+    //     xData increases left->right
+    let xData = xDataMin + (xPixel - xMinPixel) / (xMaxPixel - xMinPixel) * (xDataMax - xDataMin);
+
+    //     yData increases bottom->top, but pixel coords increase top->bottom,
+    //     so we invert the ratio
+    let yData = yDataMin + (yMinPixel - yPixel) / (yMinPixel - yMaxPixel) * (yDataMax - yDataMin);
+
+    // (e) Store the new point
+    domainPoints.push([xData, yData]);
+    // Also add it to our scatter trace so it appears on the plot
+    Plotly.extendTraces("clickPlot", {
+      x: [[xData]],
+      y: [[yData]]
+    }, [0]);
+
+    // (f) Update feedback text
     updateFeedback();
 
-    // Once we have 4 points, draw the rectangle
+    // (g) If we now have 4 points, draw the bounding rectangle
     if (domainPoints.length === 4) {
-      let xs = domainPoints.map(p => p[0]);
-      let ys = domainPoints.map(p => p[1]);
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
       let xmin = Math.min(...xs);
       let xmax = Math.max(...xs);
       let ymin = Math.min(...ys);
@@ -141,8 +186,9 @@
       layout2D.shapes.push(rectShape);
       Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
     }
-  });
+  }
 
+  // 4) Update the feedback box
   function updateFeedback() {
     if (domainPoints.length === 0) {
       document.getElementById("feedback").innerText = "No points clicked yet.";
@@ -150,21 +196,30 @@
     }
     let msg = "Clicked " + domainPoints.length + " point(s):<br>";
     domainPoints.forEach((pt, idx) => {
-      msg += `Point ${idx + 1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      msg += `Point ${idx+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
     });
     document.getElementById("feedback").innerHTML = msg;
   }
 
-  // 5) Clear Domain
+  // 5) Clear everything
   function clearDomain() {
     domainPoints = [];
     layout2D.shapes = [];
+
+    // Reset the scatter trace
+    let resetData = { x: [[]], y: [[]] };
+    Plotly.restyle("clickPlot", resetData, [0]);
+
+    // Remove rectangle shapes
     Plotly.relayout("clickPlot", { shapes: [] });
+
+    // Reset feedback text
     updateFeedback();
   }
 </script>
 </body>
 </html>
+
 
 
 
