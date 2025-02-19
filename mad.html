@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unified SciML & Domain Creator</title>
+
+  <!-- Plotly.js for 3D plotting -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <!-- MathJax for LaTeX rendering -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async 
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: lightblue;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 10px 0;
+      font-size: 1.2em;
+    }
+    nav a {
+      color: lightblue;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+      text-align: left;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      color: lightblue;
+      line-height: 1.5;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    textarea {
+      width: 80%;
+      height: 150px;
+      font-size: 1.2em;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: lightblue;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
+    button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.5em;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+    /* SciML Simulation 3D Plot (task1) */
+    #scimlPlotDiv {
+      margin-top: 40px;
+      width: 80%;
+      height: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* Domain Creator styling (task2) */
+    #domainPlot {
+      width: 600px;
+      height: 400px;
+      margin: auto;
+      background-color: #222;
+    }
+    #domainFeedback, #domainPredDisplay {
+      margin-top: 15px;
+      font-size: 1.1em;
+      width: 600px;
+      margin: 15px auto;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      color: cyan;
+      text-align: left;
+    }
+    #domainPredDisplay {
+      color: yellow;
+    }
+    /* 새로 추가: 시간 애니메이션 3D Plot 영역 (scatter3d 디버깅용) */
+    #domain3DPlot {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #555;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="publications.html">Publications</a>
+    <a href="activities.html">Activities</a>
+    <a href="philosophy.html">Philosophy</a>
+    <a href="contact.html">Contact</a>
+    <a href="open_research_chat.html">Open Research Chat</a>
+  </nav>
+
+  <!-- 1) SciML Simulation Container (task1) -->
+  <div class="container" id="scimlContainer">
+    <h1>SciML Simulation</h1>
+    <div class="description">
+      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+      <p>The PDE might look like:</p>
+      <p style="text-align:center;">
+        $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega. $$
+      </p>
+      <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+      <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
+{
+  "known": [
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.4, 0.4, 0.8]
+    ]
+  ],
+  "epsilons": [0.01]
+}
+      </pre>
+    </div>
+    <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+    <br />
+    <button onclick="scimlSubmitInput()">Submit</button>
+    <div class="result" id="scimlResultDisplay"></div>
+    <div id="scimlPlotDiv"></div>
+  </div>
+
+  <!-- 2) Domain Creator Container (task2) -->
+  <div class="container" id="domainContainer">
+    <h1>Domain Creator (Exactly 4 Points)</h1>
+    <div class="description">
+      <p>Click exactly 4 points in the plot. The polygon will be drawn in the order you click with a solid fill.</p>
+      <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+    </div>
+
+    <div id="domainPlot"></div>
+    <div id="domainFeedback">No points clicked yet.</div>
+    <button onclick="domainClear()">Clear Domain</button>
+    <button onclick="domainSubmit()">Submit Domain</button>
+    <div id="domainPredDisplay"></div>
+    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d 디버깅용) -->
+    <div id="domain3DPlot"></div>
+  </div>
+
+  <script>
+    /************************************************************
+     * 1) SciML Simulation JS (task1) - 기존 내용 유지
+     ************************************************************/
+    async function scimlSubmitInput() {
+      const inputText = document.getElementById("scimlUserInput").value;
+      let jsonData;
+      try {
+        jsonData = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      // 자동으로 10x10 grid 생성 (unknown이 없을 경우)
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        jsonData.unknown = [unknownTokens];
+      }
+      try {
+        // 실제 서버 URL로 교체
+        const ngrokURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(ngrokURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        });
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.error) {
+          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
+        } else {
+          if (data.output) {
+            createSurfacePlot(jsonData.unknown, data.output);
+          } else if (data.result) {
+            createSurfacePlot(jsonData.unknown, data.result);
+          } else {
+            document.getElementById("scimlResultDisplay").innerText =
+              "No 'output' or 'result' field found in response.";
+          }
+        }
+      } catch (err) {
+        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+      }
+    }
+
+    function createSurfacePlot(unknownData, outputData) {
+      console.log("=== createSurfacePlot Debug ===");
+      console.log("unknownData:", unknownData);
+      console.log("outputData:", outputData);
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0]; 
+      }
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
+        outputData = outputData[0];
+      }
+      let size = 10;
+      let X = [], Y = [], Z = [];
+      for (let i = 0; i < size; i++) {
+        X.push([]); Y.push([]); Z.push([]);
+      }
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let row = Math.floor(idx / size);
+        let col = idx % size;
+        let pt = unknownData[idx];
+        let xVal = pt[0], yVal = pt[1];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
+        X[row][col] = xVal;
+        Y[row][col] = yVal;
+        Z[row][col] = zVal;
+      }
+      let trace = {
+        type: "surface",
+        x: X,
+        y: Y,
+        z: Z,
+        colorscale: "Viridis"
+      };
+      let layout = {
+        title: "Surface Plot of Predicted u(x,y)",
+        scene: {
+          xaxis: { title: "x" },
+          yaxis: { title: "y" },
+          zaxis: { title: "u(x,y)" }
+        }
+      };
+      Plotly.newPlot("scimlPlotDiv", [trace], layout);
+    }
+
+    /************************************************************
+     * 2) Domain Creator JS (task2)
+     ************************************************************/
+    let domainPoints = [];
+    let domainGd;
+    let polygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(255,0,0,0.2)',
+      line: { color: 'red' },
+      marker: { color: 'cyan', size: 8 },
+      name: "Polygon"
+    };
+    let domainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1], title: "x" },
+      yaxis: { range: [0, 1], title: "y" }
+    };
+
+    Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
+      domainGd = plotDiv;
+      domainGd.addEventListener("mousedown", domainOnMouseDown);
+    });
+
+    function domainOnMouseDown(evt) {
+      if (domainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = domainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = domainGd._fullLayout.xaxis;
+      let yAxis = domainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+      domainPoints.push([xData, yData]);
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
+      Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+      domainUpdateFeedback();
+    }
+
+    function domainUpdateFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("domainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, i) => {
+        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      });
+      document.getElementById("domainFeedback").innerHTML = msg;
+    }
+
+    function domainClear() {
+      domainPoints = [];
+      Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      domainUpdateFeedback();
+      document.getElementById("domainPredDisplay").innerText = "";
+      document.getElementById("domain3DPlot").innerHTML = "";
+    }
+
+    /************************************************************
+     * 3) createTimeLapse3D (scatter3d 버전)
+     ************************************************************/
+    function createTimeLapse3D(plot_points) {
+      // 시간(t*) 키를 정렬 (문자열 -> 숫자)
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
+        console.log("No times in plot_points!");
+        return;
+      }
+      // 첫 번째 시간 데이터
+      let initialTime = times[0];
+      let x0 = plot_points[initialTime].map(pt => pt[0]);
+      let y0 = plot_points[initialTime].map(pt => pt[1]);
+      let z0 = plot_points[initialTime].map(pt => pt[2]);
+      // scatter3d 초기 데이터 (점 형태)
+      let initialData = [{
+        type: 'scatter3d',
+        x: x0,
+        y: y0,
+        z: z0,
+        mode: 'markers',
+        marker: {
+          color: 'cyan',
+          size: 4
+        }
+      }];
+      // frames 구성 (각 시간별 scatter3d 데이터)
+      let frames = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+        frames.push({
+          name: t,
+          data: [{
+            type: 'scatter3d',
+            x: xArr,
+            y: yArr,
+            z: zArr,
+            mode: 'markers',
+            marker: {
+              color: 'cyan',
+              size: 4
+            }
+          }]
+        });
+      }
+      let layout = {
+        title: "Time-lapse 3D Plot (Scatter3D Debug)",
+        scene: {
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          zaxis: { title: "Predicted Value" }
+        },
+        margin: { l: 0, r: 0, b: 0, t: 50 },
+        updatemenus: [{
+          type: 'buttons',
+          showactive: false,
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
+          pad: { t: 50, r: 10 },
+          buttons: [{
+            label: 'Play',
+            method: 'animate',
+            args: [null, {
+              fromcurrent: true,
+              frame: { redraw: true, duration: 500 },
+              transition: { duration: 300 }
+            }]
+          }]
+        }],
+        sliders: [{
+          pad: { l: 130, t: 70 },
+          currentvalue: {
+            visible: true,
+            prefix: 't* = ',
+            xanchor: 'right',
+            font: { size: 20, color: '#666' }
+          },
+          steps: times.map(t => {
+            return {
+              label: t,
+              method: 'animate',
+              args: [[t], {
+                mode: 'immediate',
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
+              }]
+            };
+          })
+        }]
+      };
+      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
+        Plotly.addFrames('domain3DPlot', frames);
+      });
+    }
+
+    /************************************************************
+     * 4) domainSubmit
+     ************************************************************/
+    function domainSubmit() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+      // 실제 서버 URL로 교체 (여기서는 예시 URL 사용)
+      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_points:", data);
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          // 만약 서버가 plot_points를 반환하면 scatter3d 애니메이션 생성
+          if (data.plot_points) {
+            createTimeLapse3D(data.plot_points);
+          }
+          // pred가 있다면 텍스트로 표시
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
+      });
+    }
+  </script>
+</body>
+</html>
