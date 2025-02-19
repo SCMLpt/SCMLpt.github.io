@@ -9,11 +9,7 @@
 
   <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script
-    id="MathJax-script"
-    async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
-  ></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
     body {
@@ -24,7 +20,6 @@
       padding: 0;
       text-align: center;
     }
-
     nav {
       display: flex;
       justify-content: center;
@@ -32,27 +27,23 @@
       padding: 10px 0;
       font-size: 1.2em;
     }
-
     nav a {
       color: lightblue;
       text-decoration: none;
       margin: 0 15px;
       font-weight: bold;
     }
-
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
       text-align: left;
     }
-
     h1 {
       font-size: 2em;
       margin-bottom: 20px;
       text-align: center;
     }
-
     .description {
       font-size: 1.1em;
       margin-bottom: 20px;
@@ -62,7 +53,6 @@
       padding: 10px;
       border-radius: 5px;
     }
-
     textarea {
       width: 80%;
       height: 150px;
@@ -74,7 +64,6 @@
       border: 1px solid #333;
       border-radius: 5px;
     }
-
     button {
       background: red;
       color: white;
@@ -85,7 +74,6 @@
       border-radius: 5px;
       margin-top: 20px;
     }
-
     .result {
       margin-top: 20px;
       font-size: 1.5em;
@@ -94,8 +82,7 @@
       border-radius: 5px;
       word-wrap: break-word;
     }
-
-    /* 3D Plot div styling */
+    /* 3D Plot div styling for SciML Simulation */
     #scimlPlotDiv {
       margin-top: 40px;
       width: 80%;
@@ -103,7 +90,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-
     /* Domain Creator styling */
     #domainPlot {
       width: 600px;
@@ -143,7 +129,7 @@
     <div class="description">
       <p>
         This is an example of a foundational model on the domain
-        \([0,1] \times [0,1]\). The PDE might look like:
+        \(\,[0,1] \times [0,1]\,\). The PDE might look like:
       </p>
       <p style="text-align:center;">
         $$ -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y)
@@ -152,7 +138,7 @@
       </p>
       <p>
         Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong> only.
-        We will automatically generate a 10×10 grid for <strong>unknown</strong> points in \([0,1]\times[0,1]\).
+        We will automatically generate a 10×10 grid for <strong>unknown</strong> points in \(\,[0,1]\times[0,1]\,\).
       </p>
       <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
@@ -208,7 +194,7 @@
         return;
       }
 
-      // 자동으로 unknown(10×10 grid) 생성
+      // Automatically generate unknown (10x10 grid) if not provided
       if (!jsonData.hasOwnProperty("unknown")) {
         let unknownTokens = [];
         for (let i = 0; i < 10; i++) {
@@ -220,7 +206,7 @@
       }
 
       try {
-        // ngrok 주소 (예시) - 실제 서버 엔드포인트로 수정
+        // Replace with your actual ngrok forwarding URL for /predict endpoint
         const ngrokURL = "https://0386-125-186-24-176.ngrok-free.app/predict";
 
         const response = await fetch(ngrokURL, {
@@ -235,13 +221,12 @@
         if (data.error) {
           document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
         } else {
-          // createSurfacePlot에만 전달
           if (data.output) {
             createSurfacePlot(jsonData.unknown, data.output);
           } else if (data.result) {
             createSurfacePlot(jsonData.unknown, data.result);
           } else {
-            document.getElementById("scimlResultDisplay").innerText = 
+            document.getElementById("scimlResultDisplay").innerText =
               "No 'output' or 'result' field found in response.";
           }
         }
@@ -255,12 +240,11 @@
       console.log("unknownData:", unknownData);
       console.log("outputData:", outputData);
 
-      // 1) Flatten unknownData if batch=1
+      // Flatten unknownData if batch=1
       if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
         unknownData = unknownData[0]; 
       }
-
-      // 2) Flatten outputData if batch=1
+      // Flatten outputData if batch=1
       if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
         outputData = outputData[0];
       }
@@ -281,9 +265,7 @@
         let pt = unknownData[idx];
         let xVal = pt[0];
         let yVal = pt[1];
-        let zVal = Array.isArray(outputData[idx]) 
-                    ? outputData[idx][0]
-                    : outputData[idx];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
         X[row][col] = xVal;
         Y[row][col] = yVal;
         Z[row][col] = zVal;
@@ -313,7 +295,7 @@
      * 2) Domain Creator JS
      ************************************************************/
     let domainPoints = [];
-    let domainGd; // for Plotly graph
+    let domainGd; // Plotly graph reference
 
     let polygonTrace = {
       x: [],
@@ -351,15 +333,12 @@
       let xMaxPix = xAxis._offset + xAxis._length;
       let yMinPix = yAxis._offset + yAxis._length;
       let yMaxPix = yAxis._offset;
-
       let xDataMin = xAxis.range[0];
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       domainPoints.push([xData, yData]);
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
@@ -392,7 +371,7 @@
         return;
       }
       let payload = { points: domainPoints };
-      // 예시 ngrok 주소, 실제 Flask 엔드포인트로 수정
+      // Replace with your actual ngrok URL for /predict_points endpoint
       fetch("https://0386-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -413,3 +392,4 @@
   </script>
 </body>
 </html>
+
