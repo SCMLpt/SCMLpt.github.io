@@ -1,40 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Domain Creator (Polygon)</title>
+  <meta charset="UTF-8"/>
+  <title>Filled Polygon</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0;
-      padding: 0;
-      text-align: center;
+      margin: 0; padding: 0; text-align: center;
     }
     .container {
       width: 80%;
       margin: auto;
       padding: 20px;
     }
-    h1 {
-      margin: 20px 0;
-    }
-    .description {
-      font-size: 1.1em;
-      margin-bottom: 20px;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 5px;
-      text-align: left;
-      display: inline-block;
-    }
-    #clickPlot {
+    #plot {
       width: 600px;
       height: 400px;
       margin: auto;
       background-color: #222;
+    }
+    .description {
+      text-align: left;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
     }
     #feedback {
       margin-top: 15px;
@@ -61,63 +54,53 @@
 </head>
 <body>
 <div class="container">
-  <h1>Domain Creator (Polygon)</h1>
+  <h1>Domain Creator (Filled Polygon)</h1>
   <div class="description">
     <p>
-      This version draws a polygon in the exact order you click the four points, 
-      rather than computing a bounding rectangle. 
+      This version uses raw mouse events for exact (x,y) coordinates, and then draws 
+      a single “filled” polygon with <code>fill: "toself"</code>.
     </p>
     <p>
-      We still capture raw mouse clicks for exact (x,y). 
-      After the 4th point, we create a <code>type: "path"</code> shape.
+      It does <strong>not</strong> generate a triangular mesh inside; it simply 
+      fills the polygon with a solid color.
     </p>
   </div>
-  <div id="clickPlot"></div>
+  <div id="plot"></div>
   <div id="feedback">No points clicked yet.</div>
-  <button onclick="clearDomain()">Clear Domain</button>
+  <button onclick="clearPolygon()">Clear Polygon</button>
 </div>
 
 <script>
-  // We'll store up to 4 clicked points in data coordinates
-  let domainPoints = [];
+  let domainPoints = [];  // Store clicked points in order
+  let gd;                 // The plot DOM element
 
-  // Prepare a scatter trace to show the clicked points
-  let scatterTrace = {
+  // 1) Create an empty scatter trace that we'll update as user clicks
+  let polygonTrace = {
     x: [],
     y: [],
-    mode: 'markers',
-    marker: {
-      color: 'cyan',
-      size: 10
-    },
-    name: "Clicked Points"
+    mode: 'lines+markers',
+    fill: 'toself',             // fill the polygon
+    fillcolor: 'rgba(255, 0, 0, 0.2)',  // translucent red
+    line: { color: 'red' },
+    marker: { color: 'cyan', size: 8 },
+    name: "Polygon"
   };
 
-  // Plot layout with no shapes initially
-  let layout2D = {
-    title: "Click anywhere to select polygon corners",
+  // 2) Layout with default range [0,1] for x and y
+  let layout = {
+    title: "Click anywhere to define a polygon",
     xaxis: { range: [0, 1], title: "x" },
-    yaxis: { range: [0, 1], title: "y" },
-    shapes: []
+    yaxis: { range: [0, 1], title: "y" }
   };
 
-  let gd; // will hold the plot DOM element
+  // 3) Initialize the plot
+  Plotly.newPlot("plot", [polygonTrace], layout).then(function(plotDiv) {
+    gd = plotDiv;
+    // Listen for raw mouse events
+    gd.addEventListener("mousedown", onMouseDown);
+  });
 
-  // Create the initial plot
-  Plotly.newPlot("clickPlot", [scatterTrace], layout2D)
-    .then(function(plotDiv) {
-      gd = plotDiv;
-      // Attach a raw mouse event listener for exact (x,y)
-      gd.addEventListener("mousedown", onPlotMouseDown);
-    });
-
-  // Handler for raw mouse down events
-  function onPlotMouseDown(evt) {
-    if (domainPoints.length >= 4) {
-      alert("Already have 4 points. Click 'Clear Domain' to reset.");
-      return;
-    }
-
+  function onMouseDown(evt) {
     let rect = gd.getBoundingClientRect();
     let xPixel = evt.clientX - rect.left;
     let yPixel = evt.clientY - rect.top;
@@ -125,72 +108,59 @@
     let xAxis = gd._fullLayout.xaxis;
     let yAxis = gd._fullLayout.yaxis;
 
-    let xMinPixel = xAxis._offset;
-    let xMaxPixel = xAxis._offset + xAxis._length;
-    let yMinPixel = yAxis._offset + yAxis._length;
-    let yMaxPixel = yAxis._offset;
+    let xMinPix = xAxis._offset;
+    let xMaxPix = xAxis._offset + xAxis._length;
+    let yMinPix = yAxis._offset + yAxis._length;
+    let yMaxPix = yAxis._offset;
 
     let xDataMin = xAxis.range[0];
     let xDataMax = xAxis.range[1];
     let yDataMin = yAxis.range[0];
     let yDataMax = yAxis.range[1];
 
-    // Convert pixel to data coordinates
-    let xData = xDataMin + (xPixel - xMinPixel) / (xMaxPixel - xMinPixel) * (xDataMax - xDataMin);
-    let yData = yDataMin + (yMinPixel - yPixel) / (yMinPixel - yMaxPixel) * (yDataMax - yDataMin);
+    // Convert pixel -> data coords
+    let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+    let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
 
-    // Add new point
+    // Add new point to domainPoints
     domainPoints.push([xData, yData]);
-    Plotly.extendTraces("clickPlot", { x: [[xData]], y: [[yData]] }, [0]);
+
+    // Update polygonTrace with the new list of points
+    let xs = domainPoints.map(pt => pt[0]);
+    let ys = domainPoints.map(pt => pt[1]);
+
+    // For fill: "toself" to close properly, we typically repeat the first point at the end
+    // Or rely on "fill: 'toself'" automatically closing. Let's rely on it automatically.
+    Plotly.update("plot", {
+      x: [xs],
+      y: [ys]
+    }, {}, [0]);
 
     updateFeedback();
-
-    // If we now have 4 points, draw a polygon shape in the order clicked
-    if (domainPoints.length === 4) {
-      let pathString = `M ${domainPoints[0][0]},${domainPoints[0][1]}
-                       L ${domainPoints[1][0]},${domainPoints[1][1]}
-                       L ${domainPoints[2][0]},${domainPoints[2][1]}
-                       L ${domainPoints[3][0]},${domainPoints[3][1]} Z`;
-
-      let polygonShape = {
-        type: 'path',
-        path: pathString,
-        fillcolor: 'rgba(255,0,0,0.2)',
-        line: { color: 'red' }
-      };
-
-      layout2D.shapes.push(polygonShape);
-      Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
-    }
   }
 
-  // Display clicked points in the feedback box
   function updateFeedback() {
     if (domainPoints.length === 0) {
       document.getElementById("feedback").innerText = "No points clicked yet.";
       return;
     }
-    let msg = "Clicked " + domainPoints.length + " point(s):<br>";
-    domainPoints.forEach((pt, idx) => {
-      msg += `Point ${idx+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+    let msg = "You have clicked " + domainPoints.length + " point(s):<br>";
+    domainPoints.forEach((pt, i) => {
+      msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
     });
     document.getElementById("feedback").innerHTML = msg;
   }
 
-  // Clear everything
-  function clearDomain() {
+  // Clear the polygon
+  function clearPolygon() {
     domainPoints = [];
-    layout2D.shapes = [];
-
-    let resetData = { x: [[]], y: [[]] };
-    Plotly.restyle("clickPlot", resetData, [0]);
-    Plotly.relayout("clickPlot", { shapes: [] });
-
+    Plotly.update("plot", { x: [[]], y: [[]] }, {}, [0]);
     updateFeedback();
   }
 </script>
 </body>
 </html>
+
 
 
 
