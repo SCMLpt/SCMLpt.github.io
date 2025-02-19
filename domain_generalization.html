@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Domain Creator (Raw Mouse Events)</title>
+  <title>Domain Creator (Polygon)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: black;
       color: lightblue;
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
     .container {
@@ -24,7 +24,6 @@
     .description {
       font-size: 1.1em;
       margin-bottom: 20px;
-      color: lightblue;
       background-color: #333;
       padding: 10px;
       border-radius: 5px;
@@ -62,15 +61,15 @@
 </head>
 <body>
 <div class="container">
-  <h1>Domain Creator (Exact Coordinates)</h1>
+  <h1>Domain Creator (Polygon)</h1>
   <div class="description">
     <p>
-      This version captures raw mouse clicks anywhere in the plot and converts 
-      them to exact <strong>(x,y)</strong> coordinates using Plotly's internal axis info.
+      This version draws a polygon in the exact order you click the four points, 
+      rather than computing a bounding rectangle. 
     </p>
     <p>
-      Click up to 4 times to define a domain. After the 4th point, a red translucent 
-      rectangle will be drawn between <em>(xmin, ymin)</em> and <em>(xmax, ymax)</em>.
+      We still capture raw mouse clicks for exact (x,y). 
+      After the 4th point, we create a <code>type: "path"</code> shape.
     </p>
   </div>
   <div id="clickPlot"></div>
@@ -82,7 +81,7 @@
   // We'll store up to 4 clicked points in data coordinates
   let domainPoints = [];
 
-  // Prepare an empty scatter trace so we can show the clicked points on the plot
+  // Prepare a scatter trace to show the clicked points
   let scatterTrace = {
     x: [],
     y: [],
@@ -96,99 +95,76 @@
 
   // Plot layout with no shapes initially
   let layout2D = {
-    title: "Click anywhere to select domain corners",
+    title: "Click anywhere to select polygon corners",
     xaxis: { range: [0, 1], title: "x" },
     yaxis: { range: [0, 1], title: "y" },
     shapes: []
   };
 
-  // 1) Create the initial plot
-  // We'll store the resulting graph div in a variable `gd`
-  let gd; // Will hold the plot DOM element
+  let gd; // will hold the plot DOM element
 
+  // Create the initial plot
   Plotly.newPlot("clickPlot", [scatterTrace], layout2D)
     .then(function(plotDiv) {
       gd = plotDiv;
-      // 2) Attach a raw mouse event listener for exact (x,y)
+      // Attach a raw mouse event listener for exact (x,y)
       gd.addEventListener("mousedown", onPlotMouseDown);
     });
 
-  // 3) Handler for raw mouse down events
+  // Handler for raw mouse down events
   function onPlotMouseDown(evt) {
-    // If we already have 4 points, do nothing
     if (domainPoints.length >= 4) {
       alert("Already have 4 points. Click 'Clear Domain' to reset.");
       return;
     }
 
-    // (a) Get bounding rectangle of the plot
     let rect = gd.getBoundingClientRect();
-    // (b) Pixel coordinates inside the plot <div>
     let xPixel = evt.clientX - rect.left;
     let yPixel = evt.clientY - rect.top;
 
-    // (c) Use Plotly's internal axis data
-    //     We assume there's only one xaxis and one yaxis
     let xAxis = gd._fullLayout.xaxis;
     let yAxis = gd._fullLayout.yaxis;
 
-    // The offset and length for each axis
     let xMinPixel = xAxis._offset;
     let xMaxPixel = xAxis._offset + xAxis._length;
     let yMinPixel = yAxis._offset + yAxis._length;
     let yMaxPixel = yAxis._offset;
 
-    // The data range
     let xDataMin = xAxis.range[0];
     let xDataMax = xAxis.range[1];
     let yDataMin = yAxis.range[0];
     let yDataMax = yAxis.range[1];
 
-    // (d) Convert pixel to data coordinates
-    //     xData increases left->right
+    // Convert pixel to data coordinates
     let xData = xDataMin + (xPixel - xMinPixel) / (xMaxPixel - xMinPixel) * (xDataMax - xDataMin);
-
-    //     yData increases bottom->top, but pixel coords increase top->bottom,
-    //     so we invert the ratio
     let yData = yDataMin + (yMinPixel - yPixel) / (yMinPixel - yMaxPixel) * (yDataMax - yDataMin);
 
-    // (e) Store the new point
+    // Add new point
     domainPoints.push([xData, yData]);
-    // Also add it to our scatter trace so it appears on the plot
-    Plotly.extendTraces("clickPlot", {
-      x: [[xData]],
-      y: [[yData]]
-    }, [0]);
+    Plotly.extendTraces("clickPlot", { x: [[xData]], y: [[yData]] }, [0]);
 
-    // (f) Update feedback text
     updateFeedback();
 
-    // (g) If we now have 4 points, draw the bounding rectangle
+    // If we now have 4 points, draw a polygon shape in the order clicked
     if (domainPoints.length === 4) {
-      let xs = domainPoints.map(pt => pt[0]);
-      let ys = domainPoints.map(pt => pt[1]);
-      let xmin = Math.min(...xs);
-      let xmax = Math.max(...xs);
-      let ymin = Math.min(...ys);
-      let ymax = Math.max(...ys);
+      let pathString = `M ${domainPoints[0][0]},${domainPoints[0][1]}
+                       L ${domainPoints[1][0]},${domainPoints[1][1]}
+                       L ${domainPoints[2][0]},${domainPoints[2][1]}
+                       L ${domainPoints[3][0]},${domainPoints[3][1]} Z`;
 
-      let rectShape = {
-        type: 'rect',
-        xref: 'x',
-        yref: 'y',
-        x0: xmin,
-        x1: xmax,
-        y0: ymin,
-        y1: ymax,
+      let polygonShape = {
+        type: 'path',
+        path: pathString,
         fillcolor: 'rgba(255,0,0,0.2)',
         line: { color: 'red' }
       };
-      layout2D.shapes.push(rectShape);
+
+      layout2D.shapes.push(polygonShape);
       Plotly.relayout("clickPlot", { shapes: layout2D.shapes });
     }
   }
 
-  // 4) Update the feedback box
+  // Display clicked points in the feedback box
   function updateFeedback() {
     if (domainPoints.length === 0) {
       document.getElementById("feedback").innerText = "No points clicked yet.";
@@ -201,19 +177,15 @@
     document.getElementById("feedback").innerHTML = msg;
   }
 
-  // 5) Clear everything
+  // Clear everything
   function clearDomain() {
     domainPoints = [];
     layout2D.shapes = [];
 
-    // Reset the scatter trace
     let resetData = { x: [[]], y: [[]] };
     Plotly.restyle("clickPlot", resetData, [0]);
-
-    // Remove rectangle shapes
     Plotly.relayout("clickPlot", { shapes: [] });
 
-    // Reset feedback text
     updateFeedback();
   }
 </script>
