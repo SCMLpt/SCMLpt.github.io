@@ -3,46 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-adsense-account" content="ca-pub-3192627407292290">
-  <title>SciML MAD Landing</title>
-
-  <!-- (Optional) Google tag (gtag.js) for Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZJ9R0KRJQM"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-ZJ9R0KRJQM');
-  </script>
-
-  <!-- Link to your CSS (if any) -->
+  <title>Homepage - Sci ML MAD, Open Research Chat, DongPT</title>
+  <!-- Plotly.js, MathJax 등 필요한 스크립트들 -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: lightblue;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 10px 0;
+      font-size: 1.2em;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+    }
+    nav ul li {
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: lightblue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      line-height: 1.5;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
+  <nav>
+    <ul>
+      <li><a href="mad.html">Sci ML MAD</a></li>
+      <li><a href="open_research_chat.html">Open Research Chat</a></li>
+      <li><a href="dongpt.html">DongPT</a></li>
+    </ul>
+  </nav>
   <div class="container">
     <header>
-      <h1>Welcome to SciML MAD</h1>
+      <h1>Welcome to Our Homepage</h1>
     </header>
-    <nav>
-      <ul>
-        <!-- 유저가 요청한 대로: "DongPT" 버튼만 두고,
-             클릭하면 기존 메뉴들이 있는 dongpt.html로 이동 -->
-        <li><a href="dongpt.html">DongPT</a></li>
-      </ul>
-    </nav>
-    <section class="profile">
-      <!-- SciML MAD 소개나 이미지, 간단 설명 등 -->
-      <h2>SciML MAD: Multi-scale Analysis & Domain Creator</h2>
-      <p>Here you can explore advanced PDE solutions, domain creation tools, 
-         and other scientific machine learning demos.</p>
-      <!-- 예시 이미지나 내용 -->
-      <img src="your_sciml_mad_image.png" alt="SciML MAD" style="width:300px; height:auto;">
-    </section>
-    <section class="about">
-      <h3>What is SciML MAD?</h3>
-      <p> 
-        "This is a platform for multi-scale PDE analysis, domain transformations, 
-        and advanced research in scientific machine learning."
+    <section class="description">
+      <p>Explore our cutting‐edge projects including 
+         Sci ML MAD (Scientific Machine Learning MAD), 
+         Open Research Chat, and DongPT.</p>
+      <p>
+        방문하신 분들은 위 메뉴를 통해 각각의 서비스로 이동할 수 있습니다.
       </p>
     </section>
   </div>
