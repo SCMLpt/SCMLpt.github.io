@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to DongPT</title>
-  <!-- (Optional) Analytics or additional scripts can be added here -->
+  <!-- (Optional) Add your analytics or other scripts here -->
   <style>
     /* 기본 리셋 및 폰트 설정 */
     * {
@@ -16,9 +16,9 @@
       height: 100%;
       font-family: Arial, sans-serif;
       color: #f0f0f0;
-      background-color: #000;
+      background-color: #000; /* fallback background */
     }
-    /* Hero 섹션: 그라디언트 오버레이와 배경 이미지 */
+    /* Hero 섹션: 배경 이미지와 그라디언트 오버레이 */
     .hero {
       background: linear-gradient(
                   to bottom,
@@ -78,17 +78,18 @@
     <div class="hero-content">
       <h1>Welcome to DongPT</h1>
       <p>
-        DongPT is a research agent dedicated to supporting cutting-edge technologies like Sci ML MAD,<br>
+        DongPT is a research agent dedicated to supporting cutting-edge technologies,<br>
         empowering innovative projects and advancing scientific discovery.
       </p>
       <div class="btn-container">
-        <!-- "Experience DongPT" 버튼 클릭 시 mad.html로 이동 -->
+        <!-- 버튼 클릭 시 mad.html로 이동 -->
         <a href="mad.html">Experience DongPT</a>
       </div>
     </div>
   </section>
 </body>
 </html>
+
 
 
 
