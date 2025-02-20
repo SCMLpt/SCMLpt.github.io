@@ -2,43 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DongPT Navigation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DongPT</title>
   <link rel="stylesheet" href="styles.css">
-
-  <!-- (Optional) Google tag (gtag.js) for Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZJ9R0KRJQM"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-ZJ9R0KRJQM');
-  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: lightblue;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 10px 0;
+      font-size: 1.2em;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+    }
+    nav ul li {
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: lightblue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      line-height: 1.5;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
+  <nav>
+    <ul>
+      <!-- dongpt 페이지 내부에서는 Sci ML MAD와 Open Research Chat 제거 -->
+      <li><a href="index.html">Back to Homepage</a></li>
+      <li><a href="publications.html">Publications</a></li>
+      <li><a href="activities.html">Activities</a></li>
+      <li><a href="philosophy.html">Philosophy</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
   <div class="container">
     <header>
-      <h1>DongPT Navigation</h1>
+      <h1>DongPT</h1>
     </header>
-    <nav>
-      <ul>
-        <!-- 기존에 index.html에 있던 메뉴들을 여기로 옮김 -->
-        <li><a href="index.html">Back to SciML MAD</a></li>
-        <li><a href="publications.html">Publications</a></li>
-        <li><a href="activities.html">Activities</a></li>
-        <li><a href="philosophy.html">Philosophy</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="open_research_chat.html">Open Research Chat</a></li>
-        <li><a href="mad.html">SciML MAD (old link?)</a></li>
-      </ul>
-    </nav>
-
-    <section>
+    <section class="description">
       <p>
-        This page gathers the previous navigation items 
-        (Home, Publications, Activities, Philosophy, Contact, etc.) 
-        into a single place called "DongPT".
+        This is the DongPT section. Here you can find details related to our projects and research 
+        in publications, activities, philosophy, and contact information.
       </p>
-      <!-- 필요하면 추가 내용 -->
     </section>
   </div>
 </body>
