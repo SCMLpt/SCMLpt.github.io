@@ -4,22 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to DongPT</title>
-  <!-- Plotly.js, MathJax 등 필요한 스크립트들 -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async 
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <!-- (Optional) Add your analytics or other scripts here -->
   <style>
-    /* 기본 스타일 */
-    body, html {
-      margin: 0;
-      padding: 0;
+    /* Basic Reset & Font */
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
       height: 100%;
       font-family: Arial, sans-serif;
       color: #f0f0f0;
+      background-color: #000; /* fallback background */
     }
-    /* 배경 이미지와 오버레이 */
+    /* Hero Section with background image and overlay */
     .hero {
       background: url('https://your-image-url.com/dongpt-hero.jpg') no-repeat center center/cover;
       height: 100vh;
@@ -45,20 +43,18 @@
     }
     .hero-content h1 {
       font-size: 3.5em;
-      margin-bottom: 0.3em;
+      margin-bottom: 0.4em;
     }
     .hero-content p {
       font-size: 1.3em;
       margin-bottom: 1.5em;
       line-height: 1.5;
     }
-    .buttons {
+    .btn-container {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
     }
-    .buttons a {
+    .btn-container a {
       padding: 15px 30px;
       background-color: #e91e63;
       color: #fff;
@@ -67,63 +63,28 @@
       font-size: 1.1em;
       transition: background-color 0.3s;
     }
-    .buttons a:hover {
+    .btn-container a:hover {
       background-color: #c2185b;
-    }
-    /* 상단 네비게이션 */
-    nav {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      z-index: 3;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px 0;
-    }
-    nav ul {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-    }
-    nav ul li {
-      margin: 0 15px;
-    }
-    nav ul li a {
-      color: #f0f0f0;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1em;
-      transition: color 0.3s;
-    }
-    nav ul li a:hover {
-      color: #e91e63;
     }
   </style>
 </head>
 <body>
-  <!-- 상단 네비게이션 (세 가지 서비스 링크) -->
-  <nav>
-    <ul>
-      <li><a href="mad.html">Sci ML MAD</a></li>
-      <li><a href="open_research_chat.html">Open Research Chat</a></li>
-      <li><a href="dongpt.html">DongPT</a></li>
-    </ul>
-  </nav>
+  <!-- No nav bar here, as requested -->
 
-  <!-- Hero 섹션 -->
   <section class="hero">
     <div class="hero-content">
       <h1>Welcome to DongPT</h1>
       <p>
-        DongPT는 Sci ML MAD와 같은 첨단 과학기술을 지원하고,<br>
-        연구를 위한 Agent로서 여러분의 프로젝트를 혁신합니다.
+        DongPT supports cutting-edge technologies like Sci ML MAD,<br>
+        serving as a research-oriented agent for your innovative projects.
       </p>
-      <div class="buttons">
-        <!-- Experience DongPT 버튼을 누르면 Sci ML MAD 페이지(mad.html)로 이동 -->
+      <div class="btn-container">
+        <!-- Button goes to mad.html -->
         <a href="mad.html">Experience DongPT</a>
       </div>
     </div>
   </section>
 </body>
 </html>
+
 
