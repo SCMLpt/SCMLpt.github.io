@@ -207,7 +207,7 @@
       }
       try {
         // 서버 URL 교체
-        const serverURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
+        const serverURL = "https://d55e-2001-2d8-7105-8d25-1882-53a2-32f2-566d.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -460,7 +460,7 @@
       }
       let payload = { points: domainPoints };
 
-      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_points", {
+      fetch("https://d55e-2001-2d8-7105-8d25-1882-53a2-32f2-566d.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -574,7 +574,7 @@
       }
       let payload = { points: staticDomainPoints };
 
-      fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_no_time", {
+      fetch("https://d55e-2001-2d8-7105-8d25-1882-53a2-32f2-566d.ngrok-free.app/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
