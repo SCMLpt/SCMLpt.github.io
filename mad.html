@@ -21,7 +21,7 @@
     }
     body {
       font-family: Arial, sans-serif;
-      background: #000;
+      background: #000; /* fallback */
       background: linear-gradient(135deg, #000 0%, #111 100%);
       color: lightblue;
       text-align: center;
@@ -245,7 +245,7 @@
     <button onclick="domainClear()">Clear Domain</button>
     <button onclick="domainSubmit()">Submit Domain</button>
     <div id="domainPredDisplay"></div>
-    <!-- 3D 애니메이션 3D Plot 영역 (task2) -->
+    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d with color) -->
     <div id="domain3DPlot"></div>
   </div>
 
@@ -261,9 +261,8 @@
     <button onclick="staticDomainClear()">Clear Domain</button>
     <button onclick="staticDomainSubmit()">Submit Domain</button>
     <div id="staticDomainPredDisplay"></div>
-    <!-- Optional: 2D plot to display static prediction -->
+    <!-- 2D Plot for static prediction -->
     <div id="staticDomain2DPlot"></div>
-  </div>
 
   <script>
     /************************************************************
@@ -289,9 +288,9 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // 실제 서버 URL로 교체 (예시)
-        const ngrokURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
-        const response = await fetch(ngrokURL, {
+        // 실제 서버 URL로 교체
+        const serverURL = "https://c31a-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(jsonData),
@@ -319,8 +318,9 @@
       console.log("=== createSurfacePlot Debug ===");
       console.log("unknownData:", unknownData);
       console.log("outputData:", outputData);
+      // unknownData[0]이 2차원 배열이라면 한 번 풀어줌
       if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
-        unknownData = unknownData[0]; 
+        unknownData = unknownData[0];
       }
       if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
         outputData = outputData[0];
@@ -328,7 +328,9 @@
       let size = 10;
       let X = [], Y = [], Z = [];
       for (let i = 0; i < size; i++) {
-        X.push([]); Y.push([]); Z.push([]);
+        X.push([]);
+        Y.push([]);
+        Z.push([]);
       }
       for (let idx = 0; idx < unknownData.length; idx++) {
         let row = Math.floor(idx / size);
@@ -379,6 +381,7 @@
       yaxis: { range: [0, 1.5], title: "y" }
     };
 
+    // 초기 Plot
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
@@ -435,6 +438,124 @@
       document.getElementById("domain3DPlot").innerHTML = "";
     }
 
+    // (A) createTimeLapse3D 함수 정의 (task2용)
+    function createTimeLapse3D(plot_points) {
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
+        console.log("No times in plot_points!");
+        return;
+      }
+      let allZ = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        for (let pt of arr) {
+          allZ.push(pt[2]); 
+        }
+      }
+      let minZ = Math.min(...allZ);
+      let maxZ = Math.max(...allZ);
+      console.log("minZ=", minZ, " maxZ=", maxZ);
+
+      let initialTime = times[0];
+      let arr0 = plot_points[initialTime];
+      let x0 = arr0.map(pt => pt[0]);
+      let y0 = arr0.map(pt => pt[1]);
+      let z0 = arr0.map(pt => pt[2]);
+
+      let initialData = [{
+        type: 'scatter3d',
+        mode: 'markers',
+        x: x0,
+        y: y0,
+        z: z0,
+        marker: {
+          size: 4,
+          color: z0,
+          cmin: minZ,
+          cmax: maxZ,
+          colorscale: 'Viridis',
+          showscale: true
+        }
+      }];
+
+      let frames = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+
+        frames.push({
+          name: t,
+          data: [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: xArr,
+            y: yArr,
+            z: zArr,
+            marker: {
+              size: 4,
+              color: zArr,
+              cmin: minZ,
+              cmax: maxZ,
+              colorscale: 'Viridis',
+              showscale: true
+            }
+          }]
+        });
+      }
+
+      let layout = {
+        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
+        scene: {
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          zaxis: { title: "Predicted Value" }
+        },
+        margin: { l: 0, r: 0, b: 0, t: 50 },
+        updatemenus: [{
+          type: 'buttons',
+          showactive: false,
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
+          pad: { t: 50, r: 10 },
+          buttons: [{
+            label: 'Play',
+            method: 'animate',
+            args: [null, {
+              fromcurrent: true,
+              frame: { redraw: true, duration: 500 },
+              transition: { duration: 300 }
+            }]
+          }]
+        }],
+        sliders: [{
+          pad: { l: 130, t: 70 },
+          currentvalue: {
+            visible: true,
+            prefix: 't* = ',
+            xanchor: 'right',
+            font: { size: 20, color: '#666' }
+          },
+          steps: times.map(t => {
+            return {
+              label: t,
+              method: 'animate',
+              args: [[t], {
+                mode: 'immediate',
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
+              }]
+            };
+          })
+        }]
+      };
+
+      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
+        Plotly.addFrames('domain3DPlot', frames);
+      });
+    }
+
+    // (B) domainSubmit (task2)
     function domainSubmit() {
       if (domainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
@@ -456,7 +577,7 @@
           displayDiv.innerText = "Error: " + data.error;
         } else {
           if (data.plot_points) {
-            // For task2, create time-lapse 3D plot.
+            // 시간에 따른 예측값 plot
             createTimeLapse3D(data.plot_points);
           }
           if (data.pred) {
@@ -493,6 +614,7 @@
       yaxis: { range: [0, 1.5], title: "y" }
     };
 
+    // 초기 Plot (task3)
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
@@ -556,6 +678,7 @@
       }
       let payload = { points: staticDomainPoints };
 
+      // 실제 서버 URL (task3)
       fetch("https://c31a-125-186-24-176.ngrok-free.app/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -573,7 +696,7 @@
           let predDiv = document.createElement("div");
           predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
           displayDiv.appendChild(predDiv);
-          // Optionally create a simple 2D scatter plot of the prediction
+          // Optionally create a simple 2D scatter plot
           createStatic2DPlot(data.pred);
         }
       })
@@ -584,18 +707,16 @@
     }
 
     function createStatic2DPlot(predData) {
-      // predData is expected to be an array of predicted values.
-      // For simplicity, we assume the unknown points retain the same (x, y) ordering as the input.
-      // Here, we create a scatter plot.
+      // predData: array of predicted values
+      // staticDomainPoints: array of (x, y)
       let xVals = [];
       let yVals = [];
       let zVals = [];
-      // predData may be an array of arrays; adjust accordingly.
       for (let i = 0; i < predData.length; i++) {
-        // 여기서는 단순히 predData의 순서대로 x,y를 staticDomainPoints로 사용
         xVals.push(staticDomainPoints[i][0]);
         yVals.push(staticDomainPoints[i][1]);
-        zVals.push(predData[i][0] || predData[i]); 
+        // predData[i]가 [val] 형태라면 predData[i][0], 그냥 숫자라면 predData[i]
+        zVals.push(Array.isArray(predData[i]) ? predData[i][0] : predData[i]);
       }
       let trace = {
         x: xVals,
@@ -619,4 +740,5 @@
   </script>
 </body>
 </html>
+
 
