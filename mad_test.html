@@ -2,40 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAD Chatbot Interface</title>
+  <title>MAD Chatbot (Inline Tasks)</title>
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- MathJax for LaTeX rendering (if needed) -->
+  <!-- MathJax for LaTeX rendering (optional) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script id="MathJax-script" async 
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
-    /* Basic reset and font settings */
+    /* 기본 리셋 및 폰트 설정 */
     * {
       margin: 0; 
       padding: 0; 
       box-sizing: border-box;
     }
     html, body {
-      height: 100%;
+      width: 100%;
+      min-height: 100%;
       font-family: Arial, sans-serif;
       background-color: #000;
       color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 수평 중앙 정렬 */
     }
-    /* Center the chatbot interface on the page */
+
+    /* 챗봇 컨테이너 (화면 상단 중앙) */
     #chatbot-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 300px;
+      margin-top: 50px;
+      width: 500px;
       background-color: #333;
-      color: #fff;
       padding: 20px;
       border-radius: 5px;
+    }
+    #chatbot-container h2 {
       text-align: center;
+      margin-bottom: 10px;
     }
     #chat-window {
       height: 150px;
@@ -44,7 +49,6 @@
       background: #222;
       padding: 10px;
       border-radius: 5px;
-      text-align: left;
     }
     #chat-input {
       width: 100%;
@@ -52,6 +56,7 @@
       border: none;
       border-radius: 3px;
       margin-bottom: 10px;
+      outline: none;
     }
     #chatbot-container button {
       width: 100%;
@@ -61,19 +66,30 @@
       color: white;
       border-radius: 3px;
       cursor: pointer;
+      font-size: 1em;
     }
-    /* Downstream task containers - hidden by default */
-    .container {
-      display: none;
+    #chatbot-container button:hover {
+      background: #f50057;
+    }
+
+    /* 다운스트림 테스크들을 감싸는 영역 */
+    #downstream-tasks {
       width: 80%;
-      margin: 30px auto;
-      background: rgba(50,50,50,0.2);
+      max-width: 1200px;
+      margin: 30px auto 50px auto; 
+      /* 챗봇 아래쪽에 표시되므로 margin-top은 필요 없음 */
+    }
+
+    /* 각 테스크 컨테이너: 처음엔 숨김 (display:none) */
+    .container {
+      display: none; 
+      background: rgba(50, 50, 50, 0.2);
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      color: #f0f0f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 40px;
     }
-    h1 {
+    .container h1 {
       font-size: 2em;
       margin-bottom: 20px;
       text-align: center;
@@ -98,7 +114,7 @@
       border: 1px solid #333;
       border-radius: 5px;
     }
-    button.task-btn {
+    .task-btn {
       background: #ff4081;
       color: white;
       border: none;
@@ -109,7 +125,7 @@
       margin-top: 20px;
       transition: all 0.3s ease;
     }
-    button.task-btn:hover {
+    .task-btn:hover {
       background: #f50057;
       transform: translateY(-2px);
     }
@@ -119,41 +135,99 @@
       padding: 20px;
       border-radius: 5px;
       color: #fff;
+      word-wrap: break-word;
     }
+
     /* Plot areas */
     #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
       margin: 40px auto;
       border: 2px solid #555;
       border-radius: 5px;
     }
-    #scimlPlotDiv { width: 80%; height: 600px; }
-    #domainPlot { width: 600px; height: 400px; margin: auto; background-color: #222; }
-    #staticDomainPlot { width: 600px; height: 400px; margin: auto; background-color: #222; }
+    #scimlPlotDiv {
+      width: 80%;
+      height: 600px;
+    }
+    #domainPlot {
+      width: 600px; 
+      height: 400px; 
+      margin: auto; 
+      background-color: #222; 
+      border: 2px solid #555; 
+      border-radius: 5px;
+    }
+    #domainFeedback, #domainPredDisplay {
+      margin-top: 15px; 
+      font-size: 1.1em; 
+      width: 600px; 
+      margin: 15px auto;
+      background-color: rgba(20, 20, 20, 0.6); 
+      padding: 10px; 
+      border-radius: 5px; 
+      color: cyan;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+    #domainPredDisplay { 
+      color: yellow; 
+    }
+    #staticDomainPlot {
+      width: 600px; 
+      height: 400px; 
+      margin: auto; 
+      background-color: #222;
+      border: 2px solid #555; 
+      border-radius: 5px;
+    }
+    #staticDomainFeedback, #staticDomainPredDisplay {
+      margin-top: 15px; 
+      font-size: 1.1em; 
+      width: 600px; 
+      margin: 15px auto;
+      background-color: rgba(20, 20, 20, 0.6); 
+      padding: 10px; 
+      border-radius: 5px; 
+      color: cyan;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+    #staticDomainPredDisplay { 
+      color: yellow; 
+    }
+    #staticDomain2DPlot {
+      width: 600px; 
+      height: 400px; 
+      margin: auto;
+      border: 2px solid #555; 
+      border-radius: 5px; 
+      background-color: #111; 
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <!-- Chatbot Interface (only visible on initial load) -->
+
+  <!-- 1) 중앙에 챗봇 박스 -->
   <div id="chatbot-container">
+    <h2>MAD Chatbot</h2>
     <div id="chat-window"></div>
-    <input type="text" id="chat-input" placeholder="Enter your command..." />
+    <input type="text" id="chat-input" placeholder="Type 'simulation', 'domain', or 'static'..." />
     <button onclick="processChatInput()">Send</button>
   </div>
 
-  <!-- Downstream Task Containers (hidden initially) -->
-
-  <!-- SciML Simulation Container -->
-  <div class="container" id="scimlContainer">
-    <h1>Boundary Layer Simulation</h1>
-    <div class="description">
-      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
-      <p>The PDE might look like:</p>
-      <p style="text-align:center;">
-        $$ 
-        -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
-        $$
-      </p>
-      <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
-      <pre style="background-color:#222; padding:10px; border-radius:5px;">
+  <!-- 2) 챗봇 아래에 다운스트림 테스크 영역 -->
+  <div id="downstream-tasks">
+    <!-- SciML Simulation Container (Task1) -->
+    <div class="container" id="scimlContainer">
+      <h1>Boundary Layer Simulation</h1>
+      <div class="description">
+        <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+        <p>The PDE might look like:</p>
+        <p style="text-align:center;">
+          $$
+          -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
+          $$
+        </p>
+        <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+        <pre style="background-color:#222; padding:10px; border-radius:5px;">
 {
   "known": [
     [
@@ -164,48 +238,89 @@
   ],
   "epsilons": [0.01]
 }
-      </pre>
+        </pre>
+      </div>
+      <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+      <br />
+      <button class="task-btn" onclick="scimlSubmitInput()">Submit</button>
+      <div class="result" id="scimlResultDisplay"></div>
+      <div id="scimlPlotDiv"></div>
     </div>
-    <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
-    <br />
-    <button class="task-btn" onclick="scimlSubmitInput()">Submit</button>
-    <div class="result" id="scimlResultDisplay"></div>
-    <div id="scimlPlotDiv"></div>
-  </div>
 
-  <!-- Domain Creator Container -->
-  <div class="container" id="domainContainer">
-    <h1>Domain Creator</h1>
-    <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
-      <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+    <!-- Domain Creator Container (Task2) -->
+    <div class="container" id="domainContainer">
+      <h1>Domain Creator</h1>
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
+        <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+      </div>
+      <div id="domainPlot"></div>
+      <div id="domainFeedback">No points clicked yet.</div>
+      <button class="task-btn" onclick="domainClear()">Clear Domain</button>
+      <button class="task-btn" onclick="domainSubmit()">Submit Domain</button>
+      <div id="domainPredDisplay"></div>
+      <div id="domain3DPlot"></div>
     </div>
-    <div id="domainPlot"></div>
-    <div id="domainFeedback">No points clicked yet.</div>
-    <button class="task-btn" onclick="domainClear()">Clear Domain</button>
-    <button class="task-btn" onclick="domainSubmit()">Submit Domain</button>
-    <div id="domainPredDisplay"></div>
-    <div id="domain3DPlot"></div>
-  </div>
 
-  <!-- Static Reaction–Diffusion Container -->
-  <div class="container" id="staticDomainContainer">
-    <h1>Static Reaction–Diffusion Simulation</h1>
-    <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
-      <p>This simulation does not include time evolution, so a static prediction is generated.</p>
+    <!-- Static Reaction–Diffusion Container (Task3) -->
+    <div class="container" id="staticDomainContainer">
+      <h1>Static Reaction–Diffusion Simulation</h1>
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+        <p>This simulation does not include time evolution, so a static prediction is generated.</p>
+      </div>
+      <div id="staticDomainPlot"></div>
+      <div id="staticDomainFeedback">No points clicked yet.</div>
+      <button class="task-btn" onclick="staticDomainClear()">Clear Domain</button>
+      <button class="task-btn" onclick="staticDomainSubmit()">Submit Domain</button>
+      <div id="staticDomainPredDisplay"></div>
+      <div id="staticDomain2DPlot"></div>
     </div>
-    <div id="staticDomainPlot"></div>
-    <div id="staticDomainFeedback">No points clicked yet.</div>
-    <button class="task-btn" onclick="staticDomainClear()">Clear Domain</button>
-    <button class="task-btn" onclick="staticDomainSubmit()">Submit Domain</button>
-    <div id="staticDomainPredDisplay"></div>
-    <div id="staticDomain2DPlot"></div>
   </div>
 
   <script>
     /************************************************************
-     * SciML Simulation Functions (Task1)
+     * Chatbot logic: show/hide the relevant container
+     ************************************************************/
+    function processChatInput() {
+      var input = document.getElementById("chat-input").value.trim();
+      if (!input) return;
+
+      // Append user message
+      var chatWindow = document.getElementById("chat-window");
+      var userMessage = document.createElement("div");
+      userMessage.style.margin = "5px 0";
+      userMessage.innerHTML = "<strong>User:</strong> " + input;
+      chatWindow.appendChild(userMessage);
+
+      // Decide which container to show
+      let response = "";
+      if (input.toLowerCase().includes("simulation")) {
+        document.getElementById("scimlContainer").style.display = "block";
+        response = "Launching SciML Simulation...";
+      } else if (input.toLowerCase().includes("domain")) {
+        document.getElementById("domainContainer").style.display = "block";
+        response = "Launching Domain Creator...";
+      } else if (input.toLowerCase().includes("static")) {
+        document.getElementById("staticDomainContainer").style.display = "block";
+        response = "Launching Static Reaction–Diffusion...";
+      } else {
+        response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
+      }
+
+      // Append bot response
+      var botMessage = document.createElement("div");
+      botMessage.style.margin = "5px 0";
+      botMessage.innerHTML = "<strong>Bot:</strong> " + response;
+      chatWindow.appendChild(botMessage);
+
+      // Clear input and scroll
+      document.getElementById("chat-input").value = "";
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    /************************************************************
+     * 1) SciML Simulation (Task1)
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -226,7 +341,6 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // Replace with your server URL if necessary
         const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -262,7 +376,9 @@
       let size = 10;
       let X = [], Y = [], Z = [];
       for (let i = 0; i < size; i++) {
-        X.push([]); Y.push([]); Z.push([]);
+        X.push([]); 
+        Y.push([]); 
+        Z.push([]);
       }
       for (let idx = 0; idx < unknownData.length; idx++) {
         let row = Math.floor(idx / size);
@@ -276,8 +392,8 @@
       }
       let trace = {
         type: "surface",
-        x: X,
-        y: Y,
+        x: X, 
+        y: Y, 
         z: Z,
         colorscale: "Viridis"
       };
@@ -293,7 +409,7 @@
     }
 
     /************************************************************
-     * Domain Creator Functions (Task2)
+     * 2) Domain Creator (Task2)
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -336,10 +452,8 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       domainPoints.push([xData, yData]);
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
@@ -515,7 +629,7 @@
     }
 
     /************************************************************
-     * Static Reaction–Diffusion Functions (Task3)
+     * 3) Static Reaction–Diffusion (Task3)
      ************************************************************/
     let staticDomainPoints = [];
     let staticDomainGd;
@@ -558,10 +672,8 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       staticDomainPoints.push([xData, yData]);
       let xs = staticDomainPoints.map(pt => pt[0]);
       let ys = staticDomainPoints.map(pt => pt[1]);
@@ -652,49 +764,10 @@
       };
       Plotly.newPlot("staticDomain2DPlot", [trace], layout);
     }
-
-    /************************************************************
-     * Chatbot Input Processing (English)
-     ************************************************************/
-    function processChatInput() {
-      var input = document.getElementById("chat-input").value.trim();
-      if (!input) return;
-      
-      // Append user message to chat window
-      var chatWindow = document.getElementById("chat-window");
-      var userMessage = document.createElement("div");
-      userMessage.style.margin = "5px 0";
-      userMessage.innerHTML = "<strong>User:</strong> " + input;
-      chatWindow.appendChild(userMessage);
-      
-      // Decide which container to show based on keywords
-      let response = "";
-      if (input.toLowerCase().includes("simulation")) {
-        response = "Launching SciML Simulation...";
-        document.getElementById("scimlContainer").style.display = "block";
-      } else if (input.toLowerCase().includes("domain")) {
-        response = "Launching Domain Creator...";
-        document.getElementById("domainContainer").style.display = "block";
-      } else if (input.toLowerCase().includes("static")) {
-        response = "Launching Static Reaction–Diffusion Simulation...";
-        document.getElementById("staticDomainContainer").style.display = "block";
-      } else {
-        response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
-      }
-      
-      // Append bot response to chat window
-      var botMessage = document.createElement("div");
-      botMessage.style.margin = "5px 0";
-      botMessage.innerHTML = "<strong>Bot:</strong> " + response;
-      chatWindow.appendChild(botMessage);
-      
-      // Clear input and scroll chat window to bottom
-      document.getElementById("chat-input").value = "";
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
   </script>
 </body>
 </html>
+
 
 
 
