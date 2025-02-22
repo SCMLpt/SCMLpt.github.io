@@ -15,7 +15,9 @@
   <style>
     /* 기본 리셋 및 폰트 설정 */
     * {
-      margin: 0; padding: 0; box-sizing: border-box;
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
     }
     body {
       font-family: Arial, sans-serif;
@@ -28,83 +30,157 @@
     /* 네비게이션 바 */
     nav {
       background: linear-gradient(to right, #1a1a1a, #111);
-      display: flex; justify-content: center; align-items: center;
-      padding: 10px 0; font-size: 1.2em; position: sticky; top: 0; z-index: 10;
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      padding: 10px 0; 
+      font-size: 1.2em; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
     }
     nav a {
-      color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease;
+      color: lightblue; 
+      text-decoration: none; 
+      margin: 0 15px; 
+      font-weight: bold; 
+      transition: color 0.3s ease;
     }
     nav a:hover {
       color: #ff4081;
     }
     /* 메인 컨테이너 */
     .container {
-      width: 80%; margin: 30px auto; text-align: left;
+      width: 80%; 
+      margin: 30px auto; 
+      text-align: left;
       background: rgba(50, 50, 50, 0.2);
-      padding: 20px; border-radius: 8px;
+      padding: 20px; 
+      border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     h1 {
-      font-size: 2em; margin-bottom: 20px; text-align: center;
-      color: #ffecb3; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      font-size: 2em; 
+      margin-bottom: 20px; 
+      text-align: center;
+      color: #ffecb3; 
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
     }
     .description {
-      font-size: 1.1em; margin-bottom: 20px; color: #cdefff; line-height: 1.6;
+      font-size: 1.1em; 
+      margin-bottom: 20px; 
+      color: #cdefff; 
+      line-height: 1.6;
       background-color: rgba(20, 20, 20, 0.6);
-      padding: 15px; border-radius: 5px;
+      padding: 15px; 
+      border-radius: 5px;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
     }
-    .description p { margin-bottom: 10px; }
+    .description p {
+      margin-bottom: 10px;
+    }
     textarea {
-      width: 80%; height: 150px; font-size: 1.2em; padding: 10px; margin-bottom: 20px;
-      background-color: #111; color: lightblue; border: 1px solid #333; border-radius: 5px;
-      outline: none; box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
+      width: 80%; 
+      height: 150px; 
+      font-size: 1.2em; 
+      padding: 10px; 
+      margin-bottom: 20px;
+      background-color: #111; 
+      color: lightblue; 
+      border: 1px solid #333; 
+      border-radius: 5px;
+      outline: none; 
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
     }
     button {
-      background: #ff4081; color: white; border: none; padding: 10px 25px; font-size: 1.2em;
-      cursor: pointer; border-radius: 5px; margin-top: 20px; transition: all 0.3s ease;
+      background: #ff4081; 
+      color: white; 
+      border: none; 
+      padding: 10px 25px; 
+      font-size: 1.2em;
+      cursor: pointer; 
+      border-radius: 5px; 
+      margin-top: 20px; 
+      transition: all 0.3s ease;
     }
     button:hover {
-      background: #f50057; transform: translateY(-2px);
+      background: #f50057; 
+      transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(255, 64, 129, 0.5);
     }
     .result {
-      margin-top: 20px; font-size: 1.2em;
-      background-color: #222; padding: 20px; border-radius: 5px;
-      word-wrap: break-word; color: #fff;
+      margin-top: 20px; 
+      font-size: 1.2em;
+      background-color: #222; 
+      padding: 20px; 
+      border-radius: 5px;
+      word-wrap: break-word; 
+      color: #fff;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    /* Plot areas */
+    /* Plot 영역 공통 스타일 */
     #scimlPlotDiv, #domainPlot, #domain3DPlot, #staticDomainPlot, #staticDomain2DPlot, #task4Plot {
-      border: 2px solid #555; border-radius: 5px; background-color: #111;
+      border: 2px solid #555; 
+      border-radius: 5px; 
+      background-color: #111;
     }
+    /* Task1 Plot */
     #scimlPlotDiv {
-      margin-top: 40px; width: 80%; height: 600px; margin-left: auto; margin-right: auto;
+      margin-top: 40px; 
+      width: 80%; 
+      height: 600px; 
+      margin-left: auto; 
+      margin-right: auto;
     }
+    /* Task2 Plot */
     #domainPlot {
-      width: 600px; height: 400px; margin: auto; background-color: #222;
+      width: 600px; 
+      height: 400px; 
+      margin: auto; 
+      background-color: #222;
     }
     #domain3DPlot {
-      width: 800px; height: 600px; margin: 30px auto;
+      width: 800px; 
+      height: 600px; 
+      margin: 30px auto;
     }
+    /* Task3 Plot */
     #staticDomainPlot {
-      width: 600px; height: 400px; margin: auto;
+      width: 600px; 
+      height: 400px; 
+      margin: auto; 
+      background-color: #222;
     }
     #staticDomain2DPlot {
-      width: 600px; height: 400px; margin: auto; margin-top: 20px;
+      width: 600px; 
+      height: 400px; 
+      margin: auto; 
+      margin-top: 20px;
     }
+    /* Task4 Plot */
     #task4Plot {
-      width: 600px; height: 600px; margin: auto; margin-top: 20px;
+      width: 600px; 
+      height: 600px; 
+      margin: auto; 
+      margin-top: 20px;
     }
-    /* Feedback areas */
+    /* Feedback/PredDisplay */
     #domainFeedback, #domainPredDisplay,
     #staticDomainFeedback, #staticDomainPredDisplay,
     #task4Feedback, #task4ResultDisplay {
-      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); padding: 10px; border-radius: 5px; color: cyan;
+      margin-top: 15px; 
+      font-size: 1.1em; 
+      width: 600px; 
+      margin: 15px auto;
+      background-color: rgba(20, 20, 20, 0.6); 
+      padding: 10px; 
+      border-radius: 5px; 
+      color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #domainPredDisplay, #staticDomainPredDisplay, #task4ResultDisplay {
+    #domainPredDisplay, 
+    #staticDomainPredDisplay, 
+    #task4ResultDisplay {
       color: yellow;
     }
   </style>
@@ -116,9 +192,9 @@
     <a href="about_scmlpt.html">About SCMLpt</a>
   </nav>
 
-  <!-- 4) Task4 Container (50x50 grid with black squares) -->
+  <!-- 4) Task4 Container: 50x50 Grid -->
   <div class="container" id="task4Container">
-    <h1>Task 4: 50x50 Grid and Black Square Marking</h1>
+    <h1>Task 4: 50x50 Grid (Click to Mark Black)</h1>
     <div class="description">
       <p>We have a 50x50 grid on [0,1]x[0,1]. Click on a point to mark it black.</p>
       <p>Click “Submit” to send the marked points to the server.</p>
@@ -195,15 +271,17 @@
 
   <script>
     /************************************************************
-     * 4) Task4: 50x50 Grid and Black Square Marking
+     * Task4 variables
      ************************************************************/
-    let task4Data = [];       // Plotly data array
-    let task4Grid = [];       // Array of {x, y, color}
-    let task4Clicked = {};    // Map from index -> boolean (clicked or not)
+    let task4Data = [];
+    let task4Grid = [];
+    let task4Clicked = {};
 
+    /************************************************************
+     * 4) Task4: 50x50 Grid (Click to Mark Black)
+     ************************************************************/
     function initTask4Plot() {
       // 50x50 grid in [0,1] x [0,1]
-      // step = 1/49 => 50 points in each direction
       let step = 1.0 / 49.0;
       let xVals = [];
       let yVals = [];
@@ -211,15 +289,15 @@
 
       for (let i = 0; i < 50; i++) {
         for (let j = 0; j < 50; j++) {
-          let x = j * step;
-          let y = i * step;
+          let x = j * step;        // 0..1
+          let y = i * step;        // 0..1 (아래가 i=0, 위가 i=49)
           xVals.push(x);
           yVals.push(y);
-          // 초기 색상 (blue 등)
-          colors.push("blue");
-          // store the point info
+          // 초기 색상 (짙은 회색)
+          colors.push("#444");
+          // store point info
           task4Grid.push({ x: x, y: y });
-          task4Clicked[ i*50 + j ] = false; // not clicked
+          task4Clicked[i * 50 + j] = false;
         }
       }
 
@@ -229,7 +307,7 @@
         mode: 'markers',
         marker: {
           symbol: 'square',
-          size: 10,
+          size: 6,
           color: colors
         },
         type: 'scatter'
@@ -243,27 +321,20 @@
 
       task4Data = [trace];
       Plotly.newPlot("task4Plot", task4Data, layout).then(function(plotDiv) {
-        // Add click event
         plotDiv.on('plotly_click', function(evt) {
-          // evt.points -> array of clicked points
-          // we expect 1 point
           if (!evt.points || evt.points.length < 1) return;
-          let idx = evt.points[0].pointNumber; // index in the arrays
-          // toggle or set black
+          let idx = evt.points[0].pointNumber;
           toggleTask4Point(idx);
         });
       });
     }
 
     function toggleTask4Point(idx) {
-      // flip clicked state
+      // toggle the clicked state
       task4Clicked[idx] = !task4Clicked[idx];
+      let newColors = task4Data[0].marker.color.slice();
+      newColors[idx] = task4Clicked[idx] ? "black" : "#444";
 
-      // update color array
-      let newColors = task4Data[0].marker.color.slice(); // copy
-      newColors[idx] = task4Clicked[idx] ? "black" : "blue";
-
-      // update the marker color
       Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
       updateTask4Feedback();
     }
@@ -278,13 +349,13 @@
     }
 
     function task4Clear() {
-      // reset all clicked to false
+      // reset all
       for (let k in task4Clicked) {
         task4Clicked[k] = false;
       }
       let newColors = task4Data[0].marker.color.slice();
       for (let i=0; i<newColors.length; i++){
-        newColors[i] = "blue";
+        newColors[i] = "#444";
       }
       Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
       updateTask4Feedback();
@@ -304,7 +375,7 @@
       }
       console.log("Submitting clicked coords:", clickedCoords);
 
-      // Example: send to server
+      // 예시 fetch (서버에 task4 data 전송)
       fetch("https://example.com/task4_submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -312,13 +383,314 @@
       })
       .then(res => res.json())
       .then(data => {
-        // show result
         document.getElementById("task4ResultDisplay").innerText =
           "Server response: " + JSON.stringify(data);
       })
       .catch(err => {
         document.getElementById("task4ResultDisplay").innerText =
           "Error: " + err;
+      });
+    }
+
+    /************************************************************
+     * 1) SciML Simulation (task1)
+     ************************************************************/
+    async function scimlSubmitInput() {
+      const inputText = document.getElementById("scimlUserInput").value;
+      let jsonData;
+      try {
+        jsonData = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        jsonData.unknown = [unknownTokens];
+      }
+      try {
+        const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(serverURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        });
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.error) {
+          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
+        } else {
+          if (data.output) {
+            createSurfacePlot(jsonData.unknown, data.output);
+          } else if (data.result) {
+            createSurfacePlot(jsonData.unknown, data.result);
+          } else {
+            document.getElementById("scimlResultDisplay").innerText =
+              "No 'output' or 'result' field found in response.";
+          }
+        }
+      } catch (err) {
+        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+      }
+    }
+
+    function createSurfacePlot(unknownData, outputData) {
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0];
+      }
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
+        outputData = outputData[0];
+      }
+      let size = 10;
+      let X = [], Y = [], Z = [];
+      for (let i = 0; i < size; i++) {
+        X.push([]); Y.push([]); Z.push([]);
+      }
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let row = Math.floor(idx / size);
+        let col = idx % size;
+        let pt = unknownData[idx];
+        let xVal = pt[0], yVal = pt[1];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
+        X[row][col] = xVal;
+        Y[row][col] = yVal;
+        Z[row][col] = zVal;
+      }
+      let trace = {
+        type: "surface",
+        x: X, y: Y, z: Z,
+        colorscale: "Viridis"
+      };
+      let layout = {
+        title: "Surface Plot of Predicted u(x,y)",
+        scene: {
+          xaxis: { title: "x" },
+          yaxis: { title: "y" },
+          zaxis: { title: "u(x,y)" }
+        }
+      };
+      Plotly.newPlot("scimlPlotDiv", [trace], layout);
+    }
+
+    /************************************************************
+     * 2) Domain Creator (task2)
+     ************************************************************/
+    let domainPoints = [];
+    let domainGd;
+    let polygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(255,0,0,0.2)',
+      line: { color: 'red' },
+      marker: { color: 'cyan', size: 8 },
+      name: "Polygon"
+    };
+    let domainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1.5], title: "x" },
+      yaxis: { range: [0, 1.5], title: "y" }
+    };
+
+    Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
+      domainGd = plotDiv;
+      domainGd.addEventListener("mousedown", domainOnMouseDown);
+    });
+
+    function domainOnMouseDown(evt) {
+      if (domainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = domainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = domainGd._fullLayout.xaxis;
+      let yAxis = domainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
+      domainPoints.push([xData, yData]);
+
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
+      Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+
+      domainUpdateFeedback();
+    }
+
+    function domainUpdateFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("domainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, i) => {
+        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      });
+      document.getElementById("domainFeedback").innerHTML = msg;
+    }
+
+    function domainClear() {
+      domainPoints = [];
+      Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      domainUpdateFeedback();
+      document.getElementById("domainPredDisplay").innerText = "";
+      document.getElementById("domain3DPlot").innerHTML = "";
+    }
+
+    function createTimeLapse3D(plot_points) {
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
+        console.log("No times in plot_points!");
+        return;
+      }
+      let allZ = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        for (let pt of arr) {
+          allZ.push(pt[2]);
+        }
+      }
+      let minZ = Math.min(...allZ);
+      let maxZ = Math.max(...allZ);
+
+      let initialTime = times[0];
+      let arr0 = plot_points[initialTime];
+      let x0 = arr0.map(pt => pt[0]);
+      let y0 = arr0.map(pt => pt[1]);
+      let z0 = arr0.map(pt => pt[2]);
+
+      let initialData = [{
+        type: 'scatter3d',
+        mode: 'markers',
+        x: x0, y: y0, z: z0,
+        marker: {
+          size: 4,
+          color: z0,
+          cmin: minZ, cmax: maxZ,
+          colorscale: 'Viridis',
+          showscale: true
+        }
+      }];
+
+      let frames = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+        frames.push({
+          name: t,
+          data: [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: xArr, y: yArr, z: zArr,
+            marker: {
+              size: 4,
+              color: zArr,
+              cmin: minZ, cmax: maxZ,
+              colorscale: 'Viridis',
+              showscale: true
+            }
+          }]
+        });
+      }
+
+      let layout = {
+        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
+        scene: { xaxis: { title: "X" }, yaxis: { title: "Y" }, zaxis: { title: "Pred Value" } },
+        margin: { l: 0, r: 0, b: 0, t: 50 },
+        updatemenus: [{
+          type: 'buttons',
+          showactive: false,
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
+          pad: { t: 50, r: 10 },
+          buttons: [{
+            label: 'Play',
+            method: 'animate',
+            args: [null, {
+              fromcurrent: true,
+              frame: { redraw: true, duration: 500 },
+              transition: { duration: 300 }
+            }]
+          }]
+        }],
+        sliders: [{
+          pad: { l: 130, t: 70 },
+          currentvalue: {
+            visible: true,
+            prefix: 't* = ',
+            xanchor: 'right',
+            font: { size: 20, color: '#666' }
+          },
+          steps: times.map(t => {
+            return {
+              label: t,
+              method: 'animate',
+              args: [[t], {
+                mode: 'immediate',
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
+              }]
+            };
+          })
+        }]
+      };
+
+      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
+        Plotly.addFrames('domain3DPlot', frames);
+      });
+    }
+
+    function domainSubmit() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+
+      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_points:", data);
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createTimeLapse3D(data.plot_points);
+          }
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
       });
     }
 
@@ -343,7 +715,6 @@
       yaxis: { range: [1, 2], title: "y" }
     };
 
-    // 초기 Plot (task3)
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
@@ -422,14 +793,13 @@
         } else {
           /*
              data = {
-               "plot_points": [ [x1, y1, pred1], [x2, y2, pred2], ... ],
+               "plot_points": [ [x, y, pred_val], ... ],
                "relative_error": 0.1234
              }
           */
           if (data.plot_points) {
             createStatic2DPlot(data.plot_points);
           }
-          // 에러 표시 (선택사항)
           if (data.relative_error !== undefined) {
             let errDiv = document.createElement("div");
             errDiv.innerText = "Relative Error: " + data.relative_error.toFixed(4);
@@ -444,7 +814,6 @@
     }
 
     function createStatic2DPlot(plot_points) {
-      // plot_points: [[x, y, pred_val], ...]
       let xVals = [];
       let yVals = [];
       let zVals = [];
@@ -473,59 +842,12 @@
       Plotly.newPlot("staticDomain2DPlot", [trace], layout);
     }
 
-    /************************************************************
-     * 1) SciML Simulation (task1) 
-     *    (기존 코드 재활용)
-     ************************************************************/
-    async function scimlSubmitInput() {
-      const inputText = document.getElementById("scimlUserInput").value;
-      let jsonData;
-      try {
-        jsonData = JSON.parse(inputText);
-      } catch (e) {
-        alert("Invalid JSON input!");
-        return;
-      }
-      if (!jsonData.hasOwnProperty("unknown")) {
-        let unknownTokens = [];
-        for (let i = 0; i < 10; i++) {
-          for (let j = 0; j < 10; j++) {
-            unknownTokens.push([i * 0.1, j * 0.1, -1]);
-          }
-        }
-        jsonData.unknown = [unknownTokens];
-      }
-      try {
-        const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
-        const response = await fetch(serverURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData),
-        });
-        const data = await response.json();
-        console.log("Response data:", data);
-        if (data.error) {
-          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
-        } else {
-          if (data.output) {
-            createSurfacePlot(jsonData.unknown, data.output);
-          } else if (data.result) {
-            createSurfacePlot(jsonData.unknown, data.result);
-          } else {
-            document.getElementById("scimlResultDisplay").innerText =
-              "No 'output' or 'result' field found in response.";
-          }
-        }
-      } catch (err) {
-        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
-      }
-    }
-
-    // 초기화 호출
+    // window.onload에서 task4 초기화
     window.onload = function() {
-      initTask4Plot();  // Initialize Task4 grid
-      // 나머지 task2, task3 등은 Plotly.newPlot() 부분에서 이미 실행됨
+      initTask4Plot();  // Task4 50x50 grid 초기화
+      // Task2, Task3는 Plotly.newPlot(...) 호출 시 이미 초기화
     };
   </script>
 </body>
 </html>
+
