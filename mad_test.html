@@ -196,7 +196,8 @@
   <div class="container" id="task4Container">
     <h1>Task 4: 50x50 Grid (Click to Mark Black)</h1>
     <div class="description">
-      <p>We have a 50x50 grid on [0,1]x[0,1]. Initially, each cell is white. Click on a point to mark it black.</p>
+      <p>We have a 50x50 grid on [0,1]×[0,1]. Initially, each cell is white. Click on a point to mark it black.</p>
+      <p>We reversed the y-axis so that i=0 is at the top (y=1) and i=49 is at the bottom (y=0). This helps align clicks more intuitively.</p>
       <p>Click “Submit” to send the marked points to the server.</p>
     </div>
     <div id="task4Plot"></div>
@@ -278,7 +279,7 @@
     let task4Clicked = {};
 
     /************************************************************
-     * 4) Task4: 50x50 Grid (White → Black on click)
+     * 4) Task4: 50x50 Grid (White → Black on click), y reversed
      ************************************************************/
     function initTask4Plot() {
       // 50x50 grid in [0,1] x [0,1]
@@ -289,8 +290,8 @@
 
       for (let i = 0; i < 50; i++) {
         for (let j = 0; j < 50; j++) {
-          let x = j * step;  // 0..1
-          let y = i * step;  // 0..1
+          let x = j * step;         // 0..1
+          let y = 1.0 - i * step;   // i=0 -> y=1 (top), i=49 -> y=0 (bottom)
           xVals.push(x);
           yVals.push(y);
           // 초기 색상 = 흰색
@@ -315,8 +316,18 @@
 
       let layout = {
         title: "Task 4: 50x50 Grid (Click to Mark Black)",
-        xaxis: { range: [0,1], title: "X" },
-        yaxis: { range: [0,1], title: "Y" }
+        xaxis: {
+          range: [0,1], 
+          title: "X",
+          autorange: false
+        },
+        yaxis: {
+          range: [0,1],
+          title: "Y",
+          autorange: false,
+          scaleanchor: 'x',  // x,y 1:1 비율
+          scaleratio: 1
+        }
       };
 
       task4Data = [trace];
