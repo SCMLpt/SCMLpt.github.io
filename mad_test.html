@@ -29,7 +29,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     /* 1) 상단 챗봇 (Chatbot-Top) */
     #chatbot-container-top {
       margin-top: 40px;
@@ -83,15 +82,14 @@
     #chatbot-container-top button:hover {
       background: #f50057;
     }
-
     /* 2) 다운스트림 테스크 영역 */
     #downstream-tasks {
       width: 90%;
       max-width: 1200px;
-      margin: 30px auto 50px auto; 
+      margin: 30px auto 50px auto;
     }
     .container {
-      display: none; 
+      display: none;
       background: rgba(50, 50, 50, 0.2);
       padding: 20px;
       border-radius: 8px;
@@ -146,7 +144,6 @@
       color: #fff;
       word-wrap: break-word;
     }
-
     /* Plot areas */
     #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
       margin: 40px auto;
@@ -158,59 +155,58 @@
       height: 600px;
     }
     #domainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      background-color: #222; 
-      border: 2px solid #555; 
+      width: 600px;
+      height: 400px;
+      margin: auto;
+      background-color: #222;
+      border: 2px solid #555;
       border-radius: 5px;
     }
     #domainFeedback, #domainPredDisplay {
-      margin-top: 15px; 
-      font-size: 1.1em; 
-      width: 600px; 
+      margin-top: 15px;
+      font-size: 1.1em;
+      width: 600px;
       margin: 15px auto;
-      background-color: rgba(20,20,20,0.6); 
-      padding: 10px; 
-      border-radius: 5px; 
+      background-color: rgba(20,20,20,0.6);
+      padding: 10px;
+      border-radius: 5px;
       color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #domainPredDisplay { 
-      color: yellow; 
+    #domainPredDisplay {
+      color: yellow;
     }
     #staticDomainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
+      width: 600px;
+      height: 400px;
+      margin: auto;
       background-color: #222;
-      border: 2px solid #555; 
+      border: 2px solid #555;
       border-radius: 5px;
     }
     #staticDomainFeedback, #staticDomainPredDisplay {
-      margin-top: 15px; 
-      font-size: 1.1em; 
-      width: 600px; 
+      margin-top: 15px;
+      font-size: 1.1em;
+      width: 600px;
       margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
-      padding: 10px; 
-      border-radius: 5px; 
+      background-color: rgba(20,20,20,0.6);
+      padding: 10px;
+      border-radius: 5px;
       color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #staticDomainPredDisplay { 
-      color: yellow; 
+    #staticDomainPredDisplay {
+      color: yellow;
     }
     #staticDomain2DPlot {
-      width: 600px; 
-      height: 400px; 
+      width: 600px;
+      height: 400px;
       margin: auto;
-      border: 2px solid #555; 
-      border-radius: 5px; 
-      background-color: #111; 
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-color: #111;
       margin-top: 20px;
     }
-
     /* 3) 하단 챗봇 (Chatbot-Bottom) - 처음엔 숨김 */
     #chatbot-container-bottom {
       display: none;
@@ -258,7 +254,6 @@
   </style>
 </head>
 <body>
-
   <!-- 상단 챗봇 -->
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
@@ -349,7 +344,7 @@
       const input = inputField.value.trim();
       if (!input) return;
 
-      // (1) 사용자 메시지 추가
+      // 사용자 메시지 추가
       const chatWindow = document.getElementById("chat-window-top");
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
@@ -358,58 +353,44 @@
 
       let response = "";
 
-      // (2) 키워드 분석 -> 해당 테스크 표시 및 상단 챗봇 숨김
+      // 키워드 분석 → 해당 테스크 표시 후 상단 챗봇 숨김 및 재배치
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching SciML Simulation...";
-        // **축 스케일링 오류 방지**: 재배치 후 relayout (해당 task는 마우스 이벤트 필요없으므로 생략 가능)
-        // Plotly.relayout("scimlPlotDiv", { ... }) -- SciML는 클릭 좌표가 없으니 굳이 필요없음
-
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("domain")) {
         const container = document.getElementById("domainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching Domain Creator...";
-
-        // **Plotly relayout** (도메인 클릭 좌표 사용하므로 꼭 필요)
         setTimeout(() => {
-          // domainLayout을 다시 적용
           Plotly.relayout("domainPlot", domainLayout);
         }, 50);
-
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("static")) {
         const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching Static Reaction–Diffusion...";
-
-        // **Plotly relayout** (static 도메인도 마우스 좌표 사용)
         setTimeout(() => {
           Plotly.relayout("staticDomainPlot", staticDomainLayout);
         }, 50);
-
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
       }
 
-      // (3) 봇 메시지 추가
+      // 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
 
-      // (4) 입력창 초기화 및 자동 스크롤
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -422,7 +403,7 @@
       const input = inputField.value.trim();
       if (!input) return;
 
-      // (1) 사용자 메시지 추가
+      // 사용자 메시지 추가
       const chatWindow = document.getElementById("chat-window-bottom");
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
@@ -430,48 +411,41 @@
       chatWindow.appendChild(userMessage);
 
       let response = "";
-      // (2) 키워드 분석 -> 해당 테스크 실행 (이미 있는 테스크 재배치)
+      // 키워드 분석 → 해당 테스크 실행 (이미 있는 테스크 재배치)
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching SciML Simulation...";
-        // SciML는 클릭 이벤트 없으므로 relayout 생략 가능
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("domain")) {
         const container = document.getElementById("domainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching Domain Creator...";
         setTimeout(() => {
           Plotly.relayout("domainPlot", domainLayout);
         }, 50);
-
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("static")) {
         const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
-
         response = "Launching Static Reaction–Diffusion...";
         setTimeout(() => {
           Plotly.relayout("staticDomainPlot", staticDomainLayout);
         }, 50);
-
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
       }
 
-      // (3) 봇 메시지 추가
+      // 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
 
-      // (4) 입력창 초기화 및 자동 스크롤
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -502,7 +476,7 @@
         const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData),
+          body: JSON.stringify(jsonData)
         });
         const data = await response.json();
         console.log("Response data:", data);
@@ -591,7 +565,6 @@
 
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
-      // 마우스 이벤트는 컨테이너가 화면에 표시된 후 동작
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
 
@@ -613,10 +586,8 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       domainPoints.push([xData, yData]);
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
@@ -817,7 +788,6 @@
 
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
-      // 마우스 이벤트
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
     });
 
@@ -901,7 +871,7 @@
         console.error("Fetch error:", err);
         document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
       });
-      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
+      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -937,6 +907,7 @@
   </script>
 </body>
 </html>
+
 
 
 
