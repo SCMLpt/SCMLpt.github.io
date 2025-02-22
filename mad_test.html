@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAD Chatbot - GPT-like with Auto Scroll and Ordered Tasks</title>
+  <title>MAD Chatbot - GPT-like with Auto Scroll and Ordered Tasks (Fixed Axis)</title>
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -146,6 +146,7 @@
       color: #fff;
       word-wrap: break-word;
     }
+
     /* Plot areas */
     #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
       margin: 40px auto;
@@ -191,7 +192,7 @@
       font-size: 1.1em; 
       width: 600px; 
       margin: 15px auto;
-      background-color: rgba(20,20,20,0.6); 
+      background-color: rgba(20, 20, 20, 0.6); 
       padding: 10px; 
       border-radius: 5px; 
       color: cyan;
@@ -359,25 +360,43 @@
 
       // (2) 키워드 분석 -> 해당 테스크 표시 및 상단 챗봇 숨김
       if (input.toLowerCase().includes("simulation")) {
-        var container = document.getElementById("scimlContainer");
+        const container = document.getElementById("scimlContainer");
         container.style.display = "block";
-        // 재배치: 항상 마지막에 추가
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching SciML Simulation...";
+        // **축 스케일링 오류 방지**: 재배치 후 relayout (해당 task는 마우스 이벤트 필요없으므로 생략 가능)
+        // Plotly.relayout("scimlPlotDiv", { ... }) -- SciML는 클릭 좌표가 없으니 굳이 필요없음
+
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("domain")) {
-        var container = document.getElementById("domainContainer");
+        const container = document.getElementById("domainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching Domain Creator...";
+
+        // **Plotly relayout** (도메인 클릭 좌표 사용하므로 꼭 필요)
+        setTimeout(() => {
+          // domainLayout을 다시 적용
+          Plotly.relayout("domainPlot", domainLayout);
+        }, 50);
+
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("static")) {
-        var container = document.getElementById("staticDomainContainer");
+        const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching Static Reaction–Diffusion...";
+
+        // **Plotly relayout** (static 도메인도 마우스 좌표 사용)
+        setTimeout(() => {
+          Plotly.relayout("staticDomainPlot", staticDomainLayout);
+        }, 50);
+
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
@@ -413,22 +432,34 @@
       let response = "";
       // (2) 키워드 분석 -> 해당 테스크 실행 (이미 있는 테스크 재배치)
       if (input.toLowerCase().includes("simulation")) {
-        var container = document.getElementById("scimlContainer");
+        const container = document.getElementById("scimlContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching SciML Simulation...";
+        // SciML는 클릭 이벤트 없으므로 relayout 생략 가능
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("domain")) {
-        var container = document.getElementById("domainContainer");
+        const container = document.getElementById("domainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching Domain Creator...";
+        setTimeout(() => {
+          Plotly.relayout("domainPlot", domainLayout);
+        }, 50);
+
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("static")) {
-        var container = document.getElementById("staticDomainContainer");
+        const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
+
         response = "Launching Static Reaction–Diffusion...";
+        setTimeout(() => {
+          Plotly.relayout("staticDomainPlot", staticDomainLayout);
+        }, 50);
+
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
@@ -560,6 +591,7 @@
 
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
+      // 마우스 이벤트는 컨테이너가 화면에 표시된 후 동작
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
 
@@ -581,8 +613,10 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
+
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
       domainPoints.push([xData, yData]);
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
@@ -643,7 +677,7 @@
         console.error("Fetch error:", err);
         document.getElementById("domainPredDisplay").innerText = "Error: " + err;
       });
-      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
+      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -783,6 +817,7 @@
 
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
+      // 마우스 이벤트
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
     });
 
@@ -866,7 +901,7 @@
         console.error("Fetch error:", err);
         document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
       });
-      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
+      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -901,8 +936,6 @@
     }
   </script>
 </body>
-</html>
-
 </html>
 
 
