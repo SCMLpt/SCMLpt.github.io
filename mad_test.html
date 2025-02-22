@@ -6,12 +6,12 @@
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-  <!-- MathJax for LaTeX rendering (optional) -->
+  
+  <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
+  <script id="MathJax-script" async 
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-
+  
   <style>
     /* Basic reset and font settings */
     * {
@@ -82,7 +82,7 @@
     #chatbot-container-top button:hover {
       background: #f50057;
     }
-    /* 다운스트림 테스크 영역 */
+    /* 다운스트림 태스크 영역 */
     #downstream-tasks {
       width: 90%;
       max-width: 1200px;
@@ -93,7 +93,7 @@
       background: rgba(50, 50, 50, 0.2);
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       margin-bottom: 40px;
     }
     .container h1 {
@@ -254,13 +254,22 @@
   </style>
 </head>
 <body>
-
   <script>
-    // 절대 경로 사용: Flask 서버가 127.0.0.1:5001 에서 동작한다고 가정
-    // 필요시 'localhost'나 다른 IP로 바꾸세요
+    // Flask 서버가 127.0.0.1:5001에서 동작한다고 가정합니다.
     const serverBaseURL = "http://127.0.0.1:5001";
+    // 태스크 관련 레이아웃 객체
+    const domainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1.5], title: "x" },
+      yaxis: { range: [0, 1.5], title: "y" }
+    };
+    const staticDomainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [1, 2], title: "x" },
+      yaxis: { range: [1, 2], title: "y" }
+    };
   </script>
-
+  
   <!-- 상단 챗봇 -->
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
@@ -268,17 +277,17 @@
     <input type="text" id="chat-input-top" placeholder="Type 'simulation', 'domain', 'static', or your question..." />
     <button onclick="processChatInputTop()">Send</button>
   </div>
-
-  <!-- 다운스트림 테스크 영역 -->
+  
+  <!-- 다운스트림 태스크 영역 -->
   <div id="downstream-tasks">
-    <!-- SciML Simulation Container (Task1) -->
+    <!-- Task 1: SciML Simulation -->
     <div class="container" id="scimlContainer">
       <h1>Boundary Layer Simulation</h1>
       <div class="description">
         <p>This is an example of a foundational model on the domain \(\,[0,1]\times[0,1]\,\).</p>
         <p>The PDE might look like:</p>
         <p style="text-align:center;">
-          $$
+          $$ 
           -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
           $$
         </p>
@@ -302,13 +311,13 @@
       <div class="result" id="scimlResultDisplay"></div>
       <div id="scimlPlotDiv"></div>
     </div>
-
-    <!-- Domain Creator Container (Task2) -->
+    
+    <!-- Task 2: Domain Creator -->
     <div class="container" id="domainContainer">
       <h1>Domain Creator</h1>
       <div class="description">
         <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
-        <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+        <p>After the 4th click, no more clicks are allowed. Use the "Clear Domain" button to reset.</p>
       </div>
       <div id="domainPlot"></div>
       <div id="domainFeedback">No points clicked yet.</div>
@@ -317,8 +326,8 @@
       <div id="domainPredDisplay"></div>
       <div id="domain3DPlot"></div>
     </div>
-
-    <!-- Static Reaction–Diffusion Container (Task3) -->
+    
+    <!-- Task 3: Static Reaction–Diffusion -->
     <div class="container" id="staticDomainContainer">
       <h1>Static Reaction–Diffusion Simulation</h1>
       <div class="description">
@@ -333,7 +342,7 @@
       <div id="staticDomain2DPlot"></div>
     </div>
   </div>
-
+  
   <!-- 하단 챗봇 -->
   <div id="chatbot-container-bottom">
     <h2>MAD Chatbot (Bottom)</h2>
@@ -341,26 +350,24 @@
     <input type="text" id="chat-input-bottom" placeholder="Type next command or ask a question..." />
     <button onclick="processChatInputBottom()">Send</button>
   </div>
-
+  
   <script>
     /************************************************************
-     * 0) 상단 챗봇 로직
+     * 상단 챗봇 로직
      ************************************************************/
     function processChatInputTop() {
       const inputField = document.getElementById("chat-input-top");
       const input = inputField.value.trim();
       if (!input) return;
-
+      
       const chatWindow = document.getElementById("chat-window-top");
-      // 사용자 메시지 추가
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
-
+      
       let response = "";
-
-      // 만약 입력이 "simulation", "domain", "static" 중 하나면 해당 태스크 실행
+      
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
@@ -373,9 +380,7 @@
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        setTimeout(() => {
-          Plotly.relayout("domainPlot", domainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("domainPlot", domainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("static")) {
@@ -383,13 +388,11 @@
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        setTimeout(() => {
-          Plotly.relayout("staticDomainPlot", staticDomainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("staticDomainPlot", staticDomainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
-        // 그렇지 않다면 GPT-2 기반 미니 챗봇으로 처리 (절대경로)
+        // GPT-4 기반 챗봇 엔드포인트 호출
         fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -397,21 +400,18 @@
         })
         .then(response => response.json())
         .then(data => {
-          let gptResponse = data.response ? data.response : "No response.";
+          let chatResponse = data.response ? data.response : "No response.";
           const botMessage = document.createElement("div");
           botMessage.className = "message message-bot";
-          botMessage.innerHTML = "<strong>Bot:</strong> " + gptResponse;
+          botMessage.innerHTML = "<strong>Bot:</strong> " + chatResponse;
           chatWindow.appendChild(botMessage);
           inputField.value = "";
           chatWindow.scrollTop = chatWindow.scrollHeight;
         })
-        .catch(err => {
-          console.error(err);
-        });
-        return;  // 여기서 종료
+        .catch(err => { console.error(err); });
+        return;
       }
-
-      // 태스크 실행 관련 봇 메시지 추가
+      
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
@@ -419,22 +419,21 @@
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-
+    
     /************************************************************
-     * 0-1) 하단 챗봇 로직 (추가 명령)
+     * 하단 챗봇 로직
      ************************************************************/
     function processChatInputBottom() {
       const inputField = document.getElementById("chat-input-bottom");
       const input = inputField.value.trim();
       if (!input) return;
-
+      
       const chatWindow = document.getElementById("chat-window-bottom");
-      // 사용자 메시지 추가
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
-
+      
       let response = "";
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
@@ -447,21 +446,16 @@
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        setTimeout(() => {
-          Plotly.relayout("domainPlot", domainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("domainPlot", domainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("static")) {
         const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        setTimeout(() => {
-          Plotly.relayout("staticDomainPlot", staticDomainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("staticDomainPlot", staticDomainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
-        // GPT-2 처리 (절대경로)
         fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -469,17 +463,15 @@
         })
         .then(response => response.json())
         .then(data => {
-          let gptResponse = data.response ? data.response : "No response.";
+          let chatResponse = data.response ? data.response : "No response.";
           const botMessage = document.createElement("div");
           botMessage.className = "message message-bot";
-          botMessage.innerHTML = "<strong>Bot:</strong> " + gptResponse;
+          botMessage.innerHTML = "<strong>Bot:</strong> " + chatResponse;
           chatWindow.appendChild(botMessage);
           inputField.value = "";
           chatWindow.scrollTop = chatWindow.scrollHeight;
         })
-        .catch(err => {
-          console.error(err);
-        });
+        .catch(err => { console.error(err); });
         return;
       }
       const botMessage = document.createElement("div");
@@ -489,9 +481,9 @@
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-
+    
     /************************************************************
-     * 1) SciML Simulation (Task1)
+     * Task 1: SciML Simulation 제출 함수
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -512,7 +504,6 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // 절대경로로 predict
         const serverURL = serverBaseURL + "/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -529,8 +520,7 @@
           } else if (data.result) {
             createSurfacePlot(jsonData.unknown, data.result);
           } else {
-            document.getElementById("scimlResultDisplay").innerText =
-              "No 'output' or 'result' field found in response.";
+            document.getElementById("scimlResultDisplay").innerText = "No 'output' or 'result' field found in response.";
           }
         }
       } catch (err) {
@@ -539,7 +529,7 @@
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
-
+    
     function createSurfacePlot(unknownData, outputData) {
       if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
         unknownData = unknownData[0];
@@ -581,9 +571,9 @@
       };
       Plotly.newPlot("scimlPlotDiv", [trace], layout);
     }
-
+    
     /************************************************************
-     * 2) Domain Creator (Task2)
+     * Task 2: Domain Creator 관련 함수
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -602,12 +592,12 @@
       xaxis: { range: [0, 1.5], title: "x" },
       yaxis: { range: [0, 1.5], title: "y" }
     };
-
+    
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
-
+    
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -634,7 +624,7 @@
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
       domainUpdateFeedback();
     }
-
+    
     function domainUpdateFeedback() {
       if (domainPoints.length === 0) {
         document.getElementById("domainFeedback").innerText = "No points clicked yet.";
@@ -646,7 +636,7 @@
       });
       document.getElementById("domainFeedback").innerHTML = msg;
     }
-
+    
     function domainClear() {
       domainPoints = [];
       Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -654,14 +644,13 @@
       document.getElementById("domainPredDisplay").innerText = "";
       document.getElementById("domain3DPlot").innerHTML = "";
     }
-
+    
     function domainSubmit() {
       if (domainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
         return;
       }
       let payload = { points: domainPoints };
-      // 절대경로
       fetch(serverBaseURL + "/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -692,7 +681,7 @@
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
-
+    
     function createTimeLapse3D(plot_points) {
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
@@ -800,13 +789,13 @@
           })
         }]
       };
-      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
-        Plotly.addFrames('domain3DPlot', frames);
+      Plotly.newPlot("domain3DPlot", initialData, layout).then(function() {
+        Plotly.addFrames("domain3DPlot", frames);
       });
     }
-
+    
     /************************************************************
-     * 3) Static Reaction–Diffusion (Task3)
+     * Task 3: Static Reaction–Diffusion 제출 함수
      ************************************************************/
     let staticDomainPoints = [];
     let staticDomainGd;
@@ -825,12 +814,12 @@
       xaxis: { range: [1, 2], title: "x" },
       yaxis: { range: [1, 2], title: "y" }
     };
-
+    
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
     });
-
+    
     function staticDomainOnMouseDown(evt) {
       if (staticDomainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -857,7 +846,7 @@
       Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
       staticDomainUpdateFeedback();
     }
-
+    
     function staticDomainUpdateFeedback() {
       if (staticDomainPoints.length === 0) {
         document.getElementById("staticDomainFeedback").innerText = "No points clicked yet.";
@@ -869,7 +858,7 @@
       });
       document.getElementById("staticDomainFeedback").innerHTML = msg;
     }
-
+    
     function staticDomainClear() {
       staticDomainPoints = [];
       Plotly.update("staticDomainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -877,7 +866,7 @@
       document.getElementById("staticDomainPredDisplay").innerText = "";
       document.getElementById("staticDomain2DPlot").innerHTML = "";
     }
-
+    
     function staticDomainSubmit() {
       if (staticDomainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
@@ -914,7 +903,7 @@
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
-
+    
     function createStatic2DPlot(plot_points) {
       let xVals = [];
       let yVals = [];
@@ -946,6 +935,7 @@
   </script>
 </body>
 </html>
+
 
 
 
