@@ -228,26 +228,70 @@
     <!-- SciML Simulation Container (Task1) -->
     <div class="container" id="scimlContainer">
       <h1>Boundary Layer Simulation</h1>
-      <!-- ... (same content as before) -->
-      <!-- ... -->
+      <div class="description">
+        <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+        <p>The PDE might look like:</p>
+        <p style="text-align:center;">
+          $$
+          -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
+          $$
+        </p>
+        <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+        <pre style="background-color:#222; padding:10px; border-radius:5px;">
+{
+  "known": [
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.4, 0.4, 0.8]
+    ]
+  ],
+  "epsilons": [0.01]
+}
+        </pre>
+      </div>
+      <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+      <br />
+      <button class="task-btn" onclick="scimlSubmitInput()">Submit</button>
+      <div class="result" id="scimlResultDisplay"></div>
+      <div id="scimlPlotDiv"></div>
     </div>
 
     <!-- Domain Creator Container (Task2) -->
     <div class="container" id="domainContainer">
       <h1>Domain Creator</h1>
-      <!-- ... (same content as before) -->
-      <!-- ... -->
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
+        <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+      </div>
+      <div id="domainPlot"></div>
+      <div id="domainFeedback">No points clicked yet.</div>
+      <button class="task-btn" onclick="domainClear()">Clear Domain</button>
+      <button class="task-btn" onclick="domainSubmit()">Submit Domain</button>
+      <div id="domainPredDisplay"></div>
+      <div id="domain3DPlot"></div>
     </div>
 
     <!-- Static Reaction–Diffusion Container (Task3) -->
     <div class="container" id="staticDomainContainer">
       <h1>Static Reaction–Diffusion Simulation</h1>
-      <!-- ... (same content as before) -->
-      <!-- ... -->
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+        <p>This simulation does not include time evolution, so a static prediction is generated.</p>
+      </div>
+      <div id="staticDomainPlot"></div>
+      <div id="staticDomainFeedback">No points clicked yet.</div>
+      <button class="task-btn" onclick="staticDomainClear()">Clear Domain</button>
+      <button class="task-btn" onclick="staticDomainSubmit()">Submit Domain</button>
+      <div id="staticDomainPredDisplay"></div>
+      <div id="staticDomain2DPlot"></div>
     </div>
   </div>
 
   <script>
+    /************************************************************
+     * 0) Chatbot logic + auto scroll to container
+     ************************************************************/
     function processChatInput() {
       const inputField = document.getElementById("chat-input");
       const input = inputField.value.trim();
@@ -693,6 +737,17 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
+          /*
+             data example:
+             {
+               "plot_points": [
+                 [x1, y1, pred1],
+                 [x2, y2, pred2],
+                 ...
+               ],
+               "relative_error": 0.1234
+             }
+          */
           if (data.plot_points) {
             createStatic2DPlot(data.plot_points);
           }
