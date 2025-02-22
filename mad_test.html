@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAD Chatbot (Inline Tasks)</title>
+  <title>MAD Chatbot - GPT-like</title>
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <!-- MathJax for LaTeX rendering (optional) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async 
+  <script id="MathJax-script" async
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
@@ -27,13 +27,14 @@
       color: #f0f0f0;
       display: flex;
       flex-direction: column;
-      align-items: center; /* 수평 중앙 정렬 */
+      align-items: center;
     }
 
-    /* 챗봇 컨테이너 (화면 상단 중앙) */
+    /* 상단의 GPT 스타일 대화창 + 입력 */
     #chatbot-container {
-      margin-top: 50px;
-      width: 500px;
+      margin-top: 40px;
+      width: 600px;
+      max-width: 90%;
       background-color: #333;
       padding: 20px;
       border-radius: 5px;
@@ -43,24 +44,37 @@
       margin-bottom: 10px;
     }
     #chat-window {
-      height: 150px;
+      height: 300px;
       overflow-y: auto;
       margin-bottom: 10px;
       background: #222;
       padding: 10px;
       border-radius: 5px;
     }
+    /* 대화창 내부의 메시지 스타일 */
+    .message {
+      margin: 5px 0;
+      line-height: 1.4;
+    }
+    .message-user strong {
+      color: #66c2ff;
+    }
+    .message-bot strong {
+      color: #ff4081;
+    }
+
     #chat-input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       border: none;
       border-radius: 3px;
       margin-bottom: 10px;
       outline: none;
+      font-size: 1em;
     }
     #chatbot-container button {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       background: #ff4081;
       border: none;
       color: white;
@@ -72,15 +86,14 @@
       background: #f50057;
     }
 
-    /* 다운스트림 테스크들을 감싸는 영역 */
+    /* 다운스트림 테스크를 담는 영역 */
     #downstream-tasks {
-      width: 80%;
+      width: 90%;
       max-width: 1200px;
       margin: 30px auto 50px auto; 
-      /* 챗봇 아래쪽에 표시되므로 margin-top은 필요 없음 */
     }
 
-    /* 각 테스크 컨테이너: 처음엔 숨김 (display:none) */
+    /* 각 테스크 컨테이너: 처음엔 숨김 */
     .container {
       display: none; 
       background: rgba(50, 50, 50, 0.2);
@@ -205,7 +218,7 @@
 </head>
 <body>
 
-  <!-- 1) 중앙에 챗봇 박스 -->
+  <!-- 1) 상단(또는 중앙)에 GPT 스타일 챗봇 -->
   <div id="chatbot-container">
     <h2>MAD Chatbot</h2>
     <div id="chat-window"></div>
@@ -213,7 +226,7 @@
     <button onclick="processChatInput()">Send</button>
   </div>
 
-  <!-- 2) 챗봇 아래에 다운스트림 테스크 영역 -->
+  <!-- 2) 아래쪽에 Downstream Tasks를 담는 영역 -->
   <div id="downstream-tasks">
     <!-- SciML Simulation Container (Task1) -->
     <div class="container" id="scimlContainer">
@@ -280,20 +293,21 @@
 
   <script>
     /************************************************************
-     * Chatbot logic: show/hide the relevant container
+     * GPT-like Chat: Appending user/bot messages
      ************************************************************/
     function processChatInput() {
-      var input = document.getElementById("chat-input").value.trim();
+      const inputField = document.getElementById("chat-input");
+      const input = inputField.value.trim();
       if (!input) return;
 
-      // Append user message
-      var chatWindow = document.getElementById("chat-window");
-      var userMessage = document.createElement("div");
-      userMessage.style.margin = "5px 0";
+      // 1) 사용자 메시지를 대화창에 추가
+      const chatWindow = document.getElementById("chat-window");
+      const userMessage = document.createElement("div");
+      userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
 
-      // Decide which container to show
+      // 2) 키워드 분석 -> 다운스트림 테스크 컨테이너 표시
       let response = "";
       if (input.toLowerCase().includes("simulation")) {
         document.getElementById("scimlContainer").style.display = "block";
@@ -308,14 +322,14 @@
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
       }
 
-      // Append bot response
-      var botMessage = document.createElement("div");
-      botMessage.style.margin = "5px 0";
+      // 3) 봇 메시지를 대화창에 추가
+      const botMessage = document.createElement("div");
+      botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
 
-      // Clear input and scroll
-      document.getElementById("chat-input").value = "";
+      // 4) 입력창 초기화 및 자동 스크롤
+      inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
