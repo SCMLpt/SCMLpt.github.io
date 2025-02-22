@@ -258,7 +258,7 @@
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
     <div id="chat-window-top"></div>
-    <input type="text" id="chat-input-top" placeholder="Type 'simulation', 'domain', or 'static'..." />
+    <input type="text" id="chat-input-top" placeholder="Type 'simulation', 'domain', 'static', or your question..." />
     <button onclick="processChatInputTop()">Send</button>
   </div>
 
@@ -331,7 +331,7 @@
   <div id="chatbot-container-bottom">
     <h2>MAD Chatbot (Bottom)</h2>
     <div id="chat-window-bottom"></div>
-    <input type="text" id="chat-input-bottom" placeholder="Type next command..." />
+    <input type="text" id="chat-input-bottom" placeholder="Type next command or ask a question..." />
     <button onclick="processChatInputBottom()">Send</button>
   </div>
 
@@ -344,8 +344,8 @@
       const input = inputField.value.trim();
       if (!input) return;
 
-      // 사용자 메시지 추가
       const chatWindow = document.getElementById("chat-window-top");
+      // 사용자 메시지 추가
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
@@ -353,7 +353,7 @@
 
       let response = "";
 
-      // 키워드 분석 → 해당 테스크 표시 후 상단 챗봇 숨김 및 재배치
+      // 만약 입력이 "simulation", "domain", "static" 중 하나면 해당 태스크 실행
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
@@ -382,15 +382,33 @@
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
-        response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
+        // 그렇지 않다면 GPT-2 기반 미니 챗봇으로 처리
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: input })
+        })
+        .then(response => response.json())
+        .then(data => {
+          let gptResponse = data.response ? data.response : "No response.";
+          const botMessage = document.createElement("div");
+          botMessage.className = "message message-bot";
+          botMessage.innerHTML = "<strong>Bot:</strong> " + gptResponse;
+          chatWindow.appendChild(botMessage);
+          inputField.value = "";
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        return;  // 여기서 종료
       }
 
-      // 봇 메시지 추가
+      // 태스크 실행 관련 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
-
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -403,15 +421,14 @@
       const input = inputField.value.trim();
       if (!input) return;
 
-      // 사용자 메시지 추가
       const chatWindow = document.getElementById("chat-window-bottom");
+      // 사용자 메시지 추가
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
 
       let response = "";
-      // 키워드 분석 → 해당 테스크 실행 (이미 있는 테스크 재배치)
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
@@ -437,15 +454,31 @@
         }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
-        response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
+        // GPT-2 처리
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: input })
+        })
+        .then(response => response.json())
+        .then(data => {
+          let gptResponse = data.response ? data.response : "No response.";
+          const botMessage = document.createElement("div");
+          botMessage.className = "message message-bot";
+          botMessage.innerHTML = "<strong>Bot:</strong> " + gptResponse;
+          chatWindow.appendChild(botMessage);
+          inputField.value = "";
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        })
+        .catch(err => {
+          console.error(err);
+        });
+        return;
       }
-
-      // 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
-
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -495,7 +528,6 @@
       } catch (err) {
         document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
       }
-      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -648,7 +680,6 @@
         console.error("Fetch error:", err);
         document.getElementById("domainPredDisplay").innerText = "Error: " + err;
       });
-      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -871,7 +902,6 @@
         console.error("Fetch error:", err);
         document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
       });
-      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -907,6 +937,7 @@
   </script>
 </body>
 </html>
+
 
 
 
