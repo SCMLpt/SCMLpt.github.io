@@ -15,8 +15,8 @@
   <style>
     /* Basic reset and font settings */
     * {
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
     html, body {
@@ -29,7 +29,7 @@
       flex-direction: column;
       align-items: center;
     }
-    /* 1) 상단 챗봇 (Chatbot-Top) */
+    /* 상단 챗봇 (Chatbot-Top) */
     #chatbot-container-top {
       margin-top: 40px;
       width: 600px;
@@ -82,7 +82,7 @@
     #chatbot-container-top button:hover {
       background: #f50057;
     }
-    /* 2) 다운스트림 테스크 영역 */
+    /* 다운스트림 테스크 영역 */
     #downstream-tasks {
       width: 90%;
       max-width: 1200px;
@@ -207,7 +207,7 @@
       background-color: #111;
       margin-top: 20px;
     }
-    /* 3) 하단 챗봇 (Chatbot-Bottom) - 처음엔 숨김 */
+    /* 하단 챗봇 (Chatbot-Bottom) - 처음엔 숨김 */
     #chatbot-container-bottom {
       display: none;
       width: 600px;
@@ -254,6 +254,13 @@
   </style>
 </head>
 <body>
+
+  <script>
+    // 절대 경로 사용: Flask 서버가 127.0.0.1:5001 에서 동작한다고 가정
+    // 필요시 'localhost'나 다른 IP로 바꾸세요
+    const serverBaseURL = "http://127.0.0.1:5001";
+  </script>
+
   <!-- 상단 챗봇 -->
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
@@ -382,8 +389,8 @@
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
-        // 그렇지 않다면 GPT-2 기반 미니 챗봇으로 처리
-        fetch("/chat", {
+        // 그렇지 않다면 GPT-2 기반 미니 챗봇으로 처리 (절대경로)
+        fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input })
@@ -454,8 +461,8 @@
         }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
-        // GPT-2 처리
-        fetch("/chat", {
+        // GPT-2 처리 (절대경로)
+        fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input })
@@ -505,7 +512,8 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
+        // 절대경로로 predict
+        const serverURL = serverBaseURL + "/predict";
         const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -542,8 +550,8 @@
       let size = 10;
       let X = [], Y = [], Z = [];
       for (let i = 0; i < size; i++) {
-        X.push([]); 
-        Y.push([]); 
+        X.push([]);
+        Y.push([]);
         Z.push([]);
       }
       for (let idx = 0; idx < unknownData.length; idx++) {
@@ -558,8 +566,8 @@
       }
       let trace = {
         type: "surface",
-        x: X, 
-        y: Y, 
+        x: X,
+        y: Y,
         z: Z,
         colorscale: "Viridis"
       };
@@ -653,7 +661,8 @@
         return;
       }
       let payload = { points: domainPoints };
-      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_points", {
+      // 절대경로
+      fetch(serverBaseURL + "/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -875,7 +884,7 @@
         return;
       }
       let payload = { points: staticDomainPoints };
-      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_no_time", {
+      fetch(serverBaseURL + "/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -937,6 +946,7 @@
   </script>
 </body>
 </html>
+
 
 
 
