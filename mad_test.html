@@ -196,7 +196,7 @@
   <div class="container" id="task4Container">
     <h1>Task 4: 50x50 Grid (Click to Mark Black)</h1>
     <div class="description">
-      <p>We have a 50x50 grid on [0,1]x[0,1]. Click on a point to mark it black.</p>
+      <p>We have a 50x50 grid on [0,1]x[0,1]. Initially, each cell is white. Click on a point to mark it black.</p>
       <p>Click “Submit” to send the marked points to the server.</p>
     </div>
     <div id="task4Plot"></div>
@@ -278,7 +278,7 @@
     let task4Clicked = {};
 
     /************************************************************
-     * 4) Task4: 50x50 Grid (Click to Mark Black)
+     * 4) Task4: 50x50 Grid (White → Black on click)
      ************************************************************/
     function initTask4Plot() {
       // 50x50 grid in [0,1] x [0,1]
@@ -289,13 +289,13 @@
 
       for (let i = 0; i < 50; i++) {
         for (let j = 0; j < 50; j++) {
-          let x = j * step;        // 0..1
-          let y = i * step;        // 0..1 (아래가 i=0, 위가 i=49)
+          let x = j * step;  // 0..1
+          let y = i * step;  // 0..1
           xVals.push(x);
           yVals.push(y);
-          // 초기 색상 (짙은 회색)
-          colors.push("#444");
-          // store point info
+          // 초기 색상 = 흰색
+          colors.push("white");
+          // 저장
           task4Grid.push({ x: x, y: y });
           task4Clicked[i * 50 + j] = false;
         }
@@ -307,20 +307,21 @@
         mode: 'markers',
         marker: {
           symbol: 'square',
-          size: 6,
+          size: 8,
           color: colors
         },
         type: 'scatter'
       };
 
       let layout = {
-        title: "Task4: 50x50 Grid (Click to Mark Black)",
+        title: "Task 4: 50x50 Grid (Click to Mark Black)",
         xaxis: { range: [0,1], title: "X" },
         yaxis: { range: [0,1], title: "Y" }
       };
 
       task4Data = [trace];
       Plotly.newPlot("task4Plot", task4Data, layout).then(function(plotDiv) {
+        // 클릭 이벤트
         plotDiv.on('plotly_click', function(evt) {
           if (!evt.points || evt.points.length < 1) return;
           let idx = evt.points[0].pointNumber;
@@ -330,10 +331,11 @@
     }
 
     function toggleTask4Point(idx) {
-      // toggle the clicked state
+      // 토글
       task4Clicked[idx] = !task4Clicked[idx];
       let newColors = task4Data[0].marker.color.slice();
-      newColors[idx] = task4Clicked[idx] ? "black" : "#444";
+      // 클릭 → 검정, 해제 → 흰색
+      newColors[idx] = task4Clicked[idx] ? "black" : "white";
 
       Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
       updateTask4Feedback();
@@ -349,13 +351,13 @@
     }
 
     function task4Clear() {
-      // reset all
+      // 전체 초기화
       for (let k in task4Clicked) {
         task4Clicked[k] = false;
       }
       let newColors = task4Data[0].marker.color.slice();
       for (let i=0; i<newColors.length; i++){
-        newColors[i] = "#444";
+        newColors[i] = "white";
       }
       Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
       updateTask4Feedback();
@@ -363,7 +365,7 @@
     }
 
     function task4Submit() {
-      // gather clicked points
+      // 체크된 좌표만 추출
       let clickedCoords = [];
       for (let k in task4Clicked) {
         if (task4Clicked[k]) {
@@ -845,7 +847,7 @@
     // window.onload에서 task4 초기화
     window.onload = function() {
       initTask4Plot();  // Task4 50x50 grid 초기화
-      // Task2, Task3는 Plotly.newPlot(...) 호출 시 이미 초기화
+      // Task2, Task3는 Plotly.newPlot(...) 호출 시 이미 각각 초기화
     };
   </script>
 </body>
