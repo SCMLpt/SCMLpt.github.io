@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Unified SCMLpt - MAD</title>
+  <title>MAD Chatbot Interface</title>
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- MathJax for LaTeX rendering (optional) -->
+  <!-- MathJax for LaTeX rendering (if needed) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
     /* Basic reset and font settings */
@@ -22,328 +21,139 @@
     html, body {
       height: 100%;
       font-family: Arial, sans-serif;
-      color: #f0f0f0;
-      background-color: #000; /* fallback background */
-    }
-    /* Hero section: background image + gradient overlay */
-    .hero {
-      background: linear-gradient(
-                  to bottom,
-                  rgba(0, 0, 0, 0.4),
-                  rgba(0, 0, 0, 0.8)
-                ),
-                url('https://scmlpt.github.io/images/scimlpt-hero.jpg') no-repeat center center/cover;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      position: relative;
-    }
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      padding: 20px;
-      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-    }
-    .hero-content h1 {
-      font-size: 3.5em;
-      margin-bottom: 0.4em;
-    }
-    .hero-content p {
-      font-size: 1.3em;
-      margin-bottom: 1.5em;
-      line-height: 1.5;
-    }
-    /* Button container and button styles */
-    .btn-container {
-      display: inline-flex;
-      justify-content: center;
-    }
-    .btn-container a {
-      padding: 15px 30px;
-      background: linear-gradient(to right, #e91e63, #d81b60);
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 1.1em;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
-    }
-    .btn-container a:hover {
-      background: linear-gradient(to right, #ec407a, #e91e63);
-      box-shadow: 0 6px 16px rgba(233, 30, 99, 0.45);
-      transform: translateY(-2px);
-    }
-    /* Additional content section styles */
-    .additional-content {
-      padding: 50px;
-      text-align: center;
       background-color: #000;
+      color: #f0f0f0;
     }
-    .additional-content h2 {
-      font-size: 2.5em;
-      margin-bottom: 1em;
-    }
-    .additional-content p {
-      font-size: 1.2em;
-      line-height: 1.5;
-      max-width: 800px;
-      margin: 0 auto;
-      margin-bottom: 1.5em;
-    }
-    .social-links {
-      margin-top: 20px;
-    }
-    .social-links a {
-      margin: 0 10px;
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.2em;
-    }
-
-    /* Container for each task (hidden by default) */
-    .container {
-      width: 80%; 
-      margin: 30px auto; 
-      text-align: left;
-      background: rgba(50, 50, 50, 0.2);
-      padding: 20px; 
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      display: none; /* Hide until chatbot triggers it */
-    }
-    h1 {
-      font-size: 2em; 
-      margin-bottom: 20px; 
-      text-align: center;
-      color: #ffecb3; 
-      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
-    }
-    .description {
-      font-size: 1.1em; 
-      margin-bottom: 20px; 
-      color: #cdefff; 
-      line-height: 1.6;
-      background-color: rgba(20, 20, 20, 0.6);
-      padding: 15px; 
-      border-radius: 5px;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
-    }
-    .description p {
-      margin-bottom: 10px; 
-    }
-    textarea {
-      width: 80%; 
-      height: 150px; 
-      font-size: 1.2em; 
-      padding: 10px; 
-      margin-bottom: 20px;
-      background-color: #111; 
-      color: lightblue; 
-      border: 1px solid #333; 
-      border-radius: 5px;
-      outline: none; 
-      box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
-    }
-    button {
-      background: #ff4081; 
-      color: white; 
-      border: none; 
-      padding: 10px 25px; 
-      font-size: 1.2em;
-      cursor: pointer; 
-      border-radius: 5px; 
-      margin-top: 20px; 
-      transition: all 0.3s ease;
-    }
-    button:hover {
-      background: #f50057; 
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 64, 129, 0.5);
-    }
-    .result {
-      margin-top: 20px; 
-      font-size: 1.2em;
-      background-color: #222; 
-      padding: 20px; 
-      border-radius: 5px;
-      word-wrap: break-word; 
-      color: #fff;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    }
-
-    /* Plot areas */
-    #scimlPlotDiv {
-      margin-top: 40px; 
-      width: 80%; 
-      height: 600px; 
-      margin-left: auto; 
-      margin-right: auto;
-      border: 2px solid #555; 
-      border-radius: 5px;
-    }
-    #domainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      background-color: #222;
-      border: 2px solid #555; 
-      border-radius: 5px;
-    }
-    #domainFeedback, #domainPredDisplay {
-      margin-top: 15px; 
-      font-size: 1.1em; 
-      width: 600px; 
-      margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
-      padding: 10px; 
-      border-radius: 5px; 
-      color: cyan;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    }
-    #domainPredDisplay { 
-      color: yellow; 
-    }
-    #domain3DPlot {
-      width: 800px; 
-      height: 600px; 
-      margin: 30px auto;
-      border: 2px solid #555; 
-      border-radius: 5px; 
-      background-color: #111;
-    }
-    #staticDomainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      background-color: #222;
-      border: 2px solid #555; 
-      border-radius: 5px;
-    }
-    #staticDomainFeedback, #staticDomainPredDisplay {
-      margin-top: 15px; 
-      font-size: 1.1em; 
-      width: 600px; 
-      margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
-      padding: 10px; 
-      border-radius: 5px; 
-      color: cyan;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    }
-    #staticDomainPredDisplay { 
-      color: yellow; 
-    }
-    #staticDomain2DPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto;
-      border: 2px solid #555; 
-      border-radius: 5px; 
-      background-color: #111; 
-      margin-top: 20px;
-    }
-
-    /* Chatbot interface (bottom-right corner) */
+    /* Center the chatbot interface on the page */
     #chatbot-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 300px;
       background-color: #333;
       color: #fff;
-      padding: 10px;
+      padding: 20px;
       border-radius: 5px;
-      z-index: 9999;
+      text-align: center;
     }
     #chat-window {
-      height: 200px;
+      height: 150px;
       overflow-y: auto;
       margin-bottom: 10px;
       background: #222;
-      padding: 5px;
+      padding: 10px;
       border-radius: 5px;
       text-align: left;
     }
     #chat-input {
       width: 100%;
-      padding: 5px;
+      padding: 8px;
       border: none;
       border-radius: 3px;
+      margin-bottom: 10px;
     }
     #chatbot-container button {
       width: 100%;
-      padding: 5px;
-      margin-top: 5px;
+      padding: 8px;
       background: #ff4081;
       border: none;
       color: white;
       border-radius: 3px;
       cursor: pointer;
     }
+    /* Downstream task containers - hidden by default */
+    .container {
+      display: none;
+      width: 80%;
+      margin: 30px auto;
+      background: rgba(50,50,50,0.2);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #f0f0f0;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #ffecb3;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    }
+    .description {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      background-color: rgba(20,20,20,0.6);
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+    }
+    textarea {
+      width: 80%;
+      height: 150px;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: lightblue;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
+    button.task-btn {
+      background: #ff4081;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      font-size: 1.1em;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    button.task-btn:hover {
+      background: #f50057;
+      transform: translateY(-2px);
+    }
+    .result {
+      margin-top: 20px;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 5px;
+      color: #fff;
+    }
+    /* Plot areas */
+    #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
+      margin: 40px auto;
+      border: 2px solid #555;
+      border-radius: 5px;
+    }
+    #scimlPlotDiv { width: 80%; height: 600px; }
+    #domainPlot { width: 600px; height: 400px; margin: auto; background-color: #222; }
+    #staticDomainPlot { width: 600px; height: 400px; margin: auto; background-color: #222; }
   </style>
 </head>
 <body>
-
-  <!-- 1) Hero Section -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Welcome to SCMLpt</h1>
-      <p>
-        SCMLpt is a research agent dedicated to supporting cutting-edge technologies,
-        empowering innovative projects and advancing scientific discovery.
-      </p>
-      <div class="btn-container">
-        <!-- Example button to another link if needed -->
-        <a href="index.html">Go to Index</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2) Additional content section -->
-  <section class="additional-content">
-    <h2>SCMLpt's Research Projects</h2>
-    <p>
-      SCMLpt utilizes AI and machine learning to develop innovative solutions.
-      Our goal is to accelerate scientific discovery and push the boundaries of technology.
-    </p>
-    <div class="social-links">
-      <a href="https://x.com/KamuiTranslator">Twitter</a>
-      <a href="https://www.linkedin.com/in/dongseok-lee-71885026b/">LinkedIn</a>
-    </div>
-  </section>
-
-  <!-- 3) Static Reaction–Diffusion Container (task3) - hidden by default -->
-  <div class="container" id="staticDomainContainer">
-    <h1>Static Reaction–Diffusion Simulation</h1>
-    <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
-      <p>This simulation does not include time evolution, so a static prediction is generated.</p>
-    </div>
-    <div id="staticDomainPlot"></div>
-    <div id="staticDomainFeedback">No points clicked yet.</div>
-    <button onclick="staticDomainClear()">Clear Domain</button>
-    <button onclick="staticDomainSubmit()">Submit Domain</button>
-    <div id="staticDomainPredDisplay"></div>
-    <div id="staticDomain2DPlot"></div>
+  <!-- Chatbot Interface (only visible on initial load) -->
+  <div id="chatbot-container">
+    <div id="chat-window"></div>
+    <input type="text" id="chat-input" placeholder="Enter your command..." />
+    <button onclick="processChatInput()">Send</button>
   </div>
 
-  <!-- 4) SciML Simulation Container (task1) - hidden by default -->
+  <!-- Downstream Task Containers (hidden initially) -->
+
+  <!-- SciML Simulation Container -->
   <div class="container" id="scimlContainer">
     <h1>Boundary Layer Simulation</h1>
     <div class="description">
       <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
       <p>The PDE might look like:</p>
       <p style="text-align:center;">
-        $$
+        $$ 
         -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
         $$
       </p>
       <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
-      <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
+      <pre style="background-color:#222; padding:10px; border-radius:5px;">
 {
   "known": [
     [
@@ -358,36 +168,44 @@
     </div>
     <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
     <br />
-    <button onclick="scimlSubmitInput()">Submit</button>
+    <button class="task-btn" onclick="scimlSubmitInput()">Submit</button>
     <div class="result" id="scimlResultDisplay"></div>
     <div id="scimlPlotDiv"></div>
   </div>
 
-  <!-- 5) Domain Creator Container (task2) - hidden by default -->
+  <!-- Domain Creator Container -->
   <div class="container" id="domainContainer">
-    <h1>Domain generalization via time-dependent 2D CDR equation</h1>
+    <h1>Domain Creator</h1>
     <div class="description">
       <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
       <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
     </div>
     <div id="domainPlot"></div>
     <div id="domainFeedback">No points clicked yet.</div>
-    <button onclick="domainClear()">Clear Domain</button>
-    <button onclick="domainSubmit()">Submit Domain</button>
+    <button class="task-btn" onclick="domainClear()">Clear Domain</button>
+    <button class="task-btn" onclick="domainSubmit()">Submit Domain</button>
     <div id="domainPredDisplay"></div>
     <div id="domain3DPlot"></div>
   </div>
 
-  <!-- 6) Chatbot Interface (bottom right) -->
-  <div id="chatbot-container">
-    <div id="chat-window"></div>
-    <input type="text" id="chat-input" placeholder="Enter your command..." />
-    <button onclick="processChatInput()">Send</button>
+  <!-- Static Reaction–Diffusion Container -->
+  <div class="container" id="staticDomainContainer">
+    <h1>Static Reaction–Diffusion Simulation</h1>
+    <div class="description">
+      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+      <p>This simulation does not include time evolution, so a static prediction is generated.</p>
+    </div>
+    <div id="staticDomainPlot"></div>
+    <div id="staticDomainFeedback">No points clicked yet.</div>
+    <button class="task-btn" onclick="staticDomainClear()">Clear Domain</button>
+    <button class="task-btn" onclick="staticDomainSubmit()">Submit Domain</button>
+    <div id="staticDomainPredDisplay"></div>
+    <div id="staticDomain2DPlot"></div>
   </div>
 
   <script>
     /************************************************************
-     * 1) SciML Simulation JS (task1)
+     * SciML Simulation Functions (Task1)
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -398,7 +216,6 @@
         alert("Invalid JSON input!");
         return;
       }
-      // Auto-generate a 10x10 grid if "unknown" is not provided
       if (!jsonData.hasOwnProperty("unknown")) {
         let unknownTokens = [];
         for (let i = 0; i < 10; i++) {
@@ -409,7 +226,7 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // Replace with your server URL
+        // Replace with your server URL if necessary
         const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -459,8 +276,8 @@
       }
       let trace = {
         type: "surface",
-        x: X, 
-        y: Y, 
+        x: X,
+        y: Y,
         z: Z,
         colorscale: "Viridis"
       };
@@ -476,7 +293,7 @@
     }
 
     /************************************************************
-     * 2) Domain Creator JS (task2)
+     * Domain Creator Functions (Task2)
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -524,11 +341,9 @@
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
 
       domainPoints.push([xData, yData]);
-
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
-
       domainUpdateFeedback();
     }
 
@@ -558,7 +373,6 @@
         return;
       }
       let payload = { points: domainPoints };
-
       fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -603,29 +417,26 @@
       }
       let minZ = Math.min(...allZ);
       let maxZ = Math.max(...allZ);
-
       let initialTime = times[0];
       let arr0 = plot_points[initialTime];
       let x0 = arr0.map(pt => pt[0]);
       let y0 = arr0.map(pt => pt[1]);
       let z0 = arr0.map(pt => pt[2]);
-
       let initialData = [{
         type: 'scatter3d',
         mode: 'markers',
-        x: x0, 
-        y: y0, 
+        x: x0,
+        y: y0,
         z: z0,
         marker: {
           size: 4,
           color: z0,
-          cmin: minZ, 
+          cmin: minZ,
           cmax: maxZ,
           colorscale: 'Viridis',
           showscale: true
         }
       }];
-
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
@@ -637,13 +448,13 @@
           data: [{
             type: 'scatter3d',
             mode: 'markers',
-            x: xArr, 
-            y: yArr, 
+            x: xArr,
+            y: yArr,
             z: zArr,
             marker: {
               size: 4,
               color: zArr,
-              cmin: minZ, 
+              cmin: minZ,
               cmax: maxZ,
               colorscale: 'Viridis',
               showscale: true
@@ -651,21 +462,20 @@
           }]
         });
       }
-
       let layout = {
         title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
-        scene: { 
-          xaxis: { title: "X" }, 
-          yaxis: { title: "Y" }, 
-          zaxis: { title: "Pred Value" } 
+        scene: {
+          xaxis: { title: "X" },
+          yaxis: { title: "Y" },
+          zaxis: { title: "Pred Value" }
         },
         margin: { l: 0, r: 0, b: 0, t: 50 },
         updatemenus: [{
           type: 'buttons',
           showactive: false,
-          x: 0, 
-          y: 0, 
-          xanchor: 'left', 
+          x: 0,
+          y: 0,
+          xanchor: 'left',
           yanchor: 'top',
           pad: { t: 50, r: 10 },
           buttons: [{
@@ -699,14 +509,13 @@
           })
         }]
       };
-
       Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
         Plotly.addFrames('domain3DPlot', frames);
       });
     }
 
     /************************************************************
-     * 3) Static Reaction–Diffusion JS (task3)
+     * Static Reaction–Diffusion Functions (Task3)
      ************************************************************/
     let staticDomainPoints = [];
     let staticDomainGd;
@@ -754,11 +563,9 @@
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
 
       staticDomainPoints.push([xData, yData]);
-
       let xs = staticDomainPoints.map(pt => pt[0]);
       let ys = staticDomainPoints.map(pt => pt[1]);
       Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
-
       staticDomainUpdateFeedback();
     }
 
@@ -788,7 +595,6 @@
         return;
       }
       let payload = { points: staticDomainPoints };
-
       fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -802,17 +608,6 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
-          /*
-             data example:
-             {
-               "plot_points": [
-                 [x1, y1, pred1],
-                 [x2, y2, pred2],
-                 ...
-               ],
-               "relative_error": 0.1234
-             }
-          */
           if (data.plot_points) {
             createStatic2DPlot(data.plot_points);
           }
@@ -872,37 +667,35 @@
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
       
-      // Decide which container to show
+      // Decide which container to show based on keywords
       let response = "";
       if (input.toLowerCase().includes("simulation")) {
-        // Show SciML container
         response = "Launching SciML Simulation...";
         document.getElementById("scimlContainer").style.display = "block";
       } else if (input.toLowerCase().includes("domain")) {
-        // Show Domain Creator container
         response = "Launching Domain Creator...";
         document.getElementById("domainContainer").style.display = "block";
       } else if (input.toLowerCase().includes("static")) {
-        // Show Static Reaction–Diffusion container
         response = "Launching Static Reaction–Diffusion Simulation...";
         document.getElementById("staticDomainContainer").style.display = "block";
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
       }
       
-      // Append bot response
+      // Append bot response to chat window
       var botMessage = document.createElement("div");
       botMessage.style.margin = "5px 0";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
       
-      // Clear input & scroll
+      // Clear input and scroll chat window to bottom
       document.getElementById("chat-input").value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
   </script>
 </body>
 </html>
+
 
 
 
