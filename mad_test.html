@@ -15,9 +15,7 @@
   <style>
     /* 기본 리셋 및 폰트 설정 */
     * {
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
     }
     body {
       font-family: Arial, sans-serif;
@@ -27,161 +25,130 @@
       text-align: center;
       min-height: 100vh;
     }
-    /* 네비게이션 바 */
+    /* 네비게이션 바 개선 */
     nav {
       background: linear-gradient(to right, #1a1a1a, #111);
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
-      padding: 10px 0; 
-      font-size: 1.2em; 
-      position: sticky; 
-      top: 0; 
-      z-index: 10;
+      display: flex; justify-content: center; align-items: center;
+      padding: 10px 0; font-size: 1.2em; position: sticky; top: 0; z-index: 10;
     }
     nav a {
-      color: lightblue; 
-      text-decoration: none; 
-      margin: 0 15px; 
-      font-weight: bold; 
-      transition: color 0.3s ease;
+      color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease;
     }
     nav a:hover {
       color: #ff4081;
     }
+    nav a.active {
+      color: #ff4081; /* 현재 페이지 강조 */
+    }
+    /* 히어로 섹션 추가 */
+    .hero {
+      background: url('https://your-image-url.com/hero-background.jpg') no-repeat center center/cover;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
     /* 메인 컨테이너 */
     .container {
-      width: 80%; 
-      margin: 30px auto; 
-      text-align: left;
+      width: 80%; margin: 30px auto; text-align: left;
       background: rgba(50, 50, 50, 0.2);
-      padding: 20px; 
-      border-radius: 8px;
+      padding: 20px; border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     h1 {
-      font-size: 2em; 
-      margin-bottom: 20px; 
-      text-align: center;
-      color: #ffecb3; 
-      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      font-size: 2em; margin-bottom: 20px; text-align: center;
+      color: #ffecb3; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
     }
     .description {
-      font-size: 1.1em; 
-      margin-bottom: 20px; 
-      color: #cdefff; 
-      line-height: 1.6;
+      font-size: 1.1em; margin-bottom: 20px; color: #cdefff; line-height: 1.6;
       background-color: rgba(20, 20, 20, 0.6);
-      padding: 15px; 
-      border-radius: 5px;
+      padding: 15px; border-radius: 5px;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
     }
-    .description p {
-      margin-bottom: 10px;
-    }
+    .description p { margin-bottom: 10px; }
     textarea {
-      width: 80%; 
-      height: 150px; 
-      font-size: 1.2em; 
-      padding: 10px; 
-      margin-bottom: 20px;
-      background-color: #111; 
-      color: lightblue; 
-      border: 1px solid #333; 
-      border-radius: 5px;
-      outline: none; 
-      box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
+      width: 80%; height: 150px; font-size: 1.2em; padding: 10px; margin-bottom: 20px;
+      background-color: #111; color: lightblue; border: 1px solid #333; border-radius: 5px;
+      outline: none; box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
     }
     button {
-      background: #ff4081; 
-      color: white; 
-      border: none; 
-      padding: 10px 25px; 
-      font-size: 1.2em;
-      cursor: pointer; 
-      border-radius: 5px; 
-      margin-top: 20px; 
-      transition: all 0.3s ease;
+      background: linear-gradient(to right, #e91e63, #d81b60); /* 그라디언트 배경 추가 */
+      color: white; border: none; padding: 10px 25px; font-size: 1.2em;
+      cursor: pointer; border-radius: 5px; margin-top: 20px; transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3); /* 그림자 효과 추가 */
     }
     button:hover {
-      background: #f50057; 
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 64, 129, 0.5);
+      background: linear-gradient(to right, #ec407a, #e91e63);
+      box-shadow: 0 6px 16px rgba(233, 30, 99, 0.45);
+      transform: translateY(-2px); /* hover 시 약간 위로 이동 */
     }
     .result {
-      margin-top: 20px; 
-      font-size: 1.2em;
-      background-color: #222; 
-      padding: 20px; 
-      border-radius: 5px;
-      word-wrap: break-word; 
-      color: #fff;
+      margin-top: 20px; font-size: 1.2em;
+      background-color: #222; padding: 20px; border-radius: 5px;
+      word-wrap: break-word; color: #fff;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    /* Plot 영역 공통 스타일 */
-    #scimlPlotDiv, #domainPlot, #domain3DPlot, #staticDomainPlot, #staticDomain2DPlot, #task4Plot {
-      border: 2px solid #555; 
-      border-radius: 5px; 
-      background-color: #111;
-    }
-    /* Task1 Plot */
+    /* SciML Simulation 3D Plot (task1) */
     #scimlPlotDiv {
-      margin-top: 40px; 
-      width: 80%; 
-      height: 600px; 
-      margin-left: auto; 
-      margin-right: auto;
+      margin-top: 40px; width: 80%; height: 600px; margin-left: auto; margin-right: auto;
+      border: 2px solid #555; border-radius: 5px;
     }
-    /* Task2 Plot */
+    /* Domain Creator styling (task2) */
     #domainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      background-color: #222;
+      width: 600px; height: 400px; margin: auto; background-color: #222;
+      border: 2px solid #555; border-radius: 5px;
     }
-    #domain3DPlot {
-      width: 800px; 
-      height: 600px; 
-      margin: 30px auto;
-    }
-    /* Task3 Plot */
-    #staticDomainPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      background-color: #222;
-    }
-    #staticDomain2DPlot {
-      width: 600px; 
-      height: 400px; 
-      margin: auto; 
-      margin-top: 20px;
-    }
-    /* Task4 Plot */
-    #task4Plot {
-      width: 600px; 
-      height: 600px; 
-      margin: auto; 
-      margin-top: 20px;
-    }
-    /* Feedback/PredDisplay */
-    #domainFeedback, #domainPredDisplay,
-    #staticDomainFeedback, #staticDomainPredDisplay,
-    #task4Feedback, #task4ResultDisplay {
-      margin-top: 15px; 
-      font-size: 1.1em; 
-      width: 600px; 
-      margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
-      padding: 10px; 
-      border-radius: 5px; 
-      color: cyan;
+    #domainFeedback, #domainPredDisplay {
+      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
+      background-color: rgba(20, 20, 20, 0.6); padding: 10px; border-radius: 5px; color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #domainPredDisplay, 
-    #staticDomainPredDisplay, 
-    #task4ResultDisplay {
-      color: yellow;
+    #domainPredDisplay { color: yellow; }
+    /* 3D 애니메이션 3D Plot 영역 (task2) */
+    #domain3DPlot {
+      width: 800px; height: 600px; margin: 30px auto;
+      border: 2px solid #555; border-radius: 5px; background-color: #111;
+    }
+    /* Task3: Static Domain Creator styling */
+    #staticDomainPlot {
+      width: 600px; height: 400px; margin: auto; background-color: #222;
+      border: 2px solid #555; border-radius: 5px;
+    }
+    #staticDomainFeedback, #staticDomainPredDisplay {
+      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
+      background-color: rgba(20, 20, 20, 0.6); padding: 10px; border-radius: 5px; color: cyan;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+    #staticDomainPredDisplay { color: yellow; }
+    /* Optional: Static 2D Plot area for task3 */
+    #staticDomain2DPlot {
+      width: 600px; height: 400px; margin: auto;
+      border: 2px solid #555; border-radius: 5px; background-color: #111; margin-top: 20px;
+    }
+    /* 반응형 디자인 추가 */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+      }
+      .hero {
+        height: 200px;
+        font-size: 1.5em;
+      }
+      button {
+        padding: 8px 20px;
+        font-size: 1em;
+      }
+      #domainPlot, #domain3DPlot, #staticDomainPlot, #staticDomain2DPlot {
+        width: 100%;
+        height: 300px;
+      }
+      #domainFeedback, #domainPredDisplay, #staticDomainFeedback, #staticDomainPredDisplay {
+        width: 95%;
+      }
     }
   </style>
 </head>
@@ -189,22 +156,12 @@
   <nav>
     <a href="index.html">Home</a>
     <a href="open_research_chat.html">Open Research Chat</a>
-    <a href="about_scmlpt.html">About SCMLpt</a>
+    <a href="about_scmlpt.html" class="active">About SCMLpt</a> <!-- 현재 페이지 강조 -->
   </nav>
 
-  <!-- 4) Task4 Container: 50x50 Grid -->
-  <div class="container" id="task4Container">
-    <h1>Task 4: 50x50 Grid (Click to Mark Black)</h1>
-    <div class="description">
-      <p>We have a 50x50 grid on [0,1]×[0,1]. Initially, each cell is white. Click on a point to mark it black.</p>
-      <p>We reversed the y-axis so that i=0 is at the top (y=1) and i=49 is at the bottom (y=0). This helps align clicks more intuitively.</p>
-      <p>Click “Submit” to send the marked points to the server.</p>
-    </div>
-    <div id="task4Plot"></div>
-    <div id="task4Feedback">No points clicked yet.</div>
-    <button onclick="task4Clear()">Clear Task4</button>
-    <button onclick="task4Submit()">Submit Task4</button>
-    <div id="task4ResultDisplay"></div>
+  <!-- 히어로 섹션 추가 -->
+  <div class="hero">
+    Welcome to SCMLpt's Interactive Simulations
   </div>
 
   <!-- 3) Static Reaction–Diffusion Container (task3) -->
@@ -221,10 +178,11 @@
     <div id="staticDomainPredDisplay"></div>
     <!-- 2D Plot for static prediction -->
     <div id="staticDomain2DPlot"></div>
+  </div>
 
   <!-- 1) SciML Simulation Container (task1) -->
   <div class="container" id="scimlContainer">
-    <h1>Boundary layer Simulation</h1>
+    <h1>Boundary Layer Simulation</h1>
     <div class="description">
       <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
       <p>The PDE might look like:</p>
@@ -256,12 +214,11 @@
 
   <!-- 2) Domain Creator Container (task2) -->
   <div class="container" id="domainContainer">
-    <h1>Domain generalization via time dependent 2D CDR equation.</h1>
+    <h1>Domain Generalization via Time-Dependent 2D CDR Equation</h1>
     <div class="description">
       <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
       <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
     </div>
-
     <div id="domainPlot"></div>
     <div id="domainFeedback">No points clicked yet.</div>
     <button onclick="domainClear()">Clear Domain</button>
@@ -269,144 +226,11 @@
     <div id="domainPredDisplay"></div>
     <!-- 3D 애니메이션 3D Plot 영역 (scatter3d with color) -->
     <div id="domain3DPlot"></div>
+  </div>
 
   <script>
     /************************************************************
-     * Task4 variables
-     ************************************************************/
-    let task4Data = [];
-    let task4Grid = [];
-    let task4Clicked = {};
-
-    /************************************************************
-     * 4) Task4: 50x50 Grid (White → Black on click), y reversed
-     ************************************************************/
-    function initTask4Plot() {
-      // 50x50 grid in [0,1] x [0,1]
-      let step = 1.0 / 49.0;
-      let xVals = [];
-      let yVals = [];
-      let colors = [];
-
-      for (let i = 0; i < 50; i++) {
-        for (let j = 0; j < 50; j++) {
-          let x = j * step;         // 0..1
-          let y = 1.0 - i * step;   // i=0 -> y=1 (top), i=49 -> y=0 (bottom)
-          xVals.push(x);
-          yVals.push(y);
-          // 초기 색상 = 흰색
-          colors.push("white");
-          // 저장
-          task4Grid.push({ x: x, y: y });
-          task4Clicked[i * 50 + j] = false;
-        }
-      }
-
-      let trace = {
-        x: xVals,
-        y: yVals,
-        mode: 'markers',
-        marker: {
-          symbol: 'square',
-          size: 8,
-          color: colors
-        },
-        type: 'scatter'
-      };
-
-      let layout = {
-        title: "Task 4: 50x50 Grid (Click to Mark Black)",
-        xaxis: {
-          range: [0,1], 
-          title: "X",
-          autorange: false
-        },
-        yaxis: {
-          range: [0,1],
-          title: "Y",
-          autorange: false,
-          scaleanchor: 'x',  // x,y 1:1 비율
-          scaleratio: 1
-        }
-      };
-
-      task4Data = [trace];
-      Plotly.newPlot("task4Plot", task4Data, layout).then(function(plotDiv) {
-        // 클릭 이벤트
-        plotDiv.on('plotly_click', function(evt) {
-          if (!evt.points || evt.points.length < 1) return;
-          let idx = evt.points[0].pointNumber;
-          toggleTask4Point(idx);
-        });
-      });
-    }
-
-    function toggleTask4Point(idx) {
-      // 토글
-      task4Clicked[idx] = !task4Clicked[idx];
-      let newColors = task4Data[0].marker.color.slice();
-      // 클릭 → 검정, 해제 → 흰색
-      newColors[idx] = task4Clicked[idx] ? "black" : "white";
-
-      Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
-      updateTask4Feedback();
-    }
-
-    function updateTask4Feedback() {
-      let count = 0;
-      for (let k in task4Clicked) {
-        if (task4Clicked[k]) count++;
-      }
-      document.getElementById("task4Feedback").innerText =
-        "Clicked " + count + " point(s).";
-    }
-
-    function task4Clear() {
-      // 전체 초기화
-      for (let k in task4Clicked) {
-        task4Clicked[k] = false;
-      }
-      let newColors = task4Data[0].marker.color.slice();
-      for (let i=0; i<newColors.length; i++){
-        newColors[i] = "white";
-      }
-      Plotly.restyle("task4Plot", {"marker.color": [newColors]}, [0]);
-      updateTask4Feedback();
-      document.getElementById("task4ResultDisplay").innerText = "";
-    }
-
-    function task4Submit() {
-      // 체크된 좌표만 추출
-      let clickedCoords = [];
-      for (let k in task4Clicked) {
-        if (task4Clicked[k]) {
-          let idx = parseInt(k);
-          let x = task4Grid[idx].x;
-          let y = task4Grid[idx].y;
-          clickedCoords.push([x, y]);
-        }
-      }
-      console.log("Submitting clicked coords:", clickedCoords);
-
-      // 예시 fetch (서버에 task4 data 전송)
-      fetch("https://example.com/task4_submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ points: clickedCoords })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("task4ResultDisplay").innerText =
-          "Server response: " + JSON.stringify(data);
-      })
-      .catch(err => {
-        document.getElementById("task4ResultDisplay").innerText =
-          "Error: " + err;
-      });
-    }
-
-    /************************************************************
-     * 1) SciML Simulation (task1)
+     * 1) SciML Simulation JS (task1)
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -417,6 +241,7 @@
         alert("Invalid JSON input!");
         return;
       }
+      // 자동으로 10x10 grid 생성 (unknown이 없을 경우)
       if (!jsonData.hasOwnProperty("unknown")) {
         let unknownTokens = [];
         for (let i = 0; i < 10; i++) {
@@ -427,6 +252,7 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
+        // 서버 URL 교체
         const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -491,7 +317,7 @@
     }
 
     /************************************************************
-     * 2) Domain Creator (task2)
+     * 2) Domain Creator JS (task2)
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -567,6 +393,7 @@
       document.getElementById("domain3DPlot").innerHTML = "";
     }
 
+    // (A) createTimeLapse3D (task2)
     function createTimeLapse3D(plot_points) {
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
@@ -671,6 +498,7 @@
       });
     }
 
+    // (B) domainSubmit (task2)
     function domainSubmit() {
       if (domainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
@@ -728,6 +556,7 @@
       yaxis: { range: [1, 2], title: "y" }
     };
 
+    // 초기 Plot (task3)
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
@@ -805,14 +634,20 @@
           displayDiv.innerText = "Error: " + data.error;
         } else {
           /*
-             data = {
-               "plot_points": [ [x, y, pred_val], ... ],
+             data 구조 예:
+             {
+               "plot_points": [
+                 [x1, y1, pred1],
+                 [x2, y2, pred2],
+                 ...
+               ],
                "relative_error": 0.1234
              }
           */
           if (data.plot_points) {
             createStatic2DPlot(data.plot_points);
           }
+          // 에러 표시 (선택사항)
           if (data.relative_error !== undefined) {
             let errDiv = document.createElement("div");
             errDiv.innerText = "Relative Error: " + data.relative_error.toFixed(4);
@@ -827,6 +662,7 @@
     }
 
     function createStatic2DPlot(plot_points) {
+      // plot_points: [[x, y, pred_val], ...]
       let xVals = [];
       let yVals = [];
       let zVals = [];
@@ -854,13 +690,6 @@
       };
       Plotly.newPlot("staticDomain2DPlot", [trace], layout);
     }
-
-    // window.onload에서 task4 초기화
-    window.onload = function() {
-      initTask4Plot();  // Task4 50x50 grid 초기화
-      // Task2, Task3는 Plotly.newPlot(...) 호출 시 이미 각각 초기화
-    };
   </script>
 </body>
 </html>
-
