@@ -2,153 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Unified SCMLpt & Domain Creator</title>
+  <title>SciML Playground: Explore & Simulate</title>
 
-  <!-- Plotly.js for 3D/2D plotting -->
+  <!-- Plotly.js for advanced plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-  <!-- MathJax for LaTeX rendering (optional) -->
+  <!-- MathJax for LaTeX rendering -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
   <style>
-    /* 기본 리셋 및 폰트 설정 */
     * {
       margin: 0; padding: 0; box-sizing: border-box;
     }
     body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      background: linear-gradient(135deg, #000 0%, #111 100%);
-      color: lightblue;
-      text-align: center;
+      font-family: 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      color: #e0e1dd;
       min-height: 100vh;
+      overflow-x: hidden;
     }
-    /* 네비게이션 바 개선 */
+    /* 네비게이션 스타일 */
     nav {
-      background: linear-gradient(to right, #1a1a1a, #111);
-      display: flex; justify-content: center; align-items: center;
-      padding: 10px 0; font-size: 1.2em; position: sticky; top: 0; z-index: 10;
+      background: rgba(10, 25, 47, 0.95);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
     nav a {
-      color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease;
+      color: #00d4ff; text-decoration: none; margin: 0 20px; font-weight: 600;
+      transition: color 0.3s ease;
     }
-    nav a:hover {
-      color: #ff4081;
+    nav a:hover, nav a.active {
+      color: #ff6f61;
     }
-    nav a.active {
-      color: #ff4081; /* 현재 페이지 강조 */
-    }
-    /* 히어로 섹션 추가 */
+    /* 히어로 섹션 */
     .hero {
-      background: url('https://your-image-url.com/hero-background.jpg') no-repeat center center/cover;
-      height: 300px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-      font-size: 2.5em;
-      margin-bottom: 30px;
+      height: 350px;
+      background: url('https://via.placeholder.com/1920x350?text=SciML+Universe') no-repeat center/cover;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+      color: #fff; font-size: 2.5em; font-weight: bold;
     }
-    /* 메인 컨테이너 */
+    .hero p {
+      font-size: 0.6em; margin-top: 10px; color: #b0c4de;
+    }
+    /* 컨테이너 스타일 */
     .container {
-      width: 80%; margin: 30px auto; text-align: left;
-      background: rgba(50, 50, 50, 0.2);
-      padding: 20px; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      width: 85%; margin: 40px auto; padding: 25px;
+      background: rgba(27, 38, 59, 0.85);
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     }
     h1 {
-      font-size: 2em; margin-bottom: 20px; text-align: center;
-      color: #ffecb3; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      color: #ffd700; text-align: center; margin-bottom: 20px; font-size: 2.2em;
     }
     .description {
-      font-size: 1.1em; margin-bottom: 20px; color: #cdefff; line-height: 1.6;
-      background-color: rgba(20, 20, 20, 0.6);
-      padding: 15px; border-radius: 5px;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+      background: rgba(45, 64, 89, 0.7); padding: 15px; border-radius: 8px;
+      color: #b0c4de; line-height: 1.5; margin-bottom: 20px;
     }
-    .description p { margin-bottom: 10px; }
-    textarea {
-      width: 80%; height: 150px; font-size: 1.2em; padding: 10px; margin-bottom: 20px;
-      background-color: #111; color: lightblue; border: 1px solid #333; border-radius: 5px;
-      outline: none; box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
+    /* 입력 및 버튼 스타일 */
+    textarea, input[type="range"] {
+      width: 100%; padding: 10px; margin: 10px 0; background: #0d1b2a;
+      border: 1px solid #415a77; border-radius: 5px; color: #e0e1dd; font-size: 1.1em;
     }
     button {
-      background: linear-gradient(to right, #e91e63, #d81b60); /* 그라디언트 배경 추가 */
-      color: white; border: none; padding: 10px 25px; font-size: 1.2em;
-      cursor: pointer; border-radius: 5px; margin-top: 20px; transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3); /* 그림자 효과 추가 */
+      background: linear-gradient(90deg, #ff6f61, #de4d4d);
+      color: #fff; border: none; padding: 12px 30px; font-size: 1.1em;
+      border-radius: 5px; cursor: pointer; transition: all 0.3s ease;
+      margin: 10px 5px;
     }
     button:hover {
-      background: linear-gradient(to right, #ec407a, #e91e63);
-      box-shadow: 0 6px 16px rgba(233, 30, 99, 0.45);
-      transform: translateY(-2px); /* hover 시 약간 위로 이동 */
+      background: linear-gradient(90deg, #ff8a75, #ff6f61);
+      transform: scale(1.05);
     }
-    .result {
-      margin-top: 20px; font-size: 1.2em;
-      background-color: #222; padding: 20px; border-radius: 5px;
-      word-wrap: break-word; color: #fff;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    /* 플롯 스타일 */
+    .plot-div {
+      width: 100%; height: 500px; margin: 20px auto; border: 2px solid #415a77;
+      border-radius: 5px; background: #0d1b2a;
     }
-    /* SciML Simulation 3D Plot (task1) */
-    #scimlPlotDiv {
-      margin-top: 40px; width: 80%; height: 600px; margin-left: auto; margin-right: auto;
-      border: 2px solid #555; border-radius: 5px;
+    .feedback {
+      background: rgba(45, 64, 89, 0.7); padding: 15px; border-radius: 5px;
+      color: #00d4ff; margin-top: 15px;
     }
-    /* Domain Creator styling (task2) */
-    #domainPlot {
-      width: 600px; height: 400px; margin: auto; background-color: #222;
-      border: 2px solid #555; border-radius: 5px;
-    }
-    #domainFeedback, #domainPredDisplay {
-      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); padding: 10px; border-radius: 5px; color: cyan;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    }
-    #domainPredDisplay { color: yellow; }
-    /* 3D 애니메이션 3D Plot 영역 (task2) */
-    #domain3DPlot {
-      width: 800px; height: 600px; margin: 30px auto;
-      border: 2px solid #555; border-radius: 5px; background-color: #111;
-    }
-    /* Task3: Static Domain Creator styling */
-    #staticDomainPlot {
-      width: 600px; height: 400px; margin: auto; background-color: #222;
-      border: 2px solid #555; border-radius: 5px;
-    }
-    #staticDomainFeedback, #staticDomainPredDisplay {
-      margin-top: 15px; font-size: 1.1em; width: 600px; margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); padding: 10px; border-radius: 5px; color: cyan;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-    }
-    #staticDomainPredDisplay { color: yellow; }
-    /* Optional: Static 2D Plot area for task3 */
-    #staticDomain2DPlot {
-      width: 600px; height: 400px; margin: auto;
-      border: 2px solid #555; border-radius: 5px; background-color: #111; margin-top: 20px;
-    }
-    /* 반응형 디자인 추가 */
+    /* 반응형 디자인 */
     @media (max-width: 768px) {
-      .container {
-        width: 95%;
-      }
-      .hero {
-        height: 200px;
-        font-size: 1.5em;
-      }
-      button {
-        padding: 8px 20px;
-        font-size: 1em;
-      }
-      #domainPlot, #domain3DPlot, #staticDomainPlot, #staticDomain2DPlot {
-        width: 100%;
-        height: 300px;
-      }
-      #domainFeedback, #domainPredDisplay, #staticDomainFeedback, #staticDomainPredDisplay {
-        width: 95%;
-      }
+      .container { width: 95%; }
+      .hero { height: 250px; font-size: 1.8em; }
+      .plot-div { height: 350px; }
     }
   </style>
 </head>
@@ -156,539 +98,204 @@
   <nav>
     <a href="index.html">Home</a>
     <a href="open_research_chat.html">Open Research Chat</a>
-    <a href="about_scmlpt.html" class="active">About SCMLpt</a> <!-- 현재 페이지 강조 -->
+    <a href="about_scmlpt.html" class="active">SciML Playground</a>
   </nav>
 
-  <!-- 히어로 섹션 추가 -->
   <div class="hero">
-    Welcome to SCMLpt's Interactive Simulations
+    SciML Playground
+    <p>Explore Scientific Machine Learning in Action</p>
   </div>
 
-  <!-- 3) Static Reaction–Diffusion Container (task3) -->
-  <div class="container" id="staticDomainContainer">
-    <h1>Static Reaction–Diffusion Simulation</h1>
-    <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
-      <p>This simulation does not include time evolution so a static prediction is generated.</p>
-    </div>
-    <div id="staticDomainPlot"></div>
-    <div id="staticDomainFeedback">No points clicked yet.</div>
-    <button onclick="staticDomainClear()">Clear Domain</button>
-    <button onclick="staticDomainSubmit()">Submit Domain</button>
-    <div id="staticDomainPredDisplay"></div>
-    <!-- 2D Plot for static prediction -->
-    <div id="staticDomain2DPlot"></div>
-  </div>
-
-  <!-- 1) SciML Simulation Container (task1) -->
+  <!-- 1) SciML Boundary Layer Simulation -->
   <div class="container" id="scimlContainer">
-    <h1>Boundary Layer Simulation</h1>
+    <h1>Boundary Layer Exploration</h1>
     <div class="description">
-      <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
-      <p>The PDE might look like:</p>
-      <p style="text-align:center;">
-        $$ 
-        -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
-        $$
-      </p>
-      <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
-      <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
-{
-  "known": [
-    [
-      [0.1, 0.2, 0.9],
-      [0.2, 0.3, 0.7],
-      [0.4, 0.4, 0.8]
-    ]
-  ],
-  "epsilons": [0.01]
-}
-      </pre>
+      <p>Adjust \(\epsilon\) and input known data to solve the PDE: \(-\epsilon \Delta u^\epsilon - u^\epsilon_x = f(x,y)\).</p>
+      <p>SciML combines physics-based PDEs with machine learning for fast predictions.</p>
     </div>
-    <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
-    <br />
-    <button onclick="scimlSubmitInput()">Submit</button>
-    <div class="result" id="scimlResultDisplay"></div>
-    <div id="scimlPlotDiv"></div>
+    <label for="epsilonSlider">\(\epsilon\): <span id="epsilonValue">0.01</span></label>
+    <input type="range" id="epsilonSlider" min="0.001" max="0.1" step="0.001" value="0.01" onchange="updateEpsilon(this.value)">
+    <textarea id="scimlUserInput" placeholder='{"known": [[x1, y1, u1], ...], "epsilons": [0.01]}'></textarea>
+    <button onclick="scimlSubmitInput()">Run Simulation</button>
+    <div class="feedback" id="scimlResultDisplay"></div>
+    <div class="plot-div" id="scimlPlotDiv"></div>
   </div>
 
-  <!-- 2) Domain Creator Container (task2) -->
+  <!-- 2) Dynamic Domain Creator -->
   <div class="container" id="domainContainer">
-    <h1>Domain Generalization via Time-Dependent 2D CDR Equation</h1>
+    <h1>Dynamic Domain Simulator</h1>
     <div class="description">
-      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
-      <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+      <p>Define a 4-point polygon domain and watch the time-dependent CDR equation unfold in 3D.</p>
+      <p>Click 4 points to create your domain!</p>
     </div>
-    <div id="domainPlot"></div>
-    <div id="domainFeedback">No points clicked yet.</div>
+    <div class="plot-div" id="domainPlot" style="height: 400px;"></div>
+    <div class="feedback" id="domainFeedback">No points clicked yet.</div>
     <button onclick="domainClear()">Clear Domain</button>
-    <button onclick="domainSubmit()">Submit Domain</button>
-    <div id="domainPredDisplay"></div>
-    <!-- 3D 애니메이션 3D Plot 영역 (scatter3d with color) -->
-    <div id="domain3DPlot"></div>
+    <button onclick="domainSubmit()">Simulate</button>
+    <div class="feedback" id="domainPredDisplay"></div>
+    <div class="plot-div" id="domain3DPlot"></div>
+  </div>
+
+  <!-- 3) Static Reaction-Diffusion -->
+  <div class="container" id="staticDomainContainer">
+    <h1>Static Reaction-Diffusion</h1>
+    <div class="description">
+      <p>Define a domain and get a static prediction without time evolution.</p>
+      <p>Perfect for quick SciML experiments!</p>
+    </div>
+    <div class="plot-div" id="staticDomainPlot" style="height: 400px;"></div>
+    <div class="feedback" id="staticDomainFeedback">No points clicked yet.</div>
+    <button onclick="staticDomainClear()">Clear Domain</button>
+    <button onclick="staticDomainSubmit()">Predict</button>
+    <div class="feedback" id="staticDomainPredDisplay"></div>
+    <div class="plot-div" id="staticDomain2DPlot"></div>
   </div>
 
   <script>
-    /************************************************************
-     * 1) SciML Simulation JS (task1)
-     ************************************************************/
+    // 공통 변수 및 초기화
+    let domainPoints = [], staticDomainPoints = [];
+
+    // 1) SciML Simulation
+    function updateEpsilon(val) {
+      document.getElementById('epsilonValue').innerText = val;
+    }
+
     async function scimlSubmitInput() {
-      const inputText = document.getElementById("scimlUserInput").value;
+      const epsilon = document.getElementById('epsilonSlider').value;
+      const inputText = document.getElementById('scimlUserInput').value || '{"known": []}';
       let jsonData;
       try {
         jsonData = JSON.parse(inputText);
+        jsonData.epsilons = [parseFloat(epsilon)];
+        if (!jsonData.unknown) {
+          jsonData.unknown = [Array(100).fill().map((_, i) => [i % 10 * 0.1, Math.floor(i / 10) * 0.1, -1])];
+        }
       } catch (e) {
-        alert("Invalid JSON input!");
+        alert('Invalid JSON!');
         return;
       }
-      // 자동으로 10x10 grid 생성 (unknown이 없을 경우)
-      if (!jsonData.hasOwnProperty("unknown")) {
-        let unknownTokens = [];
-        for (let i = 0; i < 10; i++) {
-          for (let j = 0; j < 10; j++) {
-            unknownTokens.push([i * 0.1, j * 0.1, -1]);
-          }
-        }
-        jsonData.unknown = [unknownTokens];
-      }
-      try {
-        // 서버 URL 교체
-        const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
-        const response = await fetch(serverURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData),
-        });
-        const data = await response.json();
-        console.log("Response data:", data);
-        if (data.error) {
-          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
-        } else {
-          if (data.output) {
-            createSurfacePlot(jsonData.unknown, data.output);
-          } else if (data.result) {
-            createSurfacePlot(jsonData.unknown, data.result);
-          } else {
-            document.getElementById("scimlResultDisplay").innerText =
-              "No 'output' or 'result' field found in response.";
-          }
-        }
-      } catch (err) {
-        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+
+      const response = await fetch('https://b5f9-125-186-24-176.ngrok-free.app/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+      });
+      const data = await response.json();
+      console.log(data);
+      document.getElementById('scimlResultDisplay').innerText = data.error || 'Simulation Complete!';
+      if (data.output || data.result) {
+        createSciMLPlot(jsonData.unknown[0], data.output || data.result);
       }
     }
 
-    function createSurfacePlot(unknownData, outputData) {
-      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
-        unknownData = unknownData[0];
-      }
-      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
-        outputData = outputData[0];
-      }
-      let size = 10;
-      let X = [], Y = [], Z = [];
-      for (let i = 0; i < size; i++) {
+    function createSciMLPlot(unknownData, outputData) {
+      const X = [], Y = [], Z = [];
+      for (let i = 0; i < 10; i++) {
         X.push([]); Y.push([]); Z.push([]);
-      }
-      for (let idx = 0; idx < unknownData.length; idx++) {
-        let row = Math.floor(idx / size);
-        let col = idx % size;
-        let pt = unknownData[idx];
-        let xVal = pt[0], yVal = pt[1];
-        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
-        X[row][col] = xVal;
-        Y[row][col] = yVal;
-        Z[row][col] = zVal;
-      }
-      let trace = {
-        type: "surface",
-        x: X, y: Y, z: Z,
-        colorscale: "Viridis"
-      };
-      let layout = {
-        title: "Surface Plot of Predicted u(x,y)",
-        scene: {
-          xaxis: { title: "x" },
-          yaxis: { title: "y" },
-          zaxis: { title: "u(x,y)" }
+        for (let j = 0; j < 10; j++) {
+          const idx = i * 10 + j;
+          X[i][j] = unknownData[idx][0];
+          Y[i][j] = unknownData[idx][1];
+          Z[i][j] = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
         }
-      };
-      Plotly.newPlot("scimlPlotDiv", [trace], layout);
+      }
+      Plotly.newPlot('scimlPlotDiv', [{
+        type: 'surface', x: X, y: Y, z: Z, colorscale: 'Plasma'
+      }], {
+        title: 'Predicted u(x,y)', scene: { xaxis: { title: 'x' }, yaxis: { title: 'y' }, zaxis: { title: 'u' } }
+      });
     }
 
-    /************************************************************
-     * 2) Domain Creator JS (task2)
-     ************************************************************/
-    let domainPoints = [];
-    let domainGd;
-    let polygonTrace = {
-      x: [],
-      y: [],
-      mode: 'lines+markers',
-      fill: 'toself',
-      fillcolor: 'rgba(255,0,0,0.2)',
-      line: { color: 'red' },
-      marker: { color: 'cyan', size: 8 },
-      name: "Polygon"
-    };
-    let domainLayout = {
-      title: "Click exactly 4 points",
-      xaxis: { range: [0, 1.5], title: "x" },
-      yaxis: { range: [0, 1.5], title: "y" }
-    };
+    // 2) Dynamic Domain Creator
+    const domainTrace = { x: [], y: [], mode: 'lines+markers', fill: 'toself', fillcolor: 'rgba(255, 99, 71, 0.3)', line: { color: '#ff6347' } };
+    Plotly.newPlot('domainPlot', [domainTrace], { title: 'Define Your Domain', xaxis: { range: [0, 1.5] }, yaxis: { range: [0, 1.5] } })
+      .then(gd => gd.addEventListener('mousedown', e => domainClick(e, domainPoints, 'domainPlot', domainUpdateFeedback)));
 
-    Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
-      domainGd = plotDiv;
-      domainGd.addEventListener("mousedown", domainOnMouseDown);
-    });
-
-    function domainOnMouseDown(evt) {
-      if (domainPoints.length >= 4) {
-        alert("You already have 4 points. Click 'Clear Domain' to reset.");
-        return;
-      }
-      let rect = domainGd.getBoundingClientRect();
-      let xPixel = evt.clientX - rect.left;
-      let yPixel = evt.clientY - rect.top;
-      let xAxis = domainGd._fullLayout.xaxis;
-      let yAxis = domainGd._fullLayout.yaxis;
-      let xMinPix = xAxis._offset;
-      let xMaxPix = xAxis._offset + xAxis._length;
-      let yMinPix = yAxis._offset + yAxis._length;
-      let yMaxPix = yAxis._offset;
-      let xDataMin = xAxis.range[0];
-      let xDataMax = xAxis.range[1];
-      let yDataMin = yAxis.range[0];
-      let yDataMax = yAxis.range[1];
-
-      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
-      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
-      domainPoints.push([xData, yData]);
-
-      let xs = domainPoints.map(pt => pt[0]);
-      let ys = domainPoints.map(pt => pt[1]);
-      Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
-
-      domainUpdateFeedback();
+    function domainClick(evt, points, plotId, updateFn) {
+      if (points.length >= 4) return;
+      const rect = document.getElementById(plotId).getBoundingClientRect();
+      const xAxis = Plotly.d3.select(`#${plotId} .xaxislayer-above`).node();
+      const yAxis = Plotly.d3.select(`#${plotId} .yaxislayer-above`).node();
+      const x = evt.clientX - rect.left, y = evt.clientY - rect.top;
+      const xData = xAxis.p2d(x), yData = yAxis.p2d(y);
+      points.push([xData, yData]);
+      Plotly.update(plotId, { x: [points.map(p => p[0])], y: [points.map(p => p[1])] }, {}, [0]);
+      updateFn();
     }
 
     function domainUpdateFeedback() {
-      if (domainPoints.length === 0) {
-        document.getElementById("domainFeedback").innerText = "No points clicked yet.";
-        return;
-      }
-      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
-      domainPoints.forEach((pt, i) => {
-        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
-      });
-      document.getElementById("domainFeedback").innerHTML = msg;
+      document.getElementById('domainFeedback').innerHTML = domainPoints.length ? 
+        `Clicked ${domainPoints.length} points:<br>` + domainPoints.map((p, i) => `Point ${i+1}: (${p[0].toFixed(2)}, ${p[1].toFixed(2)})`).join('<br>') : 
+        'No points clicked yet.';
     }
 
     function domainClear() {
       domainPoints = [];
-      Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      Plotly.update('domainPlot', { x: [[]], y: [[]] }, {}, [0]);
       domainUpdateFeedback();
-      document.getElementById("domainPredDisplay").innerText = "";
-      document.getElementById("domain3DPlot").innerHTML = "";
+      document.getElementById('domain3DPlot').innerHTML = '';
     }
 
-    // (A) createTimeLapse3D (task2)
+    async function domainSubmit() {
+      if (domainPoints.length !== 4) return alert('Select 4 points!');
+      const response = await fetch('https://b5f9-125-186-24-176.ngrok-free.app/predict_points', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ points: domainPoints })
+      });
+      const data = await response.json();
+      if (data.plot_points) createTimeLapse3D(data.plot_points);
+      document.getElementById('domainPredDisplay').innerText = data.pred ? `Prediction: ${JSON.stringify(data.pred)}` : data.error || '';
+    }
+
     function createTimeLapse3D(plot_points) {
-      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
-      if (times.length === 0) {
-        console.log("No times in plot_points!");
-        return;
-      }
-      let allZ = [];
-      for (let t of times) {
-        let arr = plot_points[t];
-        for (let pt of arr) {
-          allZ.push(pt[2]);
-        }
-      }
-      let minZ = Math.min(...allZ);
-      let maxZ = Math.max(...allZ);
-
-      let initialTime = times[0];
-      let arr0 = plot_points[initialTime];
-      let x0 = arr0.map(pt => pt[0]);
-      let y0 = arr0.map(pt => pt[1]);
-      let z0 = arr0.map(pt => pt[2]);
-
-      let initialData = [{
-        type: 'scatter3d',
-        mode: 'markers',
-        x: x0, y: y0, z: z0,
-        marker: {
-          size: 4,
-          color: z0,
-          cmin: minZ, cmax: maxZ,
-          colorscale: 'Viridis',
-          showscale: true
-        }
-      }];
-
-      let frames = [];
-      for (let t of times) {
-        let arr = plot_points[t];
-        let xArr = arr.map(pt => pt[0]);
-        let yArr = arr.map(pt => pt[1]);
-        let zArr = arr.map(pt => pt[2]);
-        frames.push({
-          name: t,
-          data: [{
-            type: 'scatter3d',
-            mode: 'markers',
-            x: xArr, y: yArr, z: zArr,
-            marker: {
-              size: 4,
-              color: zArr,
-              cmin: minZ, cmax: maxZ,
-              colorscale: 'Viridis',
-              showscale: true
-            }
-          }]
-        });
-      }
-
-      let layout = {
-        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
-        scene: { xaxis: { title: "X" }, yaxis: { title: "Y" }, zaxis: { title: "Pred Value" } },
-        margin: { l: 0, r: 0, b: 0, t: 50 },
-        updatemenus: [{
-          type: 'buttons',
-          showactive: false,
-          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
-          pad: { t: 50, r: 10 },
-          buttons: [{
-            label: 'Play',
-            method: 'animate',
-            args: [null, {
-              fromcurrent: true,
-              frame: { redraw: true, duration: 500 },
-              transition: { duration: 300 }
-            }]
-          }]
-        }],
-        sliders: [{
-          pad: { l: 130, t: 70 },
-          currentvalue: {
-            visible: true,
-            prefix: 't* = ',
-            xanchor: 'right',
-            font: { size: 20, color: '#666' }
-          },
-          steps: times.map(t => {
-            return {
-              label: t,
-              method: 'animate',
-              args: [[t], {
-                mode: 'immediate',
-                frame: { redraw: true, duration: 300 },
-                transition: { duration: 300 }
-              }]
-            };
-          })
-        }]
-      };
-
-      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
-        Plotly.addFrames('domain3DPlot', frames);
-      });
+      const times = Object.keys(plot_points).sort((a, b) => a - b);
+      const frames = times.map(t => ({
+        name: t, data: [{ type: 'scatter3d', x: plot_points[t].map(p => p[0]), y: plot_points[t].map(p => p[1]), z: plot_points[t].map(p => p[2]), 
+          mode: 'markers', marker: { size: 5, color: plot_points[t].map(p => p[2]), colorscale: 'Viridis' } }]
+      }));
+      Plotly.newPlot('domain3DPlot', frames[0].data, {
+        title: 'Time Evolution', scene: { xaxis: { title: 'x' }, yaxis: { title: 'y' }, zaxis: { title: 'u' } },
+        updatemenus: [{ buttons: [{ label: 'Play', method: 'animate', args: [null, { frame: { duration: 500 } }] }] }],
+        sliders: [{ steps: times.map(t => ({ label: t, method: 'animate', args: [[t]] })) }]
+      }).then(() => Plotly.addFrames('domain3DPlot', frames));
     }
 
-    // (B) domainSubmit (task2)
-    function domainSubmit() {
-      if (domainPoints.length !== 4) {
-        alert("Please select exactly 4 points before submitting.");
-        return;
-      }
-      let payload = { points: domainPoints };
-
-      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_points", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Response from /predict_points:", data);
-        let displayDiv = document.getElementById("domainPredDisplay");
-        displayDiv.innerHTML = "";
-        if (data.error) {
-          displayDiv.innerText = "Error: " + data.error;
-        } else {
-          if (data.plot_points) {
-            createTimeLapse3D(data.plot_points);
-          }
-          if (data.pred) {
-            let predDiv = document.createElement("div");
-            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
-            displayDiv.appendChild(predDiv);
-          }
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
-      });
-    }
-
-    /************************************************************
-     * 3) Static Reaction–Diffusion JS (task3)
-     ************************************************************/
-    let staticDomainPoints = [];
-    let staticDomainGd;
-    let staticPolygonTrace = {
-      x: [],
-      y: [],
-      mode: 'lines+markers',
-      fill: 'toself',
-      fillcolor: 'rgba(0,255,0,0.2)',
-      line: { color: 'green' },
-      marker: { color: 'yellow', size: 8 },
-      name: "Polygon"
-    };
-    let staticDomainLayout = {
-      title: "Click exactly 4 points",
-      xaxis: { range: [1, 2], title: "x" },
-      yaxis: { range: [1, 2], title: "y" }
-    };
-
-    // 초기 Plot (task3)
-    Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
-      staticDomainGd = plotDiv;
-      staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
-    });
-
-    function staticDomainOnMouseDown(evt) {
-      if (staticDomainPoints.length >= 4) {
-        alert("You already have 4 points. Click 'Clear Domain' to reset.");
-        return;
-      }
-      let rect = staticDomainGd.getBoundingClientRect();
-      let xPixel = evt.clientX - rect.left;
-      let yPixel = evt.clientY - rect.top;
-      let xAxis = staticDomainGd._fullLayout.xaxis;
-      let yAxis = staticDomainGd._fullLayout.yaxis;
-      let xMinPix = xAxis._offset;
-      let xMaxPix = xAxis._offset + xAxis._length;
-      let yMinPix = yAxis._offset + yAxis._length;
-      let yMaxPix = yAxis._offset;
-      let xDataMin = xAxis.range[0];
-      let xDataMax = xAxis.range[1];
-      let yDataMin = yAxis.range[0];
-      let yDataMax = yAxis.range[1];
-
-      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
-      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
-      staticDomainPoints.push([xData, yData]);
-
-      let xs = staticDomainPoints.map(pt => pt[0]);
-      let ys = staticDomainPoints.map(pt => pt[1]);
-      Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
-
-      staticDomainUpdateFeedback();
-    }
+    // 3) Static Reaction-Diffusion
+    const staticTrace = { x: [], y: [], mode: 'lines+markers', fill: 'toself', fillcolor: 'rgba(0, 255, 127, 0.3)', line: { color: '#00ff7f' } };
+    Plotly.newPlot('staticDomainPlot', [staticTrace], { title: 'Define Static Domain', xaxis: { range: [1, 2] }, yaxis: { range: [1, 2] } })
+      .then(gd => gd.addEventListener('mousedown', e => domainClick(e, staticDomainPoints, 'staticDomainPlot', staticDomainUpdateFeedback)));
 
     function staticDomainUpdateFeedback() {
-      if (staticDomainPoints.length === 0) {
-        document.getElementById("staticDomainFeedback").innerText = "No points clicked yet.";
-        return;
-      }
-      let msg = "Clicked " + staticDomainPoints.length + " point(s):<br>";
-      staticDomainPoints.forEach((pt, i) => {
-        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
-      });
-      document.getElementById("staticDomainFeedback").innerHTML = msg;
+      document.getElementById('staticDomainFeedback').innerHTML = staticDomainPoints.length ? 
+        `Clicked ${staticDomainPoints.length} points:<br>` + staticDomainPoints.map((p, i) => `Point ${i+1}: (${p[0].toFixed(2)}, ${p[1].toFixed(2)})`).join('<br>') : 
+        'No points clicked yet.';
     }
 
     function staticDomainClear() {
       staticDomainPoints = [];
-      Plotly.update("staticDomainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      Plotly.update('staticDomainPlot', { x: [[]], y: [[]] }, {}, [0]);
       staticDomainUpdateFeedback();
-      document.getElementById("staticDomainPredDisplay").innerText = "";
-      document.getElementById("staticDomain2DPlot").innerHTML = "";
+      document.getElementById('staticDomain2DPlot').innerHTML = '';
     }
 
-    function staticDomainSubmit() {
-      if (staticDomainPoints.length !== 4) {
-        alert("Please select exactly 4 points before submitting.");
-        return;
-      }
-      let payload = { points: staticDomainPoints };
-
-      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_no_time", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Response from /predict_no_time:", data);
-        let displayDiv = document.getElementById("staticDomainPredDisplay");
-        displayDiv.innerHTML = "";
-        if (data.error) {
-          displayDiv.innerText = "Error: " + data.error;
-        } else {
-          /*
-             data 구조 예:
-             {
-               "plot_points": [
-                 [x1, y1, pred1],
-                 [x2, y2, pred2],
-                 ...
-               ],
-               "relative_error": 0.1234
-             }
-          */
-          if (data.plot_points) {
-            createStatic2DPlot(data.plot_points);
-          }
-          // 에러 표시 (선택사항)
-          if (data.relative_error !== undefined) {
-            let errDiv = document.createElement("div");
-            errDiv.innerText = "Relative Error: " + data.relative_error.toFixed(4);
-            displayDiv.appendChild(errDiv);
-          }
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
+    async function staticDomainSubmit() {
+      if (staticDomainPoints.length !== 4) return alert('Select 4 points!');
+      const response = await fetch('https://b5f9-125-186-24-176.ngrok-free.app/predict_no_time', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ points: staticDomainPoints })
       });
+      const data = await response.json();
+      if (data.plot_points) createStatic2DPlot(data.plot_points);
+      document.getElementById('staticDomainPredDisplay').innerText = data.relative_error ? `Relative Error: ${data.relative_error.toFixed(4)}` : data.error || '';
     }
 
     function createStatic2DPlot(plot_points) {
-      // plot_points: [[x, y, pred_val], ...]
-      let xVals = [];
-      let yVals = [];
-      let zVals = [];
-      for (let i = 0; i < plot_points.length; i++) {
-        xVals.push(plot_points[i][0]);
-        yVals.push(plot_points[i][1]);
-        zVals.push(plot_points[i][2]);
-      }
-      let trace = {
-        x: xVals,
-        y: yVals,
-        mode: 'markers',
-        marker: {
-          size: 12,
-          color: zVals,
-          colorscale: 'Viridis',
-          colorbar: { title: 'u(x,y)' }
-        },
-        type: 'scatter'
-      };
-      let layout = {
-        title: 'Static Prediction Plot',
-        xaxis: { title: 'x' },
-        yaxis: { title: 'y' }
-      };
-      Plotly.newPlot("staticDomain2DPlot", [trace], layout);
+      Plotly.newPlot('staticDomain2DPlot', [{
+        x: plot_points.map(p => p[0]), y: plot_points.map(p => p[1]), mode: 'markers',
+        marker: { size: 10, color: plot_points.map(p => p[2]), colorscale: 'Portland', colorbar: { title: 'u(x,y)' } }, type: 'scatter'
+      }], { title: 'Static Prediction', xaxis: { title: 'x' }, yaxis: { title: 'y' } });
     }
   </script>
 </body>
