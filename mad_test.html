@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAD Chatbot - GPT-like with Two Chat & Auto Scroll</title>
+  <title>MAD Chatbot - GPT-like with Auto Scroll and Ordered Tasks</title>
 
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -30,9 +30,7 @@
       align-items: center;
     }
 
-    /********************************************
-     * 1) 상단 챗봇 (Chatbot-Top)
-     ********************************************/
+    /* 1) 상단 챗봇 (Chatbot-Top) */
     #chatbot-container-top {
       margin-top: 40px;
       width: 600px;
@@ -86,9 +84,7 @@
       background: #f50057;
     }
 
-    /********************************************
-     * 2) 다운스트림 테스크 영역
-     ********************************************/
+    /* 2) 다운스트림 테스크 영역 */
     #downstream-tasks {
       width: 90%;
       max-width: 1200px;
@@ -173,7 +169,7 @@
       font-size: 1.1em; 
       width: 600px; 
       margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
+      background-color: rgba(20,20,20,0.6); 
       padding: 10px; 
       border-radius: 5px; 
       color: cyan;
@@ -195,7 +191,7 @@
       font-size: 1.1em; 
       width: 600px; 
       margin: 15px auto;
-      background-color: rgba(20, 20, 20, 0.6); 
+      background-color: rgba(20,20,20,0.6); 
       padding: 10px; 
       border-radius: 5px; 
       color: cyan;
@@ -214,11 +210,9 @@
       margin-top: 20px;
     }
 
-    /********************************************
-     * 3) 하단 챗봇 (Chatbot-Bottom)
-     ********************************************/
+    /* 3) 하단 챗봇 (Chatbot-Bottom) - 처음엔 숨김 */
     #chatbot-container-bottom {
-      display: none; /* 초기엔 숨김 */
+      display: none;
       width: 600px;
       max-width: 90%;
       background-color: #333;
@@ -278,7 +272,7 @@
     <div class="container" id="scimlContainer">
       <h1>Boundary Layer Simulation</h1>
       <div class="description">
-        <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+        <p>This is an example of a foundational model on the domain \(\,[0,1]\times[0,1]\,\).</p>
         <p>The PDE might look like:</p>
         <p style="text-align:center;">
           $$
@@ -337,7 +331,7 @@
     </div>
   </div>
 
-  <!-- 하단 챗봇 (처음엔 숨김) -->
+  <!-- 하단 챗봇 -->
   <div id="chatbot-container-bottom">
     <h2>MAD Chatbot (Bottom)</h2>
     <div id="chat-window-bottom"></div>
@@ -363,23 +357,28 @@
 
       let response = "";
 
-      // (2) 키워드 분석 -> 해당 테스크 표시 + 상단 챗봇 숨김
+      // (2) 키워드 분석 -> 해당 테스크 표시 및 상단 챗봇 숨김
       if (input.toLowerCase().includes("simulation")) {
-        document.getElementById("scimlContainer").style.display = "block";
+        var container = document.getElementById("scimlContainer");
+        container.style.display = "block";
+        // 재배치: 항상 마지막에 추가
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching SciML Simulation...";
-        // 자동 스크롤
-        document.getElementById("scimlContainer").scrollIntoView({ behavior: 'smooth' });
-        // 상단 챗봇 숨김
+        container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("domain")) {
-        document.getElementById("domainContainer").style.display = "block";
+        var container = document.getElementById("domainContainer");
+        container.style.display = "block";
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        document.getElementById("domainContainer").scrollIntoView({ behavior: 'smooth' });
+        container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("static")) {
-        document.getElementById("staticDomainContainer").style.display = "block";
+        var container = document.getElementById("staticDomainContainer");
+        container.style.display = "block";
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        document.getElementById("staticDomainContainer").scrollIntoView({ behavior: 'smooth' });
+        container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
@@ -391,7 +390,7 @@
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
 
-      // (4) 입력창 초기화 & 자동 스크롤
+      // (4) 입력창 초기화 및 자동 스크롤
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -404,7 +403,7 @@
       const input = inputField.value.trim();
       if (!input) return;
 
-      // (1) 사용자 메시지
+      // (1) 사용자 메시지 추가
       const chatWindow = document.getElementById("chat-window-bottom");
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
@@ -412,30 +411,36 @@
       chatWindow.appendChild(userMessage);
 
       let response = "";
-      // (2) 키워드 분석 -> 다른 테스크 표시 가능
+      // (2) 키워드 분석 -> 해당 테스크 실행 (이미 있는 테스크 재배치)
       if (input.toLowerCase().includes("simulation")) {
-        document.getElementById("scimlContainer").style.display = "block";
+        var container = document.getElementById("scimlContainer");
+        container.style.display = "block";
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching SciML Simulation...";
-        document.getElementById("scimlContainer").scrollIntoView({ behavior: 'smooth' });
+        container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("domain")) {
-        document.getElementById("domainContainer").style.display = "block";
+        var container = document.getElementById("domainContainer");
+        container.style.display = "block";
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        document.getElementById("domainContainer").scrollIntoView({ behavior: 'smooth' });
+        container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("static")) {
-        document.getElementById("staticDomainContainer").style.display = "block";
+        var container = document.getElementById("staticDomainContainer");
+        container.style.display = "block";
+        document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        document.getElementById("staticDomainContainer").scrollIntoView({ behavior: 'smooth' });
+        container.scrollIntoView({ behavior: 'smooth' });
       } else {
         response = "I'm sorry, I didn't understand. Please try 'simulation', 'domain', or 'static'.";
       }
 
-      // (3) 봇 메시지
+      // (3) 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
       chatWindow.appendChild(botMessage);
 
-      // (4) 입력창 초기화 & 스크롤
+      // (4) 입력창 초기화 및 자동 스크롤
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -462,7 +467,6 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // 예시 서버 URL
         const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -486,8 +490,7 @@
       } catch (err) {
         document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
       }
-
-      // **테스크 완료 후: 하단 챗봇 보이기 + 스크롤**
+      // 테스크 완료 후 하단 챗봇 표시 및 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -578,10 +581,8 @@
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
-
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
-
       domainPoints.push([xData, yData]);
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
@@ -642,8 +643,7 @@
         console.error("Fetch error:", err);
         document.getElementById("domainPredDisplay").innerText = "Error: " + err;
       });
-
-      // **테스크 완료 후: 하단 챗봇 보이기 + 스크롤**
+      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -852,17 +852,6 @@
         if (data.error) {
           displayDiv.innerText = "Error: " + data.error;
         } else {
-          /*
-             data example:
-             {
-               "plot_points": [
-                 [x1, y1, pred1],
-                 [x2, y2, pred2],
-                 ...
-               ],
-               "relative_error": 0.1234
-             }
-          */
           if (data.plot_points) {
             createStatic2DPlot(data.plot_points);
           }
@@ -877,8 +866,7 @@
         console.error("Fetch error:", err);
         document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
       });
-
-      // **테스크 완료 후: 하단 챗봇 보이기 + 스크롤**
+      // 테스크 완료 후 하단 챗봇 보이기 + 스크롤
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
@@ -913,6 +901,8 @@
     }
   </script>
 </body>
+</html>
+
 </html>
 
 
