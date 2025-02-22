@@ -29,7 +29,7 @@
       flex-direction: column;
       align-items: center;
     }
-    /* 상단 챗봇 (Chatbot-Top) */
+    /* Top Chatbot Container */
     #chatbot-container-top {
       margin-top: 40px;
       width: 600px;
@@ -82,7 +82,7 @@
     #chatbot-container-top button:hover {
       background: #f50057;
     }
-    /* 다운스트림 테스크 영역 */
+    /* Downstream Task Area */
     #downstream-tasks {
       width: 90%;
       max-width: 1200px;
@@ -144,7 +144,7 @@
       color: #fff;
       word-wrap: break-word;
     }
-    /* Plot areas */
+    /* Plot Areas */
     #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
       margin: 40px auto;
       border: 2px solid #555;
@@ -207,7 +207,7 @@
       background-color: #111;
       margin-top: 20px;
     }
-    /* 하단 챗봇 (Chatbot-Bottom) - 처음엔 숨김 */
+    /* Bottom Chatbot Container (initially hidden) */
     #chatbot-container-bottom {
       display: none;
       width: 600px;
@@ -256,20 +256,21 @@
 <body>
 
   <script>
-    // 절대 경로 사용: Flask 서버가 127.0.0.1:5001 에서 동작한다고 가정
-    // 필요시 'localhost'나 다른 IP로 바꾸세요
+    // Use an absolute path: assuming the Flask server is running on 127.0.0.1:5001.
+    // Change 'localhost' or the IP if necessary.
     const serverBaseURL = "http://127.0.0.1:5001";
   </script>
 
-  <!-- 상단 챗봇 -->
+  <!-- Top Chatbot Container -->
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
     <div id="chat-window-top"></div>
-    <input type="text" id="chat-input-top" placeholder="Type 'simulation', 'domain', 'static', or your question..." />
+    <!-- Updated placeholder advises user to include one of the task keywords -->
+    <input type="text" id="chat-input-top" placeholder="Type your question. For PDE tasks, include 'simulation', 'domain', or 'static'." />
     <button onclick="processChatInputTop()">Send</button>
   </div>
 
-  <!-- 다운스트림 테스크 영역 -->
+  <!-- Downstream Task Area -->
   <div id="downstream-tasks">
     <!-- SciML Simulation Container (Task1) -->
     <div class="container" id="scimlContainer">
@@ -334,7 +335,7 @@ $$
     </div>
   </div>
 
-  <!-- 하단 챗봇 -->
+  <!-- Bottom Chatbot Container -->
   <div id="chatbot-container-bottom">
     <h2>MAD Chatbot (Bottom)</h2>
     <div id="chat-window-bottom"></div>
@@ -344,23 +345,21 @@ $$
 
   <script>
     /************************************************************
-     * 0) 상단 챗봇 로직
+     * 0) Top Chatbot Logic
      ************************************************************/
     function processChatInputTop() {
       const inputField = document.getElementById("chat-input-top");
       const input = inputField.value.trim();
       if (!input) return;
-
       const chatWindow = document.getElementById("chat-window-top");
-      // 사용자 메시지 추가
+      // Append user message
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
 
       let response = "";
-
-      // 만약 입력이 "simulation", "domain", "static" 중 하나면 해당 태스크 실행
+      // Check for task keywords and launch corresponding task container
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
         container.style.display = "block";
@@ -373,9 +372,7 @@ $$
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        setTimeout(() => {
-          Plotly.relayout("domainPlot", domainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("domainPlot", domainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else if (input.toLowerCase().includes("static")) {
@@ -383,13 +380,11 @@ $$
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        setTimeout(() => {
-          Plotly.relayout("staticDomainPlot", staticDomainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("staticDomainPlot", staticDomainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
-        // 그렇지 않다면 GPT-2 기반 미니 챗봇으로 처리 (절대경로)
+        // Otherwise, use the /chat endpoint
         fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -405,13 +400,9 @@ $$
           inputField.value = "";
           chatWindow.scrollTop = chatWindow.scrollHeight;
         })
-        .catch(err => {
-          console.error(err);
-        });
-        return;  // 여기서 종료
+        .catch(err => { console.error(err); });
+        return;
       }
-
-      // 태스크 실행 관련 봇 메시지 추가
       const botMessage = document.createElement("div");
       botMessage.className = "message message-bot";
       botMessage.innerHTML = "<strong>Bot:</strong> " + response;
@@ -421,20 +412,17 @@ $$
     }
 
     /************************************************************
-     * 0-1) 하단 챗봇 로직 (추가 명령)
+     * 0-1) Bottom Chatbot Logic (Additional Commands)
      ************************************************************/
     function processChatInputBottom() {
       const inputField = document.getElementById("chat-input-bottom");
       const input = inputField.value.trim();
       if (!input) return;
-
       const chatWindow = document.getElementById("chat-window-bottom");
-      // 사용자 메시지 추가
       const userMessage = document.createElement("div");
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
-
       let response = "";
       if (input.toLowerCase().includes("simulation")) {
         const container = document.getElementById("scimlContainer");
@@ -447,21 +435,16 @@ $$
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Domain Creator...";
-        setTimeout(() => {
-          Plotly.relayout("domainPlot", domainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("domainPlot", domainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else if (input.toLowerCase().includes("static")) {
         const container = document.getElementById("staticDomainContainer");
         container.style.display = "block";
         document.getElementById("downstream-tasks").appendChild(container);
         response = "Launching Static Reaction–Diffusion...";
-        setTimeout(() => {
-          Plotly.relayout("staticDomainPlot", staticDomainLayout);
-        }, 50);
+        setTimeout(() => { Plotly.relayout("staticDomainPlot", staticDomainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
-        // GPT-2 처리 (절대경로)
         fetch(serverBaseURL + "/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -477,9 +460,7 @@ $$
           inputField.value = "";
           chatWindow.scrollTop = chatWindow.scrollHeight;
         })
-        .catch(err => {
-          console.error(err);
-        });
+        .catch(err => { console.error(err); });
         return;
       }
       const botMessage = document.createElement("div");
@@ -512,7 +493,6 @@ $$
         jsonData.unknown = [unknownTokens];
       }
       try {
-        // 절대경로로 predict
         const serverURL = serverBaseURL + "/predict";
         const response = await fetch(serverURL, {
           method: "POST",
@@ -661,7 +641,6 @@ $$
         return;
       }
       let payload = { points: domainPoints };
-      // 절대경로
       fetch(serverBaseURL + "/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -946,6 +925,7 @@ $$
   </script>
 </body>
 </html>
+
 
 
 
