@@ -2,101 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAD Chatbot - GPT-like with Auto Scroll and Ordered Tasks (Fixed Axis)</title>
-
+  <title>Unified SCMLpt, Domain Creator & MAD Chatbot</title>
+  
   <!-- Plotly.js for 3D/2D plotting -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
+  
   <!-- MathJax for LaTeX rendering (optional) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-
+  
   <style>
-    /* Basic reset and font settings */
+    /* 기본 리셋 및 폰트 설정 */
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
     }
-    html, body {
-      width: 100%;
-      min-height: 100%;
+    body {
       font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    /* Top Chatbot Container */
-    #chatbot-container-top {
-      margin-top: 40px;
-      width: 600px;
-      max-width: 90%;
-      background-color: #333;
-      padding: 20px;
-      border-radius: 5px;
-    }
-    #chatbot-container-top h2 {
+      background: linear-gradient(135deg, #000 0%, #111 100%);
+      color: lightblue;
       text-align: center;
-      margin-bottom: 10px;
+      min-height: 100vh;
     }
-    #chat-window-top {
-      height: 300px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      background: #222;
-      padding: 10px;
-      border-radius: 5px;
+    /* 네비게이션 바 */
+    nav {
+      background: linear-gradient(to right, #1a1a1a, #111);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 0;
+      font-size: 1.2em;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    .message {
-      margin: 5px 0;
-      line-height: 1.4;
+    nav a {
+      color: lightblue;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+      transition: color 0.3s ease;
     }
-    .message-user strong {
-      color: #66c2ff;
-    }
-    .message-bot strong {
+    nav a:hover {
       color: #ff4081;
     }
-    #chat-input-top {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 3px;
-      margin-bottom: 10px;
-      outline: none;
-      font-size: 1em;
-    }
-    #chatbot-container-top button {
-      width: 100%;
-      padding: 10px;
-      background: #ff4081;
-      border: none;
-      color: white;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 1em;
-    }
-    #chatbot-container-top button:hover {
-      background: #f50057;
-    }
-    /* Downstream Task Area */
-    #downstream-tasks {
-      width: 90%;
-      max-width: 1200px;
-      margin: 30px auto 50px auto;
-    }
+    /* 컨테이너 스타일 (SCMLpt & Domain Creator) */
     .container {
-      display: none;
+      width: 80%;
+      margin: 30px auto;
+      text-align: left;
       background: rgba(50, 50, 50, 0.2);
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      margin-bottom: 40px;
     }
-    .container h1 {
+    h1 {
       font-size: 2em;
       margin-bottom: 20px;
       text-align: center;
@@ -106,53 +66,60 @@
     .description {
       font-size: 1.1em;
       margin-bottom: 20px;
+      color: #cdefff;
+      line-height: 1.6;
       background-color: rgba(20,20,20,0.6);
       padding: 15px;
       border-radius: 5px;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
     }
+    .description p { margin-bottom: 10px; }
     textarea {
       width: 80%;
       height: 150px;
+      font-size: 1.2em;
       padding: 10px;
       margin-bottom: 20px;
       background-color: #111;
       color: lightblue;
       border: 1px solid #333;
       border-radius: 5px;
+      outline: none;
+      box-shadow: 0 0 4px rgba(255,255,255,0.2) inset;
     }
-    .task-btn {
+    button {
       background: #ff4081;
       color: white;
       border: none;
       padding: 10px 25px;
-      font-size: 1.1em;
+      font-size: 1.2em;
       cursor: pointer;
       border-radius: 5px;
       margin-top: 20px;
       transition: all 0.3s ease;
     }
-    .task-btn:hover {
+    button:hover {
       background: #f50057;
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,64,129,0.5);
     }
     .result {
       margin-top: 20px;
+      font-size: 1.2em;
       background-color: #222;
       padding: 20px;
       border-radius: 5px;
       color: #fff;
       word-wrap: break-word;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    /* Plot Areas */
-    #scimlPlotDiv, #domain3DPlot, #staticDomain2DPlot {
-      margin: 40px auto;
-      border: 2px solid #555;
-      border-radius: 5px;
-    }
+    /* Plot 영역 (SCMLpt 및 Domain Creator) */
     #scimlPlotDiv {
+      margin: 40px auto;
       width: 80%;
       height: 600px;
+      border: 2px solid #555;
+      border-radius: 5px;
     }
     #domainPlot {
       width: 600px;
@@ -173,8 +140,14 @@
       color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #domainPredDisplay {
-      color: yellow;
+    #domainPredDisplay { color: yellow; }
+    #domain3DPlot {
+      width: 800px;
+      height: 600px;
+      margin: 30px auto;
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-color: #111;
     }
     #staticDomainPlot {
       width: 600px;
@@ -195,9 +168,7 @@
       color: cyan;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
-    #staticDomainPredDisplay {
-      color: yellow;
-    }
+    #staticDomainPredDisplay { color: yellow; }
     #staticDomain2DPlot {
       width: 600px;
       height: 400px;
@@ -207,29 +178,28 @@
       background-color: #111;
       margin-top: 20px;
     }
-    /* Bottom Chatbot Container (initially hidden) */
-    #chatbot-container-bottom {
-      display: none;
+    /* MAD Chatbot (Top & Bottom) */
+    #chatbot-container-top, #chatbot-container-bottom {
       width: 600px;
       max-width: 90%;
       background-color: #333;
       padding: 20px;
       border-radius: 5px;
-      margin-bottom: 50px;
+      margin: 20px auto;
     }
-    #chatbot-container-bottom h2 {
+    #chatbot-container-top h2, #chatbot-container-bottom h2 {
       text-align: center;
       margin-bottom: 10px;
     }
-    #chat-window-bottom {
+    #chat-window-top, #chat-window-bottom {
       height: 300px;
       overflow-y: auto;
-      margin-bottom: 10px;
       background: #222;
       padding: 10px;
       border-radius: 5px;
+      margin-bottom: 10px;
     }
-    #chat-input-bottom {
+    #chat-input-top, #chat-input-bottom {
       width: 100%;
       padding: 10px;
       border: none;
@@ -238,7 +208,7 @@
       outline: none;
       font-size: 1em;
     }
-    #chatbot-container-bottom button {
+    #chatbot-container-top button, #chatbot-container-bottom button {
       width: 100%;
       padding: 10px;
       background: #ff4081;
@@ -248,35 +218,48 @@
       cursor: pointer;
       font-size: 1em;
     }
-    #chatbot-container-bottom button:hover {
+    #chatbot-container-top button:hover, #chatbot-container-bottom button:hover {
       background: #f50057;
     }
   </style>
 </head>
 <body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="open_research_chat.html">Open Research Chat</a>
+    <a href="about_scmlpt.html">About SCMLpt</a>
+  </nav>
 
-  <script>
-    // Use an absolute path: assuming the Flask server is running on 127.0.0.1:5001.
-    // Change 'localhost' or the IP if necessary.
-    const serverBaseURL = "http://127.0.0.1:5001";
-  </script>
-
-  <!-- Top Chatbot Container -->
+  <!-- MAD Chatbot (Top) -->
   <div id="chatbot-container-top">
     <h2>MAD Chatbot (Top)</h2>
     <div id="chat-window-top"></div>
-    <!-- Updated placeholder advises user to include one of the task keywords -->
     <input type="text" id="chat-input-top" placeholder="Type your question. For PDE tasks, include 'simulation', 'domain', or 'static'." />
     <button onclick="processChatInputTop()">Send</button>
   </div>
 
-  <!-- Downstream Task Area -->
+  <!-- Downstream Task Area (SCMLpt & Domain Creator) -->
   <div id="downstream-tasks">
-    <!-- SciML Simulation Container (Task1) -->
+    <!-- 3) Static Reaction–Diffusion Container (Task3) -->
+    <div class="container" id="staticDomainContainer">
+      <h1>Static Reaction–Diffusion Simulation</h1>
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+        <p>This simulation does not include time evolution so a static prediction is generated.</p>
+      </div>
+      <div id="staticDomainPlot"></div>
+      <div id="staticDomainFeedback">No points clicked yet.</div>
+      <button onclick="staticDomainClear()">Clear Domain</button>
+      <button onclick="staticDomainSubmit()">Submit Domain</button>
+      <div id="staticDomainPredDisplay"></div>
+      <div id="staticDomain2DPlot"></div>
+    </div>
+
+    <!-- 1) SciML Simulation Container (Task1) -->
     <div class="container" id="scimlContainer">
       <h1>Boundary Layer Simulation</h1>
       <div class="description">
-        <p>This is an example of a foundational model on the domain \(\,[0,1]\times[0,1]\,\).</p>
+        <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
         <p>The PDE might look like:</p>
         <p style="text-align:center;">
 $$
@@ -284,7 +267,7 @@ $$
 $$
         </p>
         <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
-        <pre style="background-color:#222; padding:10px; border-radius:5px;">
+        <pre style="background-color:#222; color:#eee; padding:10px; border-radius:5px;">
 {
   "known": [
     [
@@ -299,43 +282,28 @@ $$
       </div>
       <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
       <br />
-      <button class="task-btn" onclick="scimlSubmitInput()">Submit</button>
+      <button onclick="scimlSubmitInput()">Submit</button>
       <div class="result" id="scimlResultDisplay"></div>
       <div id="scimlPlotDiv"></div>
     </div>
 
-    <!-- Domain Creator Container (Task2) -->
+    <!-- 2) Domain Creator Container (Task2) -->
     <div class="container" id="domainContainer">
-      <h1>Domain Creator</h1>
+      <h1>Domain generalization via time dependent 2D CDR equation.</h1>
       <div class="description">
         <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
         <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
       </div>
       <div id="domainPlot"></div>
       <div id="domainFeedback">No points clicked yet.</div>
-      <button class="task-btn" onclick="domainClear()">Clear Domain</button>
-      <button class="task-btn" onclick="domainSubmit()">Submit Domain</button>
+      <button onclick="domainClear()">Clear Domain</button>
+      <button onclick="domainSubmit()">Submit Domain</button>
       <div id="domainPredDisplay"></div>
       <div id="domain3DPlot"></div>
     </div>
-
-    <!-- Static Reaction–Diffusion Container (Task3) -->
-    <div class="container" id="staticDomainContainer">
-      <h1>Static Reaction–Diffusion Simulation</h1>
-      <div class="description">
-        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
-        <p>This simulation does not include time evolution, so a static prediction is generated.</p>
-      </div>
-      <div id="staticDomainPlot"></div>
-      <div id="staticDomainFeedback">No points clicked yet.</div>
-      <button class="task-btn" onclick="staticDomainClear()">Clear Domain</button>
-      <button class="task-btn" onclick="staticDomainSubmit()">Submit Domain</button>
-      <div id="staticDomainPredDisplay"></div>
-      <div id="staticDomain2DPlot"></div>
-    </div>
   </div>
 
-  <!-- Bottom Chatbot Container -->
+  <!-- MAD Chatbot (Bottom) -->
   <div id="chatbot-container-bottom">
     <h2>MAD Chatbot (Bottom)</h2>
     <div id="chat-window-bottom"></div>
@@ -357,7 +325,7 @@ $$
       userMessage.className = "message message-user";
       userMessage.innerHTML = "<strong>User:</strong> " + input;
       chatWindow.appendChild(userMessage);
-
+      
       let response = "";
       // Check for task keywords and launch corresponding task container
       if (input.toLowerCase().includes("simulation")) {
@@ -385,7 +353,7 @@ $$
         document.getElementById("chatbot-container-top").style.display = "none";
       } else {
         // Otherwise, use the /chat endpoint
-        fetch(serverBaseURL + "/chat", {
+        fetch("http://127.0.0.1:5001/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input })
@@ -410,7 +378,7 @@ $$
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-
+    
     /************************************************************
      * 0-1) Bottom Chatbot Logic (Additional Commands)
      ************************************************************/
@@ -445,7 +413,7 @@ $$
         setTimeout(() => { Plotly.relayout("staticDomainPlot", staticDomainLayout); }, 50);
         container.scrollIntoView({ behavior: 'smooth' });
       } else {
-        fetch(serverBaseURL + "/chat", {
+        fetch("http://127.0.0.1:5001/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input })
@@ -470,9 +438,9 @@ $$
       inputField.value = "";
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-
+    
     /************************************************************
-     * 1) SciML Simulation (Task1)
+     * 1) SciML Simulation JS (Task1)
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -493,7 +461,8 @@ $$
         jsonData.unknown = [unknownTokens];
       }
       try {
-        const serverURL = serverBaseURL + "/predict";
+        // 서버 URL (예시: ngrok URL)
+        const serverURL = "https://b5f9-125-186-24-176.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -516,10 +485,8 @@ $$
       } catch (err) {
         document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
       }
-      document.getElementById("chatbot-container-bottom").style.display = "block";
-      document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
-
+    
     function createSurfacePlot(unknownData, outputData) {
       if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
         unknownData = unknownData[0];
@@ -530,9 +497,7 @@ $$
       let size = 10;
       let X = [], Y = [], Z = [];
       for (let i = 0; i < size; i++) {
-        X.push([]);
-        Y.push([]);
-        Z.push([]);
+        X.push([]); Y.push([]); Z.push([]);
       }
       for (let idx = 0; idx < unknownData.length; idx++) {
         let row = Math.floor(idx / size);
@@ -546,9 +511,7 @@ $$
       }
       let trace = {
         type: "surface",
-        x: X,
-        y: Y,
-        z: Z,
+        x: X, y: Y, z: Z,
         colorscale: "Viridis"
       };
       let layout = {
@@ -561,9 +524,9 @@ $$
       };
       Plotly.newPlot("scimlPlotDiv", [trace], layout);
     }
-
+    
     /************************************************************
-     * 2) Domain Creator (Task2)
+     * 2) Domain Creator JS (Task2)
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -582,12 +545,12 @@ $$
       xaxis: { range: [0, 1.5], title: "x" },
       yaxis: { range: [0, 1.5], title: "y" }
     };
-
+    
     Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
       domainGd = plotDiv;
       domainGd.addEventListener("mousedown", domainOnMouseDown);
     });
-
+    
     function domainOnMouseDown(evt) {
       if (domainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -606,15 +569,19 @@ $$
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
+    
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+    
       domainPoints.push([xData, yData]);
+    
       let xs = domainPoints.map(pt => pt[0]);
       let ys = domainPoints.map(pt => pt[1]);
       Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+    
       domainUpdateFeedback();
     }
-
+    
     function domainUpdateFeedback() {
       if (domainPoints.length === 0) {
         document.getElementById("domainFeedback").innerText = "No points clicked yet.";
@@ -626,7 +593,7 @@ $$
       });
       document.getElementById("domainFeedback").innerHTML = msg;
     }
-
+    
     function domainClear() {
       domainPoints = [];
       Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -634,44 +601,8 @@ $$
       document.getElementById("domainPredDisplay").innerText = "";
       document.getElementById("domain3DPlot").innerHTML = "";
     }
-
-    function domainSubmit() {
-      if (domainPoints.length !== 4) {
-        alert("Please select exactly 4 points before submitting.");
-        return;
-      }
-      let payload = { points: domainPoints };
-      fetch(serverBaseURL + "/predict_points", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Response from /predict_points:", data);
-        let displayDiv = document.getElementById("domainPredDisplay");
-        displayDiv.innerHTML = "";
-        if (data.error) {
-          displayDiv.innerText = "Error: " + data.error;
-        } else {
-          if (data.plot_points) {
-            createTimeLapse3D(data.plot_points);
-          }
-          if (data.pred) {
-            let predDiv = document.createElement("div");
-            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
-            displayDiv.appendChild(predDiv);
-          }
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
-      });
-      document.getElementById("chatbot-container-bottom").style.display = "block";
-      document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
-    }
-
+    
+    // (A) createTimeLapse3D (Task2)
     function createTimeLapse3D(plot_points) {
       let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (times.length === 0) {
@@ -687,26 +618,26 @@ $$
       }
       let minZ = Math.min(...allZ);
       let maxZ = Math.max(...allZ);
+    
       let initialTime = times[0];
       let arr0 = plot_points[initialTime];
       let x0 = arr0.map(pt => pt[0]);
       let y0 = arr0.map(pt => pt[1]);
       let z0 = arr0.map(pt => pt[2]);
+    
       let initialData = [{
         type: 'scatter3d',
         mode: 'markers',
-        x: x0,
-        y: y0,
-        z: z0,
+        x: x0, y: y0, z: z0,
         marker: {
           size: 4,
           color: z0,
-          cmin: minZ,
-          cmax: maxZ,
+          cmin: minZ, cmax: maxZ,
           colorscale: 'Viridis',
           showscale: true
         }
       }];
+    
       let frames = [];
       for (let t of times) {
         let arr = plot_points[t];
@@ -718,35 +649,26 @@ $$
           data: [{
             type: 'scatter3d',
             mode: 'markers',
-            x: xArr,
-            y: yArr,
-            z: zArr,
+            x: xArr, y: yArr, z: zArr,
             marker: {
               size: 4,
               color: zArr,
-              cmin: minZ,
-              cmax: maxZ,
+              cmin: minZ, cmax: maxZ,
               colorscale: 'Viridis',
               showscale: true
             }
           }]
         });
       }
+    
       let layout = {
         title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
-        scene: {
-          xaxis: { title: "X" },
-          yaxis: { title: "Y" },
-          zaxis: { title: "Pred Value" }
-        },
+        scene: { xaxis: { title: "X" }, yaxis: { title: "Y" }, zaxis: { title: "Pred Value" } },
         margin: { l: 0, r: 0, b: 0, t: 50 },
         updatemenus: [{
           type: 'buttons',
           showactive: false,
-          x: 0,
-          y: 0,
-          xanchor: 'left',
-          yanchor: 'top',
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
           pad: { t: 50, r: 10 },
           buttons: [{
             label: 'Play',
@@ -779,13 +701,53 @@ $$
           })
         }]
       };
+    
       Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
         Plotly.addFrames('domain3DPlot', frames);
       });
     }
-
+    
+    // (B) domainSubmit (Task2)
+    function domainSubmit() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+    
+      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_points:", data);
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createTimeLapse3D(data.plot_points);
+          }
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
+      });
+      document.getElementById("chatbot-container-bottom").style.display = "block";
+      document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
+    }
+    
     /************************************************************
-     * 3) Static Reaction–Diffusion (Task3)
+     * 3) Static Reaction–Diffusion JS (Task3)
      ************************************************************/
     let staticDomainPoints = [];
     let staticDomainGd;
@@ -804,12 +766,12 @@ $$
       xaxis: { range: [1, 2], title: "x" },
       yaxis: { range: [1, 2], title: "y" }
     };
-
+    
     Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
       staticDomainGd = plotDiv;
       staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
     });
-
+    
     function staticDomainOnMouseDown(evt) {
       if (staticDomainPoints.length >= 4) {
         alert("You already have 4 points. Click 'Clear Domain' to reset.");
@@ -828,15 +790,19 @@ $$
       let xDataMax = xAxis.range[1];
       let yDataMin = yAxis.range[0];
       let yDataMax = yAxis.range[1];
+    
       let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
       let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+    
       staticDomainPoints.push([xData, yData]);
+    
       let xs = staticDomainPoints.map(pt => pt[0]);
       let ys = staticDomainPoints.map(pt => pt[1]);
       Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
+    
       staticDomainUpdateFeedback();
     }
-
+    
     function staticDomainUpdateFeedback() {
       if (staticDomainPoints.length === 0) {
         document.getElementById("staticDomainFeedback").innerText = "No points clicked yet.";
@@ -848,7 +814,7 @@ $$
       });
       document.getElementById("staticDomainFeedback").innerHTML = msg;
     }
-
+    
     function staticDomainClear() {
       staticDomainPoints = [];
       Plotly.update("staticDomainPlot", { x: [[]], y: [[]] }, {}, [0]);
@@ -856,14 +822,15 @@ $$
       document.getElementById("staticDomainPredDisplay").innerText = "";
       document.getElementById("staticDomain2DPlot").innerHTML = "";
     }
-
+    
     function staticDomainSubmit() {
       if (staticDomainPoints.length !== 4) {
         alert("Please select exactly 4 points before submitting.");
         return;
       }
       let payload = { points: staticDomainPoints };
-      fetch(serverBaseURL + "/predict_no_time", {
+    
+      fetch("https://b5f9-125-186-24-176.ngrok-free.app/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -893,7 +860,7 @@ $$
       document.getElementById("chatbot-container-bottom").style.display = "block";
       document.getElementById("chatbot-container-bottom").scrollIntoView({ behavior: 'smooth' });
     }
-
+    
     function createStatic2DPlot(plot_points) {
       let xVals = [];
       let yVals = [];
