@@ -64,7 +64,7 @@
             background: #111;
             border-top: 1px solid #333;
         }
-        #chatbotInput {
+        #categorySelect {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
@@ -73,6 +73,7 @@
             border: 1px solid #444;
             border-radius: 5px 0 0 5px;
             outline: none;
+            cursor: pointer;
         }
         #chatbotSubmit {
             padding: 10px 20px;
@@ -97,13 +98,19 @@
         <a href="contact.html">Contact</a>
     </nav>
 
-    <!-- Chatbot Only -->
+    <!-- Chatbot Only with Dropdown -->
     <div id="chatbotContainer">
         <div id="chatLog">
-            <div class="message bot-message">Hi! What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)</div>
+            <div class="message bot-message">Hi! Please select a broad research area to get started:</div>
         </div>
         <div id="chatInputContainer">
-            <input type="text" id="chatbotInput" placeholder="Type your response here..." />
+            <select id="categorySelect" onchange="handleCategorySelect()">
+                <option value="">Select a research area...</option>
+                <option value="ai & machine learning">AI & Machine Learning</option>
+                <option value="scientific machine learning">Scientific Machine Learning</option>
+                <option value="computational science">Computational Science</option>
+                <option value="data science & applications">Data Science & Applications</option>
+            </select>
             <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
         </div>
     </div>
@@ -140,21 +147,29 @@
         let selectedCategory = ''; // 선택된 카테고리
         let selectedTopic = ''; // 선택된 주제
 
-        function handleChatbotInput() {
-            const input = document.getElementById("chatbotInput").value.trim().toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and');
-            if (!input) return;
+        function handleCategorySelect() {
+            const category = document.getElementById("categorySelect").value.trim().toLowerCase().replaceAll('&', 'and');
+            if (category && category !== "select a research area...") {
+                handleChatbotInput(category); // 드롭다운 선택 시 자동 입력 처리
+                document.getElementById("categorySelect").value = ""; // 선택 후 초기화
+            }
+        }
+
+        function handleChatbotInput(input = null) {
+            const userInput = input || document.getElementById("chatbotInput").value.trim().toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and');
+            if (!userInput) return;
 
             const chatLog = document.getElementById("chatLog");
             const userMessage = document.createElement("div");
             userMessage.className = "message user-message";
-            userMessage.textContent = input;
+            userMessage.textContent = userInput;
             chatLog.appendChild(userMessage);
 
             let response = '';
             let nextState = 'category'; // 기본 상태 유지
 
             if (currentState === 'category') {
-                const matchedCategory = Object.keys(categories).find(cat => input.includes(cat.replaceAll('&', 'and').replaceAll('-', ' ')));
+                const matchedCategory = Object.keys(categories).find(cat => userInput.includes(cat.replaceAll('&', 'and').replaceAll('-', ' ')));
                 if (matchedCategory) {
                     selectedCategory = matchedCategory;
                     const topics = categories[matchedCategory];
@@ -166,7 +181,7 @@
             } else if (currentState === 'topic') {
                 if (selectedCategory) {
                     const topics = categories[selectedCategory];
-                    const matchedTopic = topics.find(t => input.includes(t.name.toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and')));
+                    const matchedTopic = topics.find(t => userInput.includes(t.name.toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and')));
                     if (matchedTopic) {
                         selectedTopic = matchedTopic.name;
                         response = `Great, you selected "${matchedTopic.name}". Would you like to (1) find related papers, (2) discover influential researchers, or (3) join the open chat for this topic?`;
@@ -181,11 +196,11 @@
             } else if (currentState === 'action') {
                 if (selectedTopic) {
                     const topicId = categories[selectedCategory].find(t => t.name === selectedTopic).id;
-                    if (input.includes('paper') || input.includes('1')) {
+                    if (userInput.includes('paper') || userInput.includes('1')) {
                         response = `Here are some resources for related papers on "${selectedTopic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://arxiv.org/search/?query=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">arXiv</a>. What would you like to do next?`;
-                    } else if (input.includes('researcher') || input.includes('2')) {
+                    } else if (userInput.includes('researcher') || userInput.includes('2')) {
                         response = `Here are some influential researchers for "${selectedTopic}": You can search on <a href="https://scholar.google.com/" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://www.researchgate.net/" target="_blank" style="color: #ff4081; text-decoration: underline;">ResearchGate</a>. What would you like to do next?`;
-                    } else if (input.includes('chat') || input.includes('3')) {
+                    } else if (userInput.includes('chat') || userInput.includes('3')) {
                         response = `I found a chat room for "${selectedTopic}"! Click here to join: <a href="chatroom.html?room=${topicId}" style="color: #ff4081; text-decoration: underline;">Join ${selectedTopic}</a>`;
                         nextState = 'category'; // 대화 초기화
                         selectedCategory = '';
@@ -205,7 +220,7 @@
             chatLog.appendChild(botMessage);
 
             currentState = nextState;
-            document.getElementById("chatbotInput").value = '';
+            if (!input) document.getElementById("chatbotInput").value = '';
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
