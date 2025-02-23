@@ -3,56 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Research Chat</title>
+    <title>Open Research Chat - SCMLpt</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
-            background-color: black;
+            background: linear-gradient(135deg, #000 0%, #111 100%);
             color: lightblue;
-            text-align: center;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         nav {
-            display: flex;
-            justify-content: center;
-            background: black;
-            padding: 10px 0;
-            font-size: 1.2em;
+            background: linear-gradient(to right, #1a1a1a, #111);
+            display: flex; justify-content: center; align-items: center;
+            padding: 10px 0; font-size: 1.2em; position: sticky; top: 0; z-index: 10;
         }
-        nav a {
-            color: lightblue;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
+        nav a { color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease; }
+        nav a:hover { color: #ff4081; }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
         }
         h1 {
             font-size: 2.5em;
             margin-bottom: 20px;
+            color: #ffecb3;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+        }
+        .category {
+            margin: 30px 0;
+        }
+        .category h2 {
+            font-size: 1.8em;
+            color: #cdefff;
+            margin-bottom: 15px;
         }
         .rooms {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 15px;
         }
         .room {
             background: #222;
             padding: 15px;
             border-radius: 10px;
-            width: 60%;
-            font-size: 1.5em;
+            width: 300px;
+            font-size: 1.2em;
             text-align: center;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
         }
         .room:hover {
             background: #333;
             box-shadow: 3px 3px 15px rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        /* Chatbot Styles */
+        #chatbotContainer {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #chatLog {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .bot-message {
+            background: #333;
+            color: #fff;
+            align-self: flex-start;
+        }
+        .user-message {
+            background: #ff4081;
+            color: #fff;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        #chatInputContainer {
+            display: flex;
+            padding: 10px;
+            background: #111;
+            border-top: 1px solid #333;
+        }
+        #chatbotInput {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1.1em;
+            background-color: #222;
+            color: lightblue;
+            border: 1px solid #444;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+        #chatbotSubmit {
+            padding: 10px 20px;
+            background: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        #chatbotSubmit:hover {
+            background: #f50057;
         }
     </style>
 </head>
@@ -64,13 +138,64 @@
         <a href="philosophy.html">Philosophy</a>
         <a href="contact.html">Contact</a>
     </nav>
+
     <div class="container">
         <h1>Open Research Chat</h1>
-        <p>Choose a discussion room to join:</p>
-        
-        <div class="rooms">
-            <div class="room" onclick="enterRoom('foundational-model')"> Foundation Model</div>
-            <div class="room" onclick="enterRoom('gpu-redistribution')"> GPU Redistribution</div>
+        <p>Join a discussion room to collaborate on cutting-edge SciML topics:</p>
+
+        <!-- AI & Machine Learning -->
+        <div class="category">
+            <h2>AI & Machine Learning</h2>
+            <div class="rooms">
+                <div class="room" onclick="enterRoom('foundation-model')">Foundation Models</div>
+                <div class="room" onclick="enterRoom('deep-learning')">Deep Learning</div>
+                <div class="room" onclick="enterRoom('reinforcement-learning')">Reinforcement Learning</div>
+                <div class="room" onclick="enterRoom('natural-language-processing')">Natural Language Processing</div>
+            </div>
+        </div>
+
+        <!-- Scientific Machine Learning (SciML) -->
+        <div class="category">
+            <h2>Scientific Machine Learning (SciML)</h2>
+            <div class="rooms">
+                <div class="room" onclick="enterRoom('pde-solving')">PDE Solving with ML</div>
+                <div class="room" onclick="enterRoom('time-dependent-cdr')">Time Dependent CDR Problems</div>
+                <div class="room" onclick="enterRoom('physics-informed-nn')">Physics-Informed Neural Networks</div>
+                <div class="room" onclick="enterRoom('molecular-dynamics')">Molecular Dynamics</div>
+            </div>
+        </div>
+
+        <!-- Computational Science -->
+        <div class="category">
+            <h2>Computational Science</h2>
+            <div class="rooms">
+                <div class="room" onclick="enterRoom('gpu-redistribution')">GPU Redistribution</div>
+                <div class="room" onclick="enterRoom('quantum-computing')">Quantum Computing</div>
+                <div class="room" onclick="enterRoom('numerical-methods')">Numerical Methods</div>
+                <div class="room" onclick="enterRoom('high-performance-computing')">High-Performance Computing</div>
+            </div>
+        </div>
+
+        <!-- Data Science & Applications -->
+        <div class="category">
+            <h2>Data Science & Applications</h2>
+            <div class="rooms">
+                <div class="room" onclick="enterRoom('data-assimilation')">Data Assimilation</div>
+                <div class="room" onclick="enterRoom('climate-modeling')">Climate Modeling</div>
+                <div class="room" onclick="enterRoom('bioinformatics')">Bioinformatics</div>
+                <div class="room" onclick="enterRoom('generative-models')">Generative Models</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbotContainer">
+        <div id="chatLog">
+            <div class="message bot-message">What research topic are you interested in? Ask me about any SciML field, and I'll guide you to the right chat room!</div>
+        </div>
+        <div id="chatInputContainer">
+            <input type="text" id="chatbotInput" placeholder="Type your question here..." />
+            <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
         </div>
     </div>
 
@@ -78,6 +203,59 @@
         function enterRoom(roomName) {
             window.location.href = `chatroom.html?room=${roomName}`;
         }
+
+        const chatRooms = {
+            'foundation models': 'foundation-model',
+            'deep learning': 'deep-learning',
+            'reinforcement learning': 'reinforcement-learning',
+            'natural language processing': 'natural-language-processing',
+            'pde solving': 'pde-solving',
+            'time dependent cdr': 'time-dependent-cdr',
+            'physics-informed neural networks': 'physics-informed-nn',
+            'molecular dynamics': 'molecular-dynamics',
+            'gpu redistribution': 'gpu-redistribution',
+            'quantum computing': 'quantum-computing',
+            'numerical methods': 'numerical-methods',
+            'high-performance computing': 'high-performance-computing',
+            'data assimilation': 'data-assimilation',
+            'climate modeling': 'climate-modeling',
+            'bioinformatics': 'bioinformatics',
+            'generative models': 'generative-models'
+        };
+
+        function handleChatbotInput() {
+            const input = document.getElementById("chatbotInput").value.trim().toLowerCase();
+            if (!input) return;
+
+            const chatLog = document.getElementById("chatLog");
+            const userMessage = document.createElement("div");
+            userMessage.className = "message user-message";
+            userMessage.textContent = input;
+            chatLog.appendChild(userMessage);
+
+            let response = '';
+            const matchedRoom = Object.keys(chatRooms).find(key => input.includes(key));
+            if (matchedRoom) {
+                const roomId = chatRooms[matchedRoom];
+                response = `I found a chat room for "${matchedRoom}"! Click here to join: <a href="chatroom.html?room=${roomId}" style="color: #ff4081; text-decoration: underline;">Join ${matchedRoom}</a>`;
+            } else {
+                response = "Hmm, I couldn't find a specific room for that. Try asking about topics like 'foundation models', 'time dependent CDR', or 'quantum computing'. Or browse the rooms above!";
+            }
+
+            const botMessage = document.createElement("div");
+            botMessage.className = "message bot-message";
+            botMessage.innerHTML = response;
+            chatLog.appendChild(botMessage);
+
+            document.getElementById("chatbotInput").value = '';
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        document.getElementById("chatbotInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                handleChatbotInput();
+            }
+        });
     </script>
 </body>
 </html>
