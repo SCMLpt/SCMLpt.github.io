@@ -64,7 +64,7 @@
             background: #111;
             border-top: 1px solid #333;
         }
-        #categorySelect {
+        #categorySelect, #topicSelect {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
@@ -87,6 +87,9 @@
         #chatbotSubmit:hover {
             background: #f50057;
         }
+        #topicSelect {
+            display: none; /* 초기에는 숨김 */
+        }
     </style>
 </head>
 <body>
@@ -98,7 +101,7 @@
         <a href="contact.html">Contact</a>
     </nav>
 
-    <!-- Chatbot Only with Dropdown -->
+    <!-- Chatbot Only with Dropdowns -->
     <div id="chatbotContainer">
         <div id="chatLog">
             <div class="message bot-message">Hi! Please select a broad research area to get started:</div>
@@ -110,6 +113,9 @@
                 <option value="scientific machine learning">Scientific Machine Learning</option>
                 <option value="computational science">Computational Science</option>
                 <option value="data science & applications">Data Science & Applications</option>
+            </select>
+            <select id="topicSelect" onchange="handleTopicSelect()">
+                <option value="">Select a specific topic...</option>
             </select>
             <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
         </div>
@@ -150,8 +156,16 @@
         function handleCategorySelect() {
             const category = document.getElementById("categorySelect").value.trim().toLowerCase().replaceAll('&', 'and');
             if (category && category !== "select a research area...") {
-                handleChatbotInput(category); // 드롭다운 선택 시 자동 입력 처리
+                handleChatbotInput(category);
                 document.getElementById("categorySelect").value = ""; // 선택 후 초기화
+            }
+        }
+
+        function handleTopicSelect() {
+            const topic = document.getElementById("topicSelect").value.trim();
+            if (topic && topic !== "select a specific topic...") {
+                handleChatbotInput(topic.toLowerCase().replaceAll(' ', '-').replaceAll('&', 'and'));
+                document.getElementById("topicSelect").value = ""; // 선택 후 초기화
             }
         }
 
@@ -162,7 +176,7 @@
             const chatLog = document.getElementById("chatLog");
             const userMessage = document.createElement("div");
             userMessage.className = "message user-message";
-            userMessage.textContent = userInput;
+            userMessage.textContent = userInput.replaceAll('and', '&').replaceAll(' ', '-');
             chatLog.appendChild(userMessage);
 
             let response = '';
@@ -173,8 +187,20 @@
                 if (matchedCategory) {
                     selectedCategory = matchedCategory;
                     const topics = categories[matchedCategory];
-                    response = `"${matchedCategory.replaceAll('&', '& ').replaceAll('and', '&')}" includes these topics: ${topics.map(t => t.name).join(', ')}. Which specific topic would you like to discuss?`;
+                    response = `"${matchedCategory.replaceAll('&', '& ').replaceAll('and', '&')}" includes these topics: ${topics.map(t => t.name).join(', ')}. Please select a specific topic from the dropdown below.`;
                     nextState = 'topic';
+
+                    // 세부 주제 드롭다운 업데이트 및 표시
+                    const topicSelect = document.getElementById("topicSelect");
+                    topicSelect.innerHTML = '<option value="">Select a specific topic...</option>';
+                    topics.forEach(topic => {
+                        const option = document.createElement("option");
+                        option.value = topic.name.toLowerCase().replaceAll(' ', '-').replaceAll('&', 'and');
+                        option.textContent = topic.name;
+                        topicSelect.appendChild(option);
+                    });
+                    topicSelect.style.display = 'block'; // 드롭다운 표시
+                    document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
                 } else {
                     response = "Sorry, I didn't recognize that category. Please choose from: AI & Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
                 }
@@ -186,12 +212,18 @@
                         selectedTopic = matchedTopic.name;
                         response = `Great, you selected "${matchedTopic.name}". Would you like to (1) find related papers, (2) discover influential researchers, or (3) join the open chat for this topic?`;
                         nextState = 'action';
+
+                        // 세부 주제 드롭다운 숨김, 카테고리 드롭다운 표시
+                        document.getElementById("topicSelect").style.display = 'none';
+                        document.getElementById("categorySelect").style.display = 'block';
                     } else {
                         response = `Sorry, I couldn't find a specific topic in "${selectedCategory.replaceAll('&', '& ').replaceAll('and', '&')}". Please choose from: ${categories[selectedCategory].map(t => t.name).join(', ')}.`;
                     }
                 } else {
-                    response = "Let's start again. What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)";
+                    response = "Let's start again. Please select a broad research area to get started:";
                     nextState = 'category';
+                    document.getElementById("topicSelect").style.display = 'none';
+                    document.getElementById("categorySelect").style.display = 'block';
                 }
             } else if (currentState === 'action') {
                 if (selectedTopic) {
@@ -205,12 +237,16 @@
                         nextState = 'category'; // 대화 초기화
                         selectedCategory = '';
                         selectedTopic = '';
+                        document.getElementById("topicSelect").style.display = 'none';
+                        document.getElementById("categorySelect").style.display = 'block';
                     } else {
                         response = `Please specify (1) for related papers, (2) for influential researchers, or (3) to join the open chat for "${selectedTopic}".`;
                     }
                 } else {
-                    response = "Let's start again. What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)";
+                    response = "Let's start again. Please select a broad research area to get started:";
                     nextState = 'category';
+                    document.getElementById("topicSelect").style.display = 'none';
+                    document.getElementById("categorySelect").style.display = 'block';
                 }
             }
 
@@ -232,7 +268,6 @@
     </script>
 </body>
 </html>
-
 
 
 
