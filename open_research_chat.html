@@ -22,7 +22,6 @@
         nav a { color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease; }
         nav a:hover { color: #ff4081; }
 
-        /* Chatbot Styles */
         #chatbotContainer {
             width: 80%;
             max-width: 800px;
@@ -47,49 +46,44 @@
             border-radius: 8px;
             max-width: 70%;
         }
-        .bot-message {
-            background: #333;
-            color: #fff;
-            align-self: flex-start;
-        }
-        .user-message {
-            background: #ff4081;
-            color: #fff;
-            align-self: flex-end;
-            margin-left: auto;
-        }
+        .bot-message { background: #333; color: #fff; align-self: flex-start; }
+        .user-message { background: #ff4081; color: #fff; align-self: flex-end; margin-left: auto; }
         #chatInputContainer {
             display: flex;
+            flex-wrap: wrap;
             padding: 10px;
             background: #111;
             border-top: 1px solid #333;
+            gap: 10px;
         }
-        #categorySelect, #mainTopicSelect, #subTopicSelect, #actionSelect {
+        #breadcrumb { 
+            padding: 10px; 
+            color: #ff4081; 
+            font-weight: bold; 
+            flex-basis: 100%; 
+        }
+        #topicSelect, #actionSelect, #searchInput {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
             background-color: #222;
             color: lightblue;
             border: 1px solid #444;
-            border-radius: 5px 0 0 5px;
+            border-radius: 5px;
             outline: none;
-            cursor: pointer;
         }
+        #searchInput { border-radius: 5px; }
         #chatbotSubmit {
             padding: 10px 20px;
             background: #ff4081;
             color: white;
             border: none;
-            border-radius: 0 5px 5px 0;
+            border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s ease;
         }
-        #chatbotSubmit:hover {
-            background: #f50057;
-        }
-        #mainTopicSelect, #subTopicSelect, #actionSelect {
-            display: none; /* 초기에는 숨김 */
-        }
+        #chatbotSubmit:hover { background: #f50057; }
+        #actionSelect { display: none; }
     </style>
 </head>
 <body>
@@ -101,357 +95,195 @@
         <a href="contact.html">Contact</a>
     </nav>
 
-    <!-- Chatbot Only with Dropdowns -->
     <div id="chatbotContainer">
         <div id="chatLog">
-            <div class="message bot-message">Hi! Please select a broad research area to get started:</div>
+            <div class="message bot-message">Hi! Start by selecting a topic or typing a keyword in the search bar below:</div>
         </div>
         <div id="chatInputContainer">
-            <select id="categorySelect" onchange="handleCategorySelect()">
-                <option value="">Select a research area...</option>
-                <option value="ai & machine learning">AI & Machine Learning</option>
-                <option value="scientific machine learning">Scientific Machine Learning</option>
-                <option value="computational science">Computational Science</option>
-                <option value="data science & applications">Data Science & Applications</option>
+            <div id="breadcrumb"></div>
+            <input type="text" id="searchInput" placeholder="Search topics (e.g., PINNs, Fluid Dynamics)">
+            <select id="topicSelect"></select>
+            <select id="actionSelect">
+                <option value="">What do you want to do?</option>
+                <option value="papers">Find Recent Papers</option>
+                <option value="researchers">Discover Influential Researchers</option>
+                <option value="chat">Join Open Chat</option>
+                <option value="back">Go Back</option>
             </select>
-            <select id="mainTopicSelect" onchange="handleMainTopicSelect()">
-                <option value="">Select a main topic...</option>
-            </select>
-            <select id="subTopicSelect" onchange="handleSubTopicSelect()">
-                <option value="">Select a subtopic...</option>
-            </select>
-            <select id="actionSelect" onchange="handleActionSelect()">
-                <option value="">Select an action...</option>
-                <option value="1">Find Related Papers</option>
-                <option value="2">Discover Influential Researchers</option>
-                <option value="3">Join the Open Chat</option>
-            </select>
-            <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
+            <button id="chatbotSubmit" onclick="handleInput()">Go</button>
         </div>
     </div>
 
     <script>
-        const categories = {
-            'ai & machine learning': [
-                { 
-                    name: 'Machine Learning Foundations', 
-                    id: 'ml-foundations',
-                    subtopics: [
-                        { name: 'Foundation Models', id: 'foundation-model' },
-                        { name: 'Supervised Learning', id: 'supervised-learning' }
+        const researchTree = {
+            name: "Research Areas",
+            id: "root",
+            children: [
+                {
+                    name: "AI & Machine Learning",
+                    id: "ai-ml",
+                    children: [
+                        { name: "Deep Learning", id: "deep-learning", children: [
+                            { name: "Convolutional Neural Networks", id: "cnn", children: [
+                                { name: "Image Classification", id: "image-classification" }
+                            ] }
+                        ] },
+                        { name: "Natural Language Processing", id: "nlp", children: [
+                            { name: "Language Models", id: "language-models", children: [
+                                { name: "Transformers", id: "transformers" }
+                            ] }
+                        ] }
                     ]
                 },
-                { 
-                    name: 'Deep Learning', 
-                    id: 'deep-learning',
-                    subtopics: [
-                        { name: 'Convolutional Neural Networks', id: 'cnn' },
-                        { name: 'Recurrent Neural Networks', id: 'rnn' }
-                    ]
-                },
-                { 
-                    name: 'Advanced Learning Techniques', 
-                    id: 'advanced-learning',
-                    subtopics: [
-                        { name: 'Reinforcement Learning', id: 'reinforcement-learning' },
-                        { name: 'Transfer Learning', id: 'transfer-learning' }
-                    ]
-                },
-                { 
-                    name: 'Natural Language Processing', 
-                    id: 'nlp',
-                    subtopics: [
-                        { name: 'Language Models', id: 'language-models' },
-                        { name: 'Sentiment Analysis', id: 'sentiment-analysis' }
+                {
+                    name: "Scientific Machine Learning",
+                    id: "sciml",
+                    children: [
+                        { name: "Neural Network Applications", id: "nn-applications", children: [
+                            { name: "Physics-Informed Neural Networks", id: "pinns", children: [
+                                { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
+                                    { name: "Turbulence Modeling", id: "turbulence", children: [
+                                        { name: "LES Methods", id: "les-methods" }
+                                    ] }
+                                ] }
+                            ] }
+                        ] },
+                        { name: "Mathematical Modeling", id: "math-modeling", children: [
+                            { name: "PDE Solving", id: "pde-solving", children: [
+                                { name: "Finite Difference Methods", id: "fdm" }
+                            ] }
+                        ] }
                     ]
                 }
-            ],
-            'scientific machine learning': [
-                { 
-                    name: 'Mathematical Modeling', 
-                    id: 'math-modeling',
-                    subtopics: [
-                        { name: 'PDE Solving with ML', id: 'pde-solving-with-ml' },
-                        { name: 'ODE Integration', id: 'ode-integration' }
-                    ]
-                },
-                { 
-                    name: 'Physics-Based Learning', 
-                    id: 'physics-learning',
-                    subtopics: [
-                        { name: 'Time Dependent CDR Problems', id: 'time-dependent-cdr' },
-                        { name: 'Fluid Dynamics', id: 'fluid-dynamics' }
-                    ]
-                },
-                { 
-                    name: 'Neural Network Applications', 
-                    id: 'nn-applications',
-                    subtopics: [
-                        { name: 'Physics-Informed Neural Networks', id: 'physics-informed-nn' },
-                        { name: 'Quantum Neural Networks', id: 'quantum-nn' }
-                    ]
-                },
-                { 
-                    name: 'Molecular & Chemical Modeling', 
-                    id: 'molecular-modeling',
-                    subtopics: [
-                        { name: 'Molecular Dynamics', id: 'molecular-dynamics' },
-                        { name: 'Quantum Chemistry', id: 'quantum-chemistry' }
-                    ]
-                }
-            ],
-            'computational science': [
-                { 
-                    name: 'High-Performance Computing', 
-                    id: 'hpc',
-                    subtopics: [
-                        { name: 'GPU Redistribution', id: 'gpu-redistribution' },
-                        { name: 'Parallel Computing', id: 'parallel-computing' }
-                    ]
-                },
-                { 
-                    name: 'Quantum Computing', 
-                    id: 'quantum-computing',
-                    subtopics: [
-                        { name: 'Quantum Algorithms', id: 'quantum-algorithms' },
-                        { name: 'Quantum Error Correction', id: 'quantum-error-correction' }
-                    ]
-                },
-                { 
-                    name: 'Numerical Methods', 
-                    id: 'numerical-methods',
-                    subtopics: [
-                        { name: 'Finite Element Methods', id: 'fem' },
-                        { name: 'Monte Carlo Methods', id: 'monte-carlo' }
-                    ]
-                },
-                { 
-                    name: 'Optimization Techniques', 
-                    id: 'optimization',
-                    subtopics: [
-                        { name: 'High-Performance Computing', id: 'high-performance-computing' },
-                        { name: 'Stochastic Optimization', id: 'stochastic-optimization' }
-                    ]
-                }
-            ],
-            'data science & applications': [
-                { 
-                    name: 'Data Analysis', 
-                    id: 'data-analysis',
-                    subtopics: [
-                        { name: 'Data Assimilation', id: 'data-assimilation' },
-                        { name: 'Time Series Analysis', id: 'time-series-analysis' }
-                    ]
-                },
-                { 
-                    name: 'Environmental Modeling', 
-                    id: 'environmental-modeling',
-                    subtopics: [
-                        { name: 'Climate Modeling', id: 'climate-modeling' },
-                        { name: 'Weather Prediction', id: 'weather-prediction' }
-                    ]
-                },
-                { 
-                    name: 'Biological Data', 
-                    id: 'biological-data',
-                    subtopics: [
-                        { name: 'Bioinformatics', id: 'bioinformatics' },
-                        { name: 'Genomics', id: 'genomics' }
-                    ]
-                },
-                { 
-                    name: 'Generative Models', 
-                    id: 'generative-models',
-                    subtopics: [
-                        { name: 'Generative Adversarial Networks', id: 'gan' },
-                        { name: 'Variational Autoencoders', id: 'vae' }
-                    ]
-                }
+                // 더 많은 주제 추가 가능
             ]
         };
 
-        let currentState = 'category'; // 대화 상태: 'category' → 'main-topic' → 'sub-topic' → 'action'
-        let selectedCategory = ''; // 선택된 카테고리
-        let selectedMainTopic = ''; // 선택된 주요 주제
-        let selectedSubTopic = ''; // 선택된 세부 주제
+        let currentNode = researchTree;
+        let path = []; // 탐색 경로
 
-        function handleCategorySelect() {
-            const category = document.getElementById("categorySelect").value.trim().toLowerCase().replaceAll('&', 'and').replaceAll(' ', '-');
-            if (category && category !== "") {
-                handleChatbotInput(category);
-                document.getElementById("categorySelect").value = ""; // 선택 후 초기화
-            }
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById("breadcrumb");
+            breadcrumb.textContent = path.length > 0 ? "Path: " + path.map(p => p.name).join(" > ") : "Path: Root";
         }
 
-        function handleMainTopicSelect() {
-            const mainTopic = document.getElementById("mainTopicSelect").value.trim().toLowerCase();
-            if (mainTopic && mainTopic !== "") {
-                handleChatbotInput(mainTopic);
-                document.getElementById("mainTopicSelect").value = ""; // 선택 후 초기화
+        function updateTopicSelect() {
+            const select = document.getElementById("topicSelect");
+            select.innerHTML = '<option value="">Explore further...</option>';
+            if (currentNode.children) {
+                currentNode.children.forEach(child => {
+                    const option = document.createElement("option");
+                    option.value = child.id;
+                    option.textContent = child.name;
+                    select.appendChild(option);
+                });
             }
+            select.style.display = currentNode.children ? "block" : "none";
+            document.getElementById("actionSelect").style.display = "block";
         }
 
-        function handleSubTopicSelect() {
-            const subTopic = document.getElementById("subTopicSelect").value.trim().toLowerCase();
-            if (subTopic && subTopic !== "") {
-                handleChatbotInput(subTopic);
-                document.getElementById("subTopicSelect").value = ""; // 선택 후 초기화
-            }
-        }
-
-        function handleActionSelect() {
-            const action = document.getElementById("actionSelect").value.trim();
-            if (action && action !== "") {
-                handleChatbotInput(action);
-                document.getElementById("actionSelect").value = ""; // 선택 후 초기화
-            }
-        }
-
-        function handleChatbotInput(input = null) {
-            const userInput = input || document.getElementById("chatbotInput").value.trim().toLowerCase().replaceAll(' ', '-').replaceAll('&', 'and');
-            if (!userInput) return;
+        function handleInput() {
+            const searchInput = document.getElementById("searchInput").value.trim().toLowerCase();
+            const topicValue = document.getElementById("topicSelect").value;
+            const actionValue = document.getElementById("actionSelect").value;
 
             const chatLog = document.getElementById("chatLog");
-            const userMessage = document.createElement("div");
-            userMessage.className = "message user-message";
-            userMessage.textContent = userInput.replaceAll('-', ' ').replaceAll('and', '&');
-            chatLog.appendChild(userMessage);
 
-            let response = '';
-            let nextState = 'category'; // 기본 상태 유지
-
-            if (currentState === 'category') {
-                const matchedCategory = Object.keys(categories).find(cat => userInput === cat.replaceAll('&', 'and').replaceAll(' ', '-'));
-                if (matchedCategory) {
-                    selectedCategory = matchedCategory;
-                    const mainTopics = categories[matchedCategory];
-                    response = `"${matchedCategory.replaceAll('&', '& ').replaceAll('and', '&').replaceAll('-', ' ')}" includes these main topics: ${mainTopics.map(t => t.name).join(', ')}. Please select a main topic from the dropdown below.`;
-                    nextState = 'main-topic';
-
-                    // 주요 주제 드롭다운 업데이트 및 표시
-                    const mainTopicSelect = document.getElementById("mainTopicSelect");
-                    mainTopicSelect.innerHTML = '<option value="">Select a main topic...</option>';
-                    mainTopics.forEach(topic => {
-                        const option = document.createElement("option");
-                        option.value = topic.id; // ID 사용 (하이픈 포함, 예: "ml-foundations")
-                        option.textContent = topic.name;
-                        mainTopicSelect.appendChild(option);
-                    });
-                    mainTopicSelect.style.display = 'block'; // 드롭다운 표시
-                    document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
-                    document.getElementById("subTopicSelect").style.display = 'none'; // 세부 주제 드롭다운 숨김
-                    document.getElementById("actionSelect").style.display = 'none'; // 액션 드롭다운 숨김
+            if (searchInput) {
+                // 검색 처리
+                const foundNode = searchTree(researchTree, searchInput);
+                if (foundNode) {
+                    currentNode = foundNode;
+                    path = buildPath(researchTree, foundNode.id);
+                    const userMsg = document.createElement("div");
+                    userMsg.className = "message user-message";
+                    userMsg.textContent = `Search: ${searchInput}`;
+                    chatLog.appendChild(userMsg);
+                    const botMsg = document.createElement("div");
+                    botMsg.className = "message bot-message";
+                    botMsg.textContent = `Found "${foundNode.name}". Explore further or select an action.`;
+                    chatLog.appendChild(botMsg);
                 } else {
-                    response = "Sorry, I didn't recognize that category. Please choose from: AI & Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
+                    const botMsg = document.createElement("div");
+                    botMsg.className = "message bot-message";
+                    botMsg.textContent = `No match for "${searchInput}". Try another keyword or explore below.`;
+                    chatLog.appendChild(botMsg);
                 }
-            } else if (currentState === 'main-topic') {
-                if (selectedCategory) {
-                    const mainTopics = categories[selectedCategory];
-                    const matchedMainTopic = mainTopics.find(t => userInput === t.id);
-                    if (matchedMainTopic) {
-                        selectedMainTopic = matchedMainTopic.name;
-                        const subTopics = matchedMainTopic.subtopics;
-                        response = `"${matchedMainTopic.name}" includes these subtopics: ${subTopics.map(t => t.name).join(', ')}. Please select a subtopic from the dropdown below.`;
-                        nextState = 'sub-topic';
-
-                        // 세부 주제 드롭다운 업데이트 및 표시
-                        const subTopicSelect = document.getElementById("subTopicSelect");
-                        subTopicSelect.innerHTML = '<option value="">Select a subtopic...</option>';
-                        subTopics.forEach(subTopic => {
-                            const option = document.createElement("option");
-                            option.value = subTopic.id; // ID 사용 (하이픈 포함, 예: "pde-solving-with-ml")
-                            option.textContent = subTopic.name;
-                            subTopicSelect.appendChild(option);
-                        });
-                        subTopicSelect.style.display = 'block'; // 드롭다운 표시
-                        document.getElementById("mainTopicSelect").style.display = 'none'; // 주요 주제 드롭다운 숨김
-                        document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
-                        document.getElementById("actionSelect").style.display = 'none'; // 액션 드롭다운 숨김
+                document.getElementById("searchInput").value = "";
+            } else if (topicValue) {
+                // 하위 주제로 이동
+                const nextNode = currentNode.children.find(child => child.id === topicValue);
+                path.push(nextNode);
+                currentNode = nextNode;
+                const userMsg = document.createElement("div");
+                userMsg.className = "message user-message";
+                userMsg.textContent = nextNode.name;
+                chatLog.appendChild(userMsg);
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                botMsg.textContent = currentNode.children ? 
+                    `Selected "${nextNode.name}". Explore further or choose an action:` : 
+                    `Reached "${nextNode.name}". Select an action:`;
+                chatLog.appendChild(botMsg);
+            } else if (actionValue) {
+                // 액션 처리
+                const userMsg = document.createElement("div");
+                userMsg.className = "message user-message";
+                userMsg.textContent = document.getElementById("actionSelect").selectedOptions[0].text;
+                chatLog.appendChild(userMsg);
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                const topic = currentNode.name;
+                if (actionValue === "papers") {
+                    botMsg.innerHTML = `Recent papers on "${topic}": <a href="https://arxiv.org/search/?query=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
+                } else if (actionValue === "researchers") {
+                    botMsg.innerHTML = `Search researchers on "${topic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
+                } else if (actionValue === "chat") {
+                    botMsg.innerHTML = `Join chat on "${topic}": <a href="chatroom.html?room=${currentNode.id}" target="_blank" style="color: #ff4081;">Join</a>`;
+                } else if (actionValue === "back") {
+                    if (path.length > 0) {
+                        path.pop();
+                        currentNode = path.length > 0 ? path[path.length - 1] : researchTree;
+                        botMsg.textContent = `Went back to "${currentNode.name}". Explore or select an action.`;
                     } else {
-                        response = `Sorry, I couldn't find a main topic in "${selectedCategory.replaceAll('&', '& ').replaceAll('and', '&').replaceAll('-', ' ')}". Please choose from: ${mainTopics.map(t => t.name).join(', ')}.`;
+                        botMsg.textContent = "Already at the root.";
                     }
-                } else {
-                    response = "Let's start again. Please select a broad research area to get started:";
-                    nextState = 'category';
-                    document.getElementById("mainTopicSelect").style.display = 'none';
-                    document.getElementById("subTopicSelect").style.display = 'none';
-                    document.getElementById("actionSelect").style.display = 'none';
-                    document.getElementById("categorySelect").style.display = 'block';
                 }
-            } else if (currentState === 'sub-topic') {
-                if (selectedCategory && selectedMainTopic) {
-                    const mainTopics = categories[selectedCategory];
-                    const mainTopic = mainTopics.find(t => t.name === selectedMainTopic);
-                    const subTopics = mainTopic.subtopics;
-                    const matchedSubTopic = subTopics.find(t => userInput === t.id); // ID로 정확히 매칭
-                    if (matchedSubTopic) {
-                        selectedSubTopic = matchedSubTopic.name;
-                        response = `Great, you selected "${matchedSubTopic.name}". Please select an action from the dropdown below: (1) Find Related Papers, (2) Discover Influential Researchers, or (3) Join the Open Chat for this topic.`;
-                        nextState = 'action';
-
-                        // 액션 드롭다운 업데이트 및 표시
-                        const actionSelect = document.getElementById("actionSelect");
-                        actionSelect.style.display = 'block'; // 액션 드롭다운 표시
-                        document.getElementById("subTopicSelect").style.display = 'none'; // 세부 주제 드롭다운 숨김
-                        document.getElementById("mainTopicSelect").style.display = 'none'; // 주요 주제 드롭다운 숨김
-                        document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
-                    } else {
-                        response = `Sorry, I couldn't find a subtopic in "${selectedMainTopic}". Please choose from: ${subTopics.map(t => t.name).join(', ')}.`;
-                    }
-                } else {
-                    response = "Let's start again. Please select a broad research area to get started:";
-                    nextState = 'category';
-                    document.getElementById("subTopicSelect").style.display = 'none';
-                    document.getElementById("mainTopicSelect").style.display = 'none';
-                    document.getElementById("actionSelect").style.display = 'none';
-                    document.getElementById("categorySelect").style.display = 'block';
-                }
-            } else if (currentState === 'action') {
-                if (selectedSubTopic) {
-                    const mainTopic = categories[selectedCategory].find(t => t.name === selectedMainTopic);
-                    const subTopic = mainTopic.subtopics.find(t => t.name === selectedSubTopic);
-                    const topicId = subTopic.id;
-                    if (userInput === '1') {
-                        response = `Here are some resources for related papers on "${selectedSubTopic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(selectedSubTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://arxiv.org/search/?query=${encodeURIComponent(selectedSubTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">arXiv</a>. What would you like to do next?`;
-                    } else if (userInput === '2') {
-                        response = `Here are some influential researchers for "${selectedSubTopic}": You can search on <a href="https://scholar.google.com/" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://www.researchgate.net/" target="_blank" style="color: #ff4081; text-decoration: underline;">ResearchGate</a>. What would you like to do next?`;
-                    } else if (userInput === '3') {
-                        response = `I found a chat room for "${selectedSubTopic}"! Click here to join: <a href="chatroom.html?room=${topicId}" style="color: #ff4081; text-decoration: underline;">Join ${selectedSubTopic}</a>`;
-                        nextState = 'category'; // 대화 초기화
-                        selectedCategory = '';
-                        selectedMainTopic = '';
-                        selectedSubTopic = '';
-                        document.getElementById("actionSelect").style.display = 'none';
-                        document.getElementById("subTopicSelect").style.display = 'none';
-                        document.getElementById("mainTopicSelect").style.display = 'none';
-                        document.getElementById("categorySelect").style.display = 'block';
-                    } else {
-                        response = `Please select an action from the dropdown: (1) Find Related Papers, (2) Discover Influential Researchers, or (3) Join the Open Chat for "${selectedSubTopic}".`;
-                    }
-                } else {
-                    response = "Let's start again. Please select a broad research area to get started:";
-                    nextState = 'category';
-                    document.getElementById("actionSelect").style.display = 'none';
-                    document.getElementById("subTopicSelect").style.display = 'none';
-                    document.getElementById("mainTopicSelect").style.display = 'none';
-                    document.getElementById("categorySelect").style.display = 'block';
-                }
+                chatLog.appendChild(botMsg);
             }
 
-            const botMessage = document.createElement("div");
-            botMessage.className = "message bot-message";
-            botMessage.innerHTML = response;
-            chatLog.appendChild(botMessage);
-
-            currentState = nextState;
-            if (!input) document.getElementById("chatbotInput").value = '';
+            updateBreadcrumb();
+            updateTopicSelect();
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        document.getElementById("chatbotInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                handleChatbotInput();
+        function searchTree(node, query) {
+            if (node.name.toLowerCase().includes(query)) return node;
+            if (node.children) {
+                for (let child of node.children) {
+                    const result = searchTree(child, query);
+                    if (result) return result;
+                }
             }
+            return null;
+        }
+
+        function buildPath(node, targetId) {
+            if (node.id === targetId) return [node];
+            if (node.children) {
+                for (let child of node.children) {
+                    const subPath = buildPath(child, targetId);
+                    if (subPath) return [node, ...subPath];
+                }
+            }
+            return null;
+        }
+
+        // 초기화
+        updateBreadcrumb();
+        updateTopicSelect();
+        document.getElementById("searchInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleInput();
         });
     </script>
 </body>
