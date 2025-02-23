@@ -21,10 +21,10 @@
     }
     nav a { color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease; }
     nav a:hover { color: #ff4081; }
-
+    
     #chatbotContainer {
       width: 80%;
-      max-width: 900px;
+      max-width: 800px;
       margin: 20px auto;
       flex-grow: 1;
       display: flex;
@@ -48,7 +48,7 @@
     }
     .bot-message { background: #333; color: #fff; align-self: flex-start; }
     .user-message { background: #ff4081; color: #fff; align-self: flex-end; margin-left: auto; }
-
+    
     #chatInputContainer {
       display: flex;
       flex-wrap: wrap;
@@ -63,9 +63,9 @@
       font-weight: bold;
       flex-basis: 100%;
     }
-
-    /* 모든 input/select 요소 공통 스타일 */
-    #searchInput, #searchSelect, #exploreSelect, #actionSelect {
+    
+    /* 공통 스타일 */
+    #searchInput, #exploreSelect, #actionSelect {
       flex-grow: 1;
       padding: 10px;
       font-size: 1.1em;
@@ -105,12 +105,10 @@
 
     <div id="chatInputContainer">
       <div id="breadcrumb">Topics: [none]</div>
-      <!-- 1) 검색어 필터 입력 -->
-      <input type="text" id="searchInput" placeholder="Type to filter topics..." oninput="updateSearchDropdown()">
-      <!-- 2) 검색 결과 드롭다운 (트리 경로 숨기고, 이름만) -->
-      <select id="searchSelect" onchange="handleSearch()">
-        <option value="" disabled selected>Select a topic...</option>
-      </select>
+      <!-- 1) 검색어 입력 (datalist를 연결) -->
+      <input type="text" id="searchInput" placeholder="Type to filter topics..." list="searchDatalist" oninput="updateSearchDropdown()">
+      <!-- 2) datalist: 입력과 함께 자동완성됨 -->
+      <datalist id="searchDatalist"></datalist>
       <!-- 3) Explore further: 전체 목록에서 추가 키워드 선택 -->
       <select id="exploreSelect" onchange="handleExplore()">
         <option value="" disabled selected>Explore further...</option>
@@ -129,7 +127,7 @@
 
   <script>
     // ---------------------------
-    // 1) 거대한 연구 트리 구조
+    // 1) 트리 구조 및 평탄화
     // ---------------------------
     const researchTree = {
       name: "Research Areas",
@@ -139,238 +137,53 @@
           name: "AI & Machine Learning",
           id: "ai-ml",
           children: [
-            {
-              name: "Classical Machine Learning",
-              id: "classical-ml",
-              children: [
-                { name: "Linear Models", id: "linear-models" },
-                { name: "Decision Trees & Random Forests", id: "decision-trees" },
-                { name: "Support Vector Machines", id: "svm" },
-                { name: "Clustering (K-means, Hierarchical)", id: "clustering" }
-              ]
-            },
-            {
-              name: "Deep Learning",
-              id: "deep-learning",
-              children: [
-                { 
-                  name: "Convolutional Neural Networks",
-                  id: "cnn",
-                  children: [
-                    { name: "Image Classification", id: "image-classification" },
-                    { name: "Object Detection", id: "object-detection" },
-                    { name: "Semantic Segmentation", id: "semantic-segmentation" }
-                  ]
-                },
-                {
-                  name: "Recurrent Neural Networks",
-                  id: "rnn",
-                  children: [
-                    { name: "LSTM", id: "lstm" },
-                    { name: "GRU", id: "gru" }
-                  ]
-                },
-                {
-                  name: "Transformer Architectures",
-                  id: "transformers",
-                  children: [
-                    { name: "BERT", id: "bert" },
-                    { name: "GPT Series", id: "gpt" },
-                    { name: "Vision Transformers (ViT)", id: "vit" }
-                  ]
-                }
-              ]
-            },
-            {
-              name: "Reinforcement Learning",
-              id: "rl",
-              children: [
-                { name: "Value-based Methods (Q-learning)", id: "q-learning" },
-                { name: "Policy Gradients", id: "policy-gradients" },
-                { name: "Actor-Critic Methods", id: "actor-critic" }
-              ]
-            },
-            {
-              name: "Natural Language Processing",
-              id: "nlp",
-              children: [
-                { name: "Language Modeling", id: "language-models" },
-                { name: "Sentiment Analysis", id: "sentiment-analysis" },
-                { name: "Machine Translation", id: "machine-translation" }
-              ]
-            }
+            { name: "Deep Learning", id: "deep-learning", children: [
+                { name: "Convolutional Neural Networks", id: "cnn", children: [
+                    { name: "Image Classification", id: "image-classification" }
+                ]}
+            ]},
+            { name: "Natural Language Processing", id: "nlp", children: [
+                { name: "Language Models", id: "language-models", children: [
+                    { name: "Transformers", id: "transformers" }
+                ]}
+            ]}
           ]
         },
         {
-          name: "Data Science & Analytics",
-          id: "data-science",
+          name: "Scientific Machine Learning",
+          id: "sciml",
           children: [
-            {
-              name: "Data Engineering",
-              id: "data-engineering",
-              children: [
-                { name: "ETL Pipelines", id: "etl" },
-                { name: "Data Warehousing", id: "data-warehousing" },
-                { name: "Distributed Systems (Hadoop, Spark)", id: "distributed-systems" }
-              ]
-            },
-            {
-              name: "Data Visualization",
-              id: "data-viz",
-              children: [
-                { name: "Dashboards (Tableau, PowerBI)", id: "dashboards" },
-                { name: "Interactive Plots (D3.js)", id: "d3js" }
-              ]
-            },
-            {
-              name: "Big Data Analytics",
-              id: "big-data",
-              children: [
-                { name: "MapReduce", id: "mapreduce" },
-                { name: "Streaming Analytics (Kafka, Flink)", id: "streaming-analytics" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Scientific Computing",
-          id: "scientific-computing",
-          children: [
-            {
-              name: "Numerical Methods",
-              id: "numerical-methods",
-              children: [
-                { name: "ODE Solvers", id: "ode-solvers" },
-                { name: "PDE Solvers", id: "pde-solvers" },
-                { name: "Finite Element Methods", id: "fem" }
-              ]
-            },
-            {
-              name: "High Performance Computing",
-              id: "hpc",
-              children: [
-                { name: "MPI", id: "mpi" },
-                { name: "OpenMP", id: "openmp" },
-                { name: "GPU Computing (CUDA)", id: "cuda" }
-              ]
-            },
-            {
-              name: "Quantum Computing",
-              id: "quantum-computing",
-              children: [
-                { name: "Quantum Algorithms", id: "quantum-algo" },
-                { name: "Quantum Machine Learning", id: "quantum-ml" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Physics & Engineering",
-          id: "physics-engineering",
-          children: [
-            {
-              name: "Fluid Mechanics",
-              id: "fluid-mechanics",
-              children: [
-                { name: "CFD (Computational Fluid Dynamics)", id: "cfd" },
-                { name: "Turbulence Modeling", id: "turbulence" },
-                { name: "Multiphase Flows", id: "multiphase-flows" }
-              ]
-            },
-            {
-              name: "Solid Mechanics",
-              id: "solid-mechanics",
-              children: [
-                { name: "Fracture Mechanics", id: "fracture-mech" },
-                { name: "Composite Materials", id: "composite-materials" }
-              ]
-            },
-            {
-              name: "Robotics & Control",
-              id: "robotics",
-              children: [
-                { name: "Path Planning", id: "path-planning" },
-                { name: "SLAM (Simultaneous Localization and Mapping)", id: "slam" },
-                { name: "Optimal Control", id: "optimal-control" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Biology & Bioinformatics",
-          id: "bioinformatics",
-          children: [
-            {
-              name: "Genomics",
-              id: "genomics",
-              children: [
-                { name: "Genome Assembly", id: "genome-assembly" },
-                { name: "Variant Calling", id: "variant-calling" }
-              ]
-            },
-            {
-              name: "Proteomics",
-              id: "proteomics",
-              children: [
-                { name: "Protein Structure Prediction", id: "protein-structure" },
-                { name: "Mass Spectrometry Analysis", id: "mass-spectrometry" }
-              ]
-            },
-            {
-              name: "Systems Biology",
-              id: "systems-biology",
-              children: [
-                { name: "Metabolic Pathway Modeling", id: "metabolic-pathways" },
-                { name: "Cell Signaling Networks", id: "cell-signaling" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Social Sciences & Humanities",
-          id: "social-science",
-          children: [
-            {
-              name: "Economics",
-              id: "economics",
-              children: [
-                { name: "Macroeconomics Modeling", id: "macro-modeling" },
-                { name: "Microeconomics & Game Theory", id: "micro-game" }
-              ]
-            },
-            {
-              name: "Sociology",
-              id: "sociology",
-              children: [
-                { name: "Social Network Analysis", id: "social-network-analysis" },
-                { name: "Demographic Studies", id: "demographics" }
-              ]
-            },
-            {
-              name: "Digital Humanities",
-              id: "digital-humanities",
-              children: [
-                { name: "Text Mining in Historical Documents", id: "text-mining-history" },
-                { name: "Cultural Analytics", id: "cultural-analytics" }
-              ]
-            }
+            { name: "Neural Network Applications", id: "nn-applications", children: [
+                { name: "Physics-Informed Neural Networks", id: "pinns", children: [
+                    { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
+                        { name: "Turbulence Modeling", id: "turbulence", children: [
+                            { name: "LES Methods", id: "les-methods" }
+                        ]}
+                    ]}
+                ]}
+            ]},
+            { name: "Mathematical Modeling", id: "math-modeling", children: [
+                { name: "PDE Solving", id: "pde-solving", children: [
+                    { name: "Finite Difference Methods", id: "fdm" }
+                ]}
+            ]}
           ]
         }
       ]
     };
 
-    // ---------------------------
-    // 2) 트리를 평탄화해서 전체 topic 리스트 만들기
-    // ---------------------------
+    // 모든 노드를 담을 배열 (root 제외)
     const allTopics = [];
     function flattenTree(node) {
       const queue = [node];
       while (queue.length > 0) {
         const current = queue.shift();
-        allTopics.push({
-          id: current.id,
-          name: current.name
-        });
+        if(current.id !== "root") {
+          allTopics.push({
+            id: current.id,
+            name: current.name
+          });
+        }
         if (current.children) {
           current.children.forEach(child => queue.push(child));
         }
@@ -379,7 +192,7 @@
     flattenTree(researchTree);
 
     // ---------------------------
-    // 3) 누적 선택 토픽 관리
+    // 2) 누적 선택 토픽 관리
     // ---------------------------
     let selectedTopics = []; // 예: ["Fluid Dynamics", "Physics-Informed Neural Networks"]
 
@@ -394,71 +207,56 @@
     }
 
     // ---------------------------
-    // 4) 검색(dropdown) 갱신
+    // 3) 검색(datalist) 갱신
     // ---------------------------
     function updateSearchDropdown() {
       const searchValue = document.getElementById("searchInput").value.toLowerCase();
-      const searchSelect = document.getElementById("searchSelect");
-      searchSelect.innerHTML = '<option value="" disabled>Select a topic...</option>';
-
-      // 필터 (root 제외)
-      const filtered = allTopics.filter(t => 
-        t.id !== "root" &&
+      const dataList = document.getElementById("searchDatalist");
+      dataList.innerHTML = "";
+      
+      const filtered = allTopics.filter(t =>
         t.name.toLowerCase().includes(searchValue)
       );
-
       filtered.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t.id;
-        opt.textContent = t.name; // 경로 표시 X
-        searchSelect.appendChild(opt);
+        const option = document.createElement("option");
+        option.value = t.name;
+        dataList.appendChild(option);
       });
     }
 
-    // 검색 드롭다운에서 주제를 선택하면 selectedTopics에 추가
-    function handleSearch() {
-      const searchSelect = document.getElementById("searchSelect");
-      const value = searchSelect.value;
-      if (!value) return;
-
-      const topicObj = allTopics.find(t => t.id === value);
-      if (!topicObj) return;
-
-      // 이미 선택된 토픽이 아니라면 추가
-      if (!selectedTopics.includes(topicObj.name)) {
+    // 사용자가 입력창에서 선택 후 엔터 또는 포커스 변경 시 실행
+    document.getElementById("searchInput").addEventListener("change", function() {
+      const text = this.value.trim();
+      if (!text) return;
+      // allTopics에서 이름으로 검색 (대소문자 무시)
+      const topicObj = allTopics.find(t => t.name.toLowerCase() === text.toLowerCase());
+      if (topicObj && !selectedTopics.includes(topicObj.name)) {
         selectedTopics.push(topicObj.name);
+        
+        const chatLog = document.getElementById("chatLog");
+        const userMsg = document.createElement("div");
+        userMsg.className = "message user-message";
+        userMsg.textContent = topicObj.name;
+        chatLog.appendChild(userMsg);
+        
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot-message";
+        botMsg.textContent = `You selected "${topicObj.name}".`;
+        chatLog.appendChild(botMsg);
+        
+        updateBreadcrumb();
+        this.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight;
       }
-
-      // 채팅 로그에 표시
-      const chatLog = document.getElementById("chatLog");
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user-message";
-      userMsg.textContent = topicObj.name;
-      chatLog.appendChild(userMsg);
-
-      const botMsg = document.createElement("div");
-      botMsg.className = "message bot-message";
-      botMsg.textContent = `You selected "${topicObj.name}".`;
-      chatLog.appendChild(botMsg);
-
-      // UI 정리
-      updateBreadcrumb();
-      document.getElementById("searchInput").value = "";
-      searchSelect.innerHTML = '<option value="" disabled selected>Select a topic...</option>';
-      chatLog.scrollTop = chatLog.scrollHeight;
-    }
+    });
 
     // ---------------------------
-    // 5) Explore further
+    // 4) Explore further
     // ---------------------------
-    // 검색과 동일하게 전체 목록 중에서 선택
     function populateExploreSelect() {
       const exploreSelect = document.getElementById("exploreSelect");
       exploreSelect.innerHTML = '<option value="" disabled selected>Explore further...</option>';
-      // root 제외
-      const list = allTopics.filter(t => t.id !== "root");
-
-      list.forEach(t => {
+      allTopics.forEach(t => {
         const opt = document.createElement("option");
         opt.value = t.id;
         opt.textContent = t.name;
@@ -470,51 +268,45 @@
       const exploreSelect = document.getElementById("exploreSelect");
       const value = exploreSelect.value;
       if (!value) return;
-
       const topicObj = allTopics.find(t => t.id === value);
-      if (!topicObj) return;
-
-      if (!selectedTopics.includes(topicObj.name)) {
+      if (topicObj && !selectedTopics.includes(topicObj.name)) {
         selectedTopics.push(topicObj.name);
+        
+        const chatLog = document.getElementById("chatLog");
+        const userMsg = document.createElement("div");
+        userMsg.className = "message user-message";
+        userMsg.textContent = topicObj.name;
+        chatLog.appendChild(userMsg);
+        
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot-message";
+        botMsg.textContent = `Added "${topicObj.name}".`;
+        chatLog.appendChild(botMsg);
+        
+        updateBreadcrumb();
+        exploreSelect.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight;
       }
-
-      // 채팅 로그 표시
-      const chatLog = document.getElementById("chatLog");
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user-message";
-      userMsg.textContent = topicObj.name;
-      chatLog.appendChild(userMsg);
-
-      const botMsg = document.createElement("div");
-      botMsg.className = "message bot-message";
-      botMsg.textContent = `Added "${topicObj.name}".`;
-      chatLog.appendChild(botMsg);
-
-      // 초기화
-      exploreSelect.value = "";
-      updateBreadcrumb();
-      chatLog.scrollTop = chatLog.scrollHeight;
     }
 
     // ---------------------------
-    // 6) 액션 처리 (papers, researchers, chat, back)
+    // 5) 액션 처리 (papers, researchers, chat, back)
     // ---------------------------
     function handleAction() {
       const actionSelect = document.getElementById("actionSelect");
       const actionValue = actionSelect.value;
       if (!actionValue) return;
-
+      
       const chatLog = document.getElementById("chatLog");
       const userMsg = document.createElement("div");
       userMsg.className = "message user-message";
       userMsg.textContent = actionSelect.selectedOptions[0].text;
       chatLog.appendChild(userMsg);
-
+      
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-
+      
       if (actionValue === "back") {
-        // 마지막으로 추가된 키워드 제거
         if (selectedTopics.length > 0) {
           const removed = selectedTopics.pop();
           botMsg.textContent = `Removed "${removed}". Current: [${selectedTopics.join(" + ") || "none"}]`;
@@ -522,7 +314,6 @@
           botMsg.textContent = "No topics to remove.";
         }
       } else {
-        // 누적된 키워드를 '+'로 연결하여 검색
         const query = selectedTopics.join("+");
         if (!query) {
           botMsg.textContent = "No topics selected yet.";
@@ -540,8 +331,7 @@
         }
       }
       chatLog.appendChild(botMsg);
-
-      // 액션 select 초기화
+      
       actionSelect.value = "";
       updateBreadcrumb();
       chatLog.scrollTop = chatLog.scrollHeight;
@@ -552,7 +342,6 @@
     // ---------------------------
     updateBreadcrumb();
     populateExploreSelect();
-    updateSearchDropdown();
   </script>
 </body>
 </html>
