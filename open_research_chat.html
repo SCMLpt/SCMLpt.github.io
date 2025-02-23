@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Open Research Chat - SCMLpt</title>
+  <title>Open Research Chat - SCMLpt (Huge Menu)</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -24,7 +24,7 @@
 
     #chatbotContainer {
       width: 80%;
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       flex-grow: 1;
       display: flex;
@@ -129,7 +129,7 @@
 
   <script>
     // ---------------------------
-    // 1) 트리 구조 및 평탄화
+    // 1) 거대한 연구 트리 구조
     // ---------------------------
     const researchTree = {
       name: "Research Areas",
@@ -139,42 +139,229 @@
           name: "AI & Machine Learning",
           id: "ai-ml",
           children: [
-            { name: "Deep Learning", id: "deep-learning", children: [
-                { name: "Convolutional Neural Networks", id: "cnn", children: [
-                    { name: "Image Classification", id: "image-classification" }
-                ]}
-            ]},
-            { name: "Natural Language Processing", id: "nlp", children: [
-                { name: "Language Models", id: "language-models", children: [
-                    { name: "Transformers", id: "transformers" }
-                ]}
-            ]}
+            {
+              name: "Classical Machine Learning",
+              id: "classical-ml",
+              children: [
+                { name: "Linear Models", id: "linear-models" },
+                { name: "Decision Trees & Random Forests", id: "decision-trees" },
+                { name: "Support Vector Machines", id: "svm" },
+                { name: "Clustering (K-means, Hierarchical)", id: "clustering" }
+              ]
+            },
+            {
+              name: "Deep Learning",
+              id: "deep-learning",
+              children: [
+                { 
+                  name: "Convolutional Neural Networks",
+                  id: "cnn",
+                  children: [
+                    { name: "Image Classification", id: "image-classification" },
+                    { name: "Object Detection", id: "object-detection" },
+                    { name: "Semantic Segmentation", id: "semantic-segmentation" }
+                  ]
+                },
+                {
+                  name: "Recurrent Neural Networks",
+                  id: "rnn",
+                  children: [
+                    { name: "LSTM", id: "lstm" },
+                    { name: "GRU", id: "gru" }
+                  ]
+                },
+                {
+                  name: "Transformer Architectures",
+                  id: "transformers",
+                  children: [
+                    { name: "BERT", id: "bert" },
+                    { name: "GPT Series", id: "gpt" },
+                    { name: "Vision Transformers (ViT)", id: "vit" }
+                  ]
+                }
+              ]
+            },
+            {
+              name: "Reinforcement Learning",
+              id: "rl",
+              children: [
+                { name: "Value-based Methods (Q-learning)", id: "q-learning" },
+                { name: "Policy Gradients", id: "policy-gradients" },
+                { name: "Actor-Critic Methods", id: "actor-critic" }
+              ]
+            },
+            {
+              name: "Natural Language Processing",
+              id: "nlp",
+              children: [
+                { name: "Language Modeling", id: "language-models" },
+                { name: "Sentiment Analysis", id: "sentiment-analysis" },
+                { name: "Machine Translation", id: "machine-translation" }
+              ]
+            }
           ]
         },
         {
-          name: "Scientific Machine Learning",
-          id: "sciml",
+          name: "Data Science & Analytics",
+          id: "data-science",
           children: [
-            { name: "Neural Network Applications", id: "nn-applications", children: [
-                { name: "Physics-Informed Neural Networks", id: "pinns", children: [
-                    { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
-                        { name: "Turbulence Modeling", id: "turbulence", children: [
-                            { name: "LES Methods", id: "les-methods" }
-                        ]}
-                    ]}
-                ]}
-            ]},
-            { name: "Mathematical Modeling", id: "math-modeling", children: [
-                { name: "PDE Solving", id: "pde-solving", children: [
-                    { name: "Finite Difference Methods", id: "fdm" }
-                ]}
-            ]}
+            {
+              name: "Data Engineering",
+              id: "data-engineering",
+              children: [
+                { name: "ETL Pipelines", id: "etl" },
+                { name: "Data Warehousing", id: "data-warehousing" },
+                { name: "Distributed Systems (Hadoop, Spark)", id: "distributed-systems" }
+              ]
+            },
+            {
+              name: "Data Visualization",
+              id: "data-viz",
+              children: [
+                { name: "Dashboards (Tableau, PowerBI)", id: "dashboards" },
+                { name: "Interactive Plots (D3.js)", id: "d3js" }
+              ]
+            },
+            {
+              name: "Big Data Analytics",
+              id: "big-data",
+              children: [
+                { name: "MapReduce", id: "mapreduce" },
+                { name: "Streaming Analytics (Kafka, Flink)", id: "streaming-analytics" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Scientific Computing",
+          id: "scientific-computing",
+          children: [
+            {
+              name: "Numerical Methods",
+              id: "numerical-methods",
+              children: [
+                { name: "ODE Solvers", id: "ode-solvers" },
+                { name: "PDE Solvers", id: "pde-solvers" },
+                { name: "Finite Element Methods", id: "fem" }
+              ]
+            },
+            {
+              name: "High Performance Computing",
+              id: "hpc",
+              children: [
+                { name: "MPI", id: "mpi" },
+                { name: "OpenMP", id: "openmp" },
+                { name: "GPU Computing (CUDA)", id: "cuda" }
+              ]
+            },
+            {
+              name: "Quantum Computing",
+              id: "quantum-computing",
+              children: [
+                { name: "Quantum Algorithms", id: "quantum-algo" },
+                { name: "Quantum Machine Learning", id: "quantum-ml" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Physics & Engineering",
+          id: "physics-engineering",
+          children: [
+            {
+              name: "Fluid Mechanics",
+              id: "fluid-mechanics",
+              children: [
+                { name: "CFD (Computational Fluid Dynamics)", id: "cfd" },
+                { name: "Turbulence Modeling", id: "turbulence" },
+                { name: "Multiphase Flows", id: "multiphase-flows" }
+              ]
+            },
+            {
+              name: "Solid Mechanics",
+              id: "solid-mechanics",
+              children: [
+                { name: "Fracture Mechanics", id: "fracture-mech" },
+                { name: "Composite Materials", id: "composite-materials" }
+              ]
+            },
+            {
+              name: "Robotics & Control",
+              id: "robotics",
+              children: [
+                { name: "Path Planning", id: "path-planning" },
+                { name: "SLAM (Simultaneous Localization and Mapping)", id: "slam" },
+                { name: "Optimal Control", id: "optimal-control" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Biology & Bioinformatics",
+          id: "bioinformatics",
+          children: [
+            {
+              name: "Genomics",
+              id: "genomics",
+              children: [
+                { name: "Genome Assembly", id: "genome-assembly" },
+                { name: "Variant Calling", id: "variant-calling" }
+              ]
+            },
+            {
+              name: "Proteomics",
+              id: "proteomics",
+              children: [
+                { name: "Protein Structure Prediction", id: "protein-structure" },
+                { name: "Mass Spectrometry Analysis", id: "mass-spectrometry" }
+              ]
+            },
+            {
+              name: "Systems Biology",
+              id: "systems-biology",
+              children: [
+                { name: "Metabolic Pathway Modeling", id: "metabolic-pathways" },
+                { name: "Cell Signaling Networks", id: "cell-signaling" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Social Sciences & Humanities",
+          id: "social-science",
+          children: [
+            {
+              name: "Economics",
+              id: "economics",
+              children: [
+                { name: "Macroeconomics Modeling", id: "macro-modeling" },
+                { name: "Microeconomics & Game Theory", id: "micro-game" }
+              ]
+            },
+            {
+              name: "Sociology",
+              id: "sociology",
+              children: [
+                { name: "Social Network Analysis", id: "social-network-analysis" },
+                { name: "Demographic Studies", id: "demographics" }
+              ]
+            },
+            {
+              name: "Digital Humanities",
+              id: "digital-humanities",
+              children: [
+                { name: "Text Mining in Historical Documents", id: "text-mining-history" },
+                { name: "Cultural Analytics", id: "cultural-analytics" }
+              ]
+            }
           ]
         }
       ]
     };
 
-    // 모든 노드를 담을 배열
+    // ---------------------------
+    // 2) 트리를 평탄화해서 전체 topic 리스트 만들기
+    // ---------------------------
     const allTopics = [];
     function flattenTree(node) {
       const queue = [node];
@@ -192,7 +379,7 @@
     flattenTree(researchTree);
 
     // ---------------------------
-    // 2) 누적 선택 토픽 관리
+    // 3) 누적 선택 토픽 관리
     // ---------------------------
     let selectedTopics = []; // 예: ["Fluid Dynamics", "Physics-Informed Neural Networks"]
 
@@ -207,7 +394,7 @@
     }
 
     // ---------------------------
-    // 3) 검색(dropdown) 갱신
+    // 4) 검색(dropdown) 갱신
     // ---------------------------
     function updateSearchDropdown() {
       const searchValue = document.getElementById("searchInput").value.toLowerCase();
@@ -251,7 +438,6 @@
 
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-      // (Accumulated topics: ...) 문구 삭제
       botMsg.textContent = `You selected "${topicObj.name}".`;
       chatLog.appendChild(botMsg);
 
@@ -263,7 +449,7 @@
     }
 
     // ---------------------------
-    // 4) Explore further
+    // 5) Explore further
     // ---------------------------
     // 검색과 동일하게 전체 목록 중에서 선택
     function populateExploreSelect() {
@@ -280,7 +466,6 @@
       });
     }
 
-    // exploreSelect가 바뀌면 호출
     function handleExplore() {
       const exploreSelect = document.getElementById("exploreSelect");
       const value = exploreSelect.value;
@@ -302,7 +487,6 @@
 
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-      // (Accumulated topics: ...) 문구 삭제
       botMsg.textContent = `Added "${topicObj.name}".`;
       chatLog.appendChild(botMsg);
 
@@ -313,7 +497,7 @@
     }
 
     // ---------------------------
-    // 5) 액션 처리 (papers, researchers, chat, back)
+    // 6) 액션 처리 (papers, researchers, chat, back)
     // ---------------------------
     function handleAction() {
       const actionSelect = document.getElementById("actionSelect");
@@ -339,7 +523,6 @@
         }
       } else {
         // 누적된 키워드를 '+'로 연결하여 검색
-        // 예: "Fluid+Dynamics+Physics-Informed+Neural+Networks"
         const query = selectedTopics.join("+");
         if (!query) {
           botMsg.textContent = "No topics selected yet.";
