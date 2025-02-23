@@ -136,8 +136,9 @@
             ]
         };
 
-        let currentState = 'category'; // 대화 상태: 카테고리('category') → 세부 주제('topic')
-        let selectedCategory = ''; // 선택된 카테고리 추적
+        let currentState = 'category'; // 대화 상태: 'category' → 'topic' → 'action'
+        let selectedCategory = ''; // 선택된 카테고리
+        let selectedTopic = ''; // 선택된 주제
 
         function handleChatbotInput() {
             const input = document.getElementById("chatbotInput").value.trim().toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and');
@@ -155,23 +156,42 @@
             if (currentState === 'category') {
                 const matchedCategory = Object.keys(categories).find(cat => input.includes(cat.replaceAll('&', 'and').replaceAll('-', ' ')));
                 if (matchedCategory) {
-                    selectedCategory = matchedCategory; // 카테고리 저장
+                    selectedCategory = matchedCategory;
                     const topics = categories[matchedCategory];
                     response = `"${matchedCategory.replaceAll('&', '& ').replaceAll('and', '&')}" includes these topics: ${topics.map(t => t.name).join(', ')}. Which specific topic would you like to discuss?`;
                     nextState = 'topic';
                 } else {
-                    response = "Sorry, I didn't recognize that category. Please choose from: AI and Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
+                    response = "Sorry, I didn't recognize that category. Please choose from: AI & Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
                 }
             } else if (currentState === 'topic') {
                 if (selectedCategory) {
                     const topics = categories[selectedCategory];
                     const matchedTopic = topics.find(t => input.includes(t.name.toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and')));
                     if (matchedTopic) {
-                        response = `I found a chat room for "${matchedTopic.name}"! Click here to join: <a href="chatroom.html?room=${matchedTopic.id}" style="color: #ff4081; text-decoration: underline;">Join ${matchedTopic.name}</a>`;
-                        nextState = 'category'; // 대화 초기화
-                        selectedCategory = ''; // 카테고리 초기화
+                        selectedTopic = matchedTopic.name;
+                        response = `Great, you selected "${matchedTopic.name}". Would you like to (1) find related papers, (2) discover influential researchers, or (3) join the open chat for this topic?`;
+                        nextState = 'action';
                     } else {
                         response = `Sorry, I couldn't find a specific topic in "${selectedCategory.replaceAll('&', '& ').replaceAll('and', '&')}". Please choose from: ${categories[selectedCategory].map(t => t.name).join(', ')}.`;
+                    }
+                } else {
+                    response = "Let's start again. What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)";
+                    nextState = 'category';
+                }
+            } else if (currentState === 'action') {
+                if (selectedTopic) {
+                    const topicId = categories[selectedCategory].find(t => t.name === selectedTopic).id;
+                    if (input.includes('paper') || input.includes('1')) {
+                        response = `Here are some resources for related papers on "${selectedTopic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://arxiv.org/search/?query=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">arXiv</a>. What would you like to do next?`;
+                    } else if (input.includes('researcher') || input.includes('2')) {
+                        response = `Here are some influential researchers for "${selectedTopic}": You can search on <a href="https://scholar.google.com/" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://www.researchgate.net/" target="_blank" style="color: #ff4081; text-decoration: underline;">ResearchGate</a>. What would you like to do next?`;
+                    } else if (input.includes('chat') || input.includes('3')) {
+                        response = `I found a chat room for "${selectedTopic}"! Click here to join: <a href="chatroom.html?room=${topicId}" style="color: #ff4081; text-decoration: underline;">Join ${selectedTopic}</a>`;
+                        nextState = 'category'; // 대화 초기화
+                        selectedCategory = '';
+                        selectedTopic = '';
+                    } else {
+                        response = `Please specify (1) for related papers, (2) for influential researchers, or (3) to join the open chat for "${selectedTopic}".`;
                     }
                 } else {
                     response = "Let's start again. What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)";
