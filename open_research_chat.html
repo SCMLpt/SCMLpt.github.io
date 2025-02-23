@@ -247,12 +247,18 @@
 
             const chatLog = document.getElementById("chatLog");
             selectedSearchIds = selectedOptions.map(option => option.value); // 복수 선택 저장
+            let firstNodeSet = false;
+
             selectedOptions.forEach(option => {
                 const searchValue = option.value;
                 const foundNode = allTopics.find(topic => topic.id === searchValue);
                 if (foundNode) {
-                    currentNode = foundNode.path[foundNode.path.length - 1];
-                    path = foundNode.path; // 검색된 주제의 전체 경로 설정
+                    if (!firstNodeSet) {
+                        // 첫 번째 선택된 노드를 기준으로 경로와 현재 노드 설정
+                        currentNode = foundNode.path[foundNode.path.length - 1];
+                        path = foundNode.path; // 전체 경로 설정
+                        firstNodeSet = true;
+                    }
                     const userMsg = document.createElement("div");
                     userMsg.className = "message user-message";
                     userMsg.textContent = foundNode.name;
