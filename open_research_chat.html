@@ -111,35 +111,36 @@
     <script>
         const categories = {
             'ai & machine learning': [
-                { name: 'foundation models', id: 'foundation-model' },
-                { name: 'deep learning', id: 'deep-learning' },
-                { name: 'reinforcement learning', id: 'reinforcement-learning' },
-                { name: 'natural language processing', id: 'natural-language-processing' }
+                { name: 'Foundation Models', id: 'foundation-model' },
+                { name: 'Deep Learning', id: 'deep-learning' },
+                { name: 'Reinforcement Learning', id: 'reinforcement-learning' },
+                { name: 'Natural Language Processing', id: 'natural-language-processing' }
             ],
             'scientific machine learning': [
-                { name: 'pde solving', id: 'pde-solving' },
-                { name: 'time dependent cdr', id: 'time-dependent-cdr' },
-                { name: 'physics-informed neural networks', id: 'physics-informed-nn' },
-                { name: 'molecular dynamics', id: 'molecular-dynamics' }
+                { name: 'PDE Solving with ML', id: 'pde-solving' },
+                { name: 'Time Dependent CDR Problems', id: 'time-dependent-cdr' },
+                { name: 'Physics-Informed Neural Networks', id: 'physics-informed-nn' },
+                { name: 'Molecular Dynamics', id: 'molecular-dynamics' }
             ],
             'computational science': [
-                { name: 'gpu redistribution', id: 'gpu-redistribution' },
-                { name: 'quantum computing', id: 'quantum-computing' },
-                { name: 'numerical methods', id: 'numerical-methods' },
-                { name: 'high-performance computing', id: 'high-performance-computing' }
+                { name: 'GPU Redistribution', id: 'gpu-redistribution' },
+                { name: 'Quantum Computing', id: 'quantum-computing' },
+                { name: 'Numerical Methods', id: 'numerical-methods' },
+                { name: 'High-Performance Computing', id: 'high-performance-computing' }
             ],
             'data science & applications': [
-                { name: 'data assimilation', id: 'data-assimilation' },
-                { name: 'climate modeling', id: 'climate-modeling' },
-                { name: 'bioinformatics', id: 'bioinformatics' },
-                { name: 'generative models', id: 'generative-models' }
+                { name: 'Data Assimilation', id: 'data-assimilation' },
+                { name: 'Climate Modeling', id: 'climate-modeling' },
+                { name: 'Bioinformatics', id: 'bioinformatics' },
+                { name: 'Generative Models', id: 'generative-models' }
             ]
         };
 
         let currentState = 'category'; // 대화 상태: 카테고리('category') → 세부 주제('topic')
+        let selectedCategory = ''; // 선택된 카테고리 추적
 
         function handleChatbotInput() {
-            const input = document.getElementById("chatbotInput").value.trim().toLowerCase();
+            const input = document.getElementById("chatbotInput").value.trim().toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and');
             if (!input) return;
 
             const chatLog = document.getElementById("chatLog");
@@ -152,24 +153,25 @@
             let nextState = 'category'; // 기본 상태 유지
 
             if (currentState === 'category') {
-                const matchedCategory = Object.keys(categories).find(cat => input.includes(cat));
+                const matchedCategory = Object.keys(categories).find(cat => input.includes(cat.replaceAll('&', 'and').replaceAll('-', ' ')));
                 if (matchedCategory) {
+                    selectedCategory = matchedCategory; // 카테고리 저장
                     const topics = categories[matchedCategory];
-                    response = `"${matchedCategory}" includes these topics: ${topics.map(t => t.name).join(', ')}. Which specific topic would you like to discuss?`;
+                    response = `"${matchedCategory.replaceAll('&', '& ').replaceAll('and', '&')}" includes these topics: ${topics.map(t => t.name).join(', ')}. Which specific topic would you like to discuss?`;
                     nextState = 'topic';
                 } else {
-                    response = "Sorry, I didn't recognize that category. Please choose from: AI & Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
+                    response = "Sorry, I didn't recognize that category. Please choose from: AI and Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
                 }
             } else if (currentState === 'topic') {
-                const selectedCategory = Object.keys(categories).find(cat => chatLog.lastChild.textContent.toLowerCase().includes(cat));
                 if (selectedCategory) {
                     const topics = categories[selectedCategory];
-                    const matchedTopic = topics.find(t => input.includes(t.name.toLowerCase()));
+                    const matchedTopic = topics.find(t => input.includes(t.name.toLowerCase().replaceAll('-', ' ').replaceAll('&', 'and')));
                     if (matchedTopic) {
                         response = `I found a chat room for "${matchedTopic.name}"! Click here to join: <a href="chatroom.html?room=${matchedTopic.id}" style="color: #ff4081; text-decoration: underline;">Join ${matchedTopic.name}</a>`;
                         nextState = 'category'; // 대화 초기화
+                        selectedCategory = ''; // 카테고리 초기화
                     } else {
-                        response = `Sorry, I couldn't find a specific topic in "${selectedCategory}". Please choose from: ${categories[selectedCategory].map(t => t.name).join(', ')}.`;
+                        response = `Sorry, I couldn't find a specific topic in "${selectedCategory.replaceAll('&', '& ').replaceAll('and', '&')}". Please choose from: ${categories[selectedCategory].map(t => t.name).join(', ')}.`;
                     }
                 } else {
                     response = "Let's start again. What broad research area are you interested in? (AI & Machine Learning, Scientific Machine Learning, Computational Science, Data Science & Applications)";
