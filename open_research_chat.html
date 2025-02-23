@@ -161,6 +161,7 @@
 
         let currentNode = researchTree;
         let path = [];
+        let selectedSearchId = ""; // 선택된 검색 ID 추적
         let allTopics = [];
 
         // 트리를 평평하게 만들어 검색용 리스트 생성
@@ -196,6 +197,7 @@
 
         function updateSearchSelect(filter = "") {
             const searchSelect = document.getElementById("searchSelect");
+            const currentValue = searchSelect.value; // 현재 선택된 값 저장
             searchSelect.innerHTML = '<option value="">Search topics...</option>';
             const filtered = allTopics.filter(topic => 
                 topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
@@ -206,6 +208,12 @@
                 option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")})`;
                 searchSelect.appendChild(option);
             });
+            // 이전에 선택된 값 복원
+            if (currentValue && filtered.some(topic => topic.id === currentValue)) {
+                searchSelect.value = currentValue;
+            } else if (selectedSearchId && filtered.some(topic => topic.id === selectedSearchId)) {
+                searchSelect.value = selectedSearchId;
+            }
         }
 
         function handleSearch() {
@@ -216,6 +224,7 @@
             if (foundNode) {
                 currentNode = foundNode.path[foundNode.path.length - 1];
                 path = foundNode.path;
+                selectedSearchId = searchValue; // 선택된 검색 ID 저장
                 const chatLog = document.getElementById("chatLog");
                 const userMsg = document.createElement("div");
                 userMsg.className = "message user-message";
@@ -227,8 +236,6 @@
                 chatLog.appendChild(botMsg);
                 updateBreadcrumb();
                 updateTopicSelect();
-                // 선택된 값을 드롭다운에 유지
-                document.getElementById("searchSelect").value = searchValue;
             }
             chatLog.scrollTop = chatLog.scrollHeight;
         }
