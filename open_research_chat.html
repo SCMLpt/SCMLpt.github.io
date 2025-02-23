@@ -161,7 +161,7 @@
 
         let currentNode = researchTree;
         let path = [];
-        let allTopics = []; // 검색용 플랫 리스트
+        let allTopics = [];
 
         // 트리를 평평하게 만들어 검색용 리스트 생성
         function flattenTree(node, list = []) {
@@ -215,7 +215,7 @@
             const foundNode = allTopics.find(topic => topic.id === searchValue);
             if (foundNode) {
                 currentNode = foundNode.path[foundNode.path.length - 1];
-                path = foundNode.path.slice(0, -1);
+                path = foundNode.path;
                 const chatLog = document.getElementById("chatLog");
                 const userMsg = document.createElement("div");
                 userMsg.className = "message user-message";
@@ -227,9 +227,10 @@
                 chatLog.appendChild(botMsg);
                 updateBreadcrumb();
                 updateTopicSelect();
-                chatLog.scrollTop = chatLog.scrollHeight;
+                // 선택된 값을 드롭다운에 유지
+                document.getElementById("searchSelect").value = searchValue;
             }
-            document.getElementById("searchSelect").value = "";
+            chatLog.scrollTop = chatLog.scrollHeight;
         }
 
         function handleInput() {
