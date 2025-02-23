@@ -62,7 +62,7 @@
             font-weight: bold; 
             flex-basis: 100%; 
         }
-        #topicSelect, #actionSelect, #searchInput {
+        #searchSelect, #topicSelect, #actionSelect {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
@@ -72,7 +72,6 @@
             border-radius: 5px;
             outline: none;
         }
-        #searchInput { border-radius: 5px; }
         #chatbotSubmit {
             padding: 10px 20px;
             background: #ff4081;
@@ -97,11 +96,13 @@
 
     <div id="chatbotContainer">
         <div id="chatLog">
-            <div class="message bot-message">Hi! Start by selecting a topic or typing a keyword in the search bar below:</div>
+            <div class="message bot-message">Hi! Start by searching a topic or exploring below:</div>
         </div>
         <div id="chatInputContainer">
             <div id="breadcrumb"></div>
-            <input type="text" id="searchInput" placeholder="Search topics (e.g., PINNs, Fluid Dynamics)">
+            <select id="searchSelect" onchange="handleSearch()">
+                <option value="">Search topics (type to filter)...</option>
+            </select>
             <select id="topicSelect"></select>
             <select id="actionSelect">
                 <option value="">What do you want to do?</option>
@@ -155,12 +156,23 @@
                         ] }
                     ]
                 }
-                // 더 많은 주제 추가 가능
             ]
         };
 
         let currentNode = researchTree;
-        let path = []; // 탐색 경로
+        let path = [];
+        let allTopics = []; // 검색용 플랫 리스트
+
+        // 트리를 평평하게 만들어 검색용 리스트 생성
+        function flattenTree(node, list = []) {
+            list.push({ name: node.name, id: node.id, path: buildPath(researchTree, node.id) });
+            if (node.children) {
+                node.children.forEach(child => flattenTree(child, list));
+            }
+            return list;
+        }
+
+        allTopics = flattenTree(researchTree);
 
         function updateBreadcrumb() {
             const breadcrumb = document.getElementById("breadcrumb");
@@ -182,35 +194,50 @@
             document.getElementById("actionSelect").style.display = "block";
         }
 
+        function updateSearchSelect(filter = "") {
+            const searchSelect = document.getElementById("searchSelect");
+            searchSelect.innerHTML = '<option value="">Search topics...</option>';
+            const filtered = allTopics.filter(topic => 
+                topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
+            );
+            filtered.forEach(topic => {
+                const option = document.createElement("option");
+                option.value = topic.id;
+                option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")})`;
+                searchSelect.appendChild(option);
+            });
+        }
+
+        function handleSearch() {
+            const searchValue = document.getElementById("searchSelect").value;
+            if (!searchValue) return;
+
+            const foundNode = allTopics.find(topic => topic.id === searchValue);
+            if (foundNode) {
+                currentNode = foundNode.path[foundNode.path.length - 1];
+                path = foundNode.path.slice(0, -1);
+                const chatLog = document.getElementById("chatLog");
+                const userMsg = document.createElement("div");
+                userMsg.className = "message user-message";
+                userMsg.textContent = foundNode.name;
+                chatLog.appendChild(userMsg);
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                botMsg.textContent = `Found "${foundNode.name}". Explore further or select an action.`;
+                chatLog.appendChild(botMsg);
+                updateBreadcrumb();
+                updateTopicSelect();
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+            document.getElementById("searchSelect").value = "";
+        }
+
         function handleInput() {
-            const searchInput = document.getElementById("searchInput").value.trim().toLowerCase();
             const topicValue = document.getElementById("topicSelect").value;
             const actionValue = document.getElementById("actionSelect").value;
-
             const chatLog = document.getElementById("chatLog");
 
-            if (searchInput) {
-                // 검색 처리
-                const foundNode = searchTree(researchTree, searchInput);
-                if (foundNode) {
-                    currentNode = foundNode;
-                    path = buildPath(researchTree, foundNode.id);
-                    const userMsg = document.createElement("div");
-                    userMsg.className = "message user-message";
-                    userMsg.textContent = `Search: ${searchInput}`;
-                    chatLog.appendChild(userMsg);
-                    const botMsg = document.createElement("div");
-                    botMsg.className = "message bot-message";
-                    botMsg.textContent = `Found "${foundNode.name}". Explore further or select an action.`;
-                    chatLog.appendChild(botMsg);
-                } else {
-                    const botMsg = document.createElement("div");
-                    botMsg.className = "message bot-message";
-                    botMsg.textContent = `No match for "${searchInput}". Try another keyword or explore below.`;
-                    chatLog.appendChild(botMsg);
-                }
-                document.getElementById("searchInput").value = "";
-            } else if (topicValue) {
+            if (topicValue) {
                 // 하위 주제로 이동
                 const nextNode = currentNode.children.find(child => child.id === topicValue);
                 path.push(nextNode);
@@ -257,17 +284,6 @@
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        function searchTree(node, query) {
-            if (node.name.toLowerCase().includes(query)) return node;
-            if (node.children) {
-                for (let child of node.children) {
-                    const result = searchTree(child, query);
-                    if (result) return result;
-                }
-            }
-            return null;
-        }
-
         function buildPath(node, targetId) {
             if (node.id === targetId) return [node];
             if (node.children) {
@@ -282,8 +298,11 @@
         // 초기화
         updateBreadcrumb();
         updateTopicSelect();
-        document.getElementById("searchInput").addEventListener("keypress", (e) => {
-            if (e.key === "Enter") handleInput();
+        updateSearchSelect();
+
+        // 검색 필터링 (입력 시 실시간 업데이트)
+        document.getElementById("searchSelect").addEventListener("input", (e) => {
+            updateSearchSelect(e.target.value);
         });
     </script>
 </body>
