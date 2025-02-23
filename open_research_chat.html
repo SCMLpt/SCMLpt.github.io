@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Open Research Chat - SCMLpt</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,6 +21,7 @@
     }
     nav a { color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease; }
     nav a:hover { color: #ff4081; }
+
     #chatbotContainer {
       width: 80%;
       max-width: 800px;
@@ -47,6 +48,7 @@
     }
     .bot-message { background: #333; color: #fff; align-self: flex-start; }
     .user-message { background: #ff4081; color: #fff; align-self: flex-end; margin-left: auto; }
+
     #chatInputContainer {
       display: flex;
       flex-wrap: wrap;
@@ -55,13 +57,14 @@
       border-top: 1px solid #333;
       gap: 10px;
     }
-    #breadcrumb { 
-      padding: 10px; 
-      color: #ff4081; 
-      font-weight: bold; 
-      flex-basis: 100%; 
+    #breadcrumb {
+      padding: 10px;
+      color: #ff4081;
+      font-weight: bold;
+      flex-basis: 100%;
     }
-    /* 모든 input/select 요소에 대한 스타일 */
+
+    /* 모든 input/select 요소 공통 스타일 */
     #searchInput, #searchSelect, #exploreSelect, #actionSelect {
       flex-grow: 1;
       padding: 10px;
@@ -92,23 +95,27 @@
     <a href="philosophy.html">Philosophy</a>
     <a href="contact.html">Contact</a>
   </nav>
+
   <div id="chatbotContainer">
     <div id="chatLog">
-      <div class="message bot-message">Hi! Start by searching topics or exploring deeper into a specific area:</div>
+      <div class="message bot-message">
+        Hi! Start by searching topics or exploring deeper into a specific area:
+      </div>
     </div>
+
     <div id="chatInputContainer">
-      <div id="breadcrumb">Path: Root</div>
-      <!-- Input for filtering search topics -->
-      <input type="text" id="searchInput" placeholder="Type to filter topics..." oninput="updateSearchOptions()">
-      <!-- Dropdown for search results (with no path display) -->
+      <div id="breadcrumb">Topics: [none]</div>
+      <!-- 1) 검색어 필터 입력 -->
+      <input type="text" id="searchInput" placeholder="Type to filter topics..." oninput="updateSearchDropdown()">
+      <!-- 2) 검색 결과 드롭다운 (트리 경로 숨기고, 이름만) -->
       <select id="searchSelect" onchange="handleSearch()">
         <option value="" disabled selected>Select a topic...</option>
       </select>
-      <!-- Dropdown for exploring deeper from the current node -->
-      <select id="exploreSelect">
-        <option value="">Explore further...</option>
+      <!-- 3) Explore further: 트리 관계 상관없이 전체 목록에서 추가 키워드 선택 -->
+      <select id="exploreSelect" onchange="handleExplore()">
+        <option value="" disabled selected>Explore further...</option>
       </select>
-      <!-- Dropdown for selecting actions -->
+      <!-- 4) 액션 선택 (papers, researchers, chat, back) -->
       <select id="actionSelect">
         <option value="">What do you want to do?</option>
         <option value="papers">Find Recent Papers</option>
@@ -119,8 +126,11 @@
       <button id="chatbotSubmit" onclick="handleAction()">Go</button>
     </div>
   </div>
+
   <script>
-    // Define the research tree structure
+    // ---------------------------
+    // 1) 트리 구조 및 평탄화
+    // ---------------------------
     const researchTree = {
       name: "Research Areas",
       id: "root",
@@ -164,156 +174,203 @@
       ]
     };
 
-    // Initialize current node and path.
-    let currentNode = researchTree;
-    let path = [researchTree];
-
-    // Flatten the tree into an array of topics with their full paths.
-    let allTopics = [];
-    function flattenTree(node, parentPath = []) {
-      const currentPath = [...parentPath, node];
-      allTopics.push({ name: node.name, id: node.id, path: currentPath });
-      if (node.children) {
-        node.children.forEach(child => flattenTree(child, currentPath));
+    // 모든 노드를 담을 배열
+    const allTopics = [];
+    function flattenTree(node) {
+      // 큐/스택 방식으로 반복
+      const queue = [node];
+      while (queue.length > 0) {
+        const current = queue.shift();
+        // root는 제외할 수도 있지만, 일단 포함해서 관리
+        allTopics.push({
+          id: current.id,
+          name: current.name
+        });
+        if (current.children) {
+          current.children.forEach(child => queue.push(child));
+        }
       }
     }
     flattenTree(researchTree);
 
-    // Update the breadcrumb display using the current path.
+    // ---------------------------
+    // 2) 누적 선택 토픽 관리
+    // ---------------------------
+    let selectedTopics = []; // 예: ["Fluid Dynamics", "Physics-Informed Neural Networks"]
+
+    // breadcrumb 업데이트 (ex: "Topics: Fluid Dynamics + Physics-Informed Neural Networks")
     function updateBreadcrumb() {
       const breadcrumb = document.getElementById("breadcrumb");
-      breadcrumb.textContent = "Path: " + path.map(node => node.name).join(" > ");
-    }
-
-    // Update the "Explore further" dropdown based on the children of the current node.
-    function updateExploreSelect() {
-      const exploreSelect = document.getElementById("exploreSelect");
-      exploreSelect.innerHTML = '<option value="">Explore further...</option>';
-      if (currentNode.children && currentNode.children.length > 0) {
-        currentNode.children.forEach(child => {
-          const option = document.createElement("option");
-          option.value = child.id;
-          option.textContent = child.name;
-          exploreSelect.appendChild(option);
-        });
-        exploreSelect.style.display = "block";
+      if (selectedTopics.length === 0) {
+        breadcrumb.textContent = "Topics: [none]";
       } else {
-        exploreSelect.style.display = "none";
+        breadcrumb.textContent = "Topics: " + selectedTopics.join(" + ");
       }
     }
 
-    // Update the search dropdown based on filter input, but DO NOT show the path in the option text.
-    function updateSearchOptions() {
-      const searchInput = document.getElementById("searchInput").value.toLowerCase();
+    // ---------------------------
+    // 3) 검색(dropdown) 갱신
+    // ---------------------------
+    function updateSearchDropdown() {
+      const searchValue = document.getElementById("searchInput").value.toLowerCase();
       const searchSelect = document.getElementById("searchSelect");
       searchSelect.innerHTML = '<option value="" disabled>Select a topic...</option>';
-      const filtered = allTopics.filter(topic => 
-        topic.name.toLowerCase().includes(searchInput) && topic.id !== "root"
+
+      // 필터 (root 제외)
+      const filtered = allTopics.filter(t => 
+        t.id !== "root" &&
+        t.name.toLowerCase().includes(searchValue)
       );
-      filtered.forEach(topic => {
-        const option = document.createElement("option");
-        option.value = topic.id;
-        // ONLY show the topic's name (no path)
-        option.textContent = topic.name;
-        searchSelect.appendChild(option);
+
+      filtered.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name; // 경로 표시 X
+        searchSelect.appendChild(opt);
       });
     }
 
-    // When a topic is selected from the search dropdown,
-    // update the current node and the breadcrumb path.
+    // 사용자가 검색 결과에서 주제를 선택하면 selectedTopics에 추가
     function handleSearch() {
       const searchSelect = document.getElementById("searchSelect");
-      const selectedValue = searchSelect.value;
-      if (!selectedValue) return;
-      // Find the selected topic from the flattened list.
-      const selectedTopic = allTopics.find(topic => topic.id === selectedValue);
-      if (selectedTopic) {
-        currentNode = selectedTopic.path[selectedTopic.path.length - 1];
-        path = selectedTopic.path;
-        const chatLog = document.getElementById("chatLog");
-        // Append the user-selected topic.
-        const userMsg = document.createElement("div");
-        userMsg.className = "message user-message";
-        userMsg.textContent = selectedTopic.name;
-        chatLog.appendChild(userMsg);
-        // Append the bot's response.
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot-message";
-        botMsg.textContent = `Found "${selectedTopic.name}". You can now explore further or select an action.`;
-        chatLog.appendChild(botMsg);
-        updateBreadcrumb();
-        updateExploreSelect();
-        // Clear the search input and reset the search dropdown.
-        document.getElementById("searchInput").value = "";
-        searchSelect.innerHTML = '<option value="" disabled selected>Select a topic...</option>';
-        chatLog.scrollTop = chatLog.scrollHeight;
-      }
-    }
+      const value = searchSelect.value;
+      if (!value) return;
 
-    // Handle actions from the "Explore further" and "Action" dropdowns.
-    function handleAction() {
-      const exploreValue = document.getElementById("exploreSelect").value;
-      const actionValue = document.getElementById("actionSelect").value;
+      const topicObj = allTopics.find(t => t.id === value);
+      if (!topicObj) return;
+
+      // 이미 선택된 토픽이 아니라면 추가
+      if (!selectedTopics.includes(topicObj.name)) {
+        selectedTopics.push(topicObj.name);
+      }
+
+      // 채팅 로그에 표시
       const chatLog = document.getElementById("chatLog");
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user-message";
+      userMsg.textContent = topicObj.name;
+      chatLog.appendChild(userMsg);
 
-      if (exploreValue) {
-        // Navigate deeper into the tree.
-        const nextNode = currentNode.children.find(child => child.id === exploreValue);
-        if (nextNode) {
-          currentNode = nextNode;
-          path.push(nextNode);
-          const userMsg = document.createElement("div");
-          userMsg.className = "message user-message";
-          userMsg.textContent = nextNode.name;
-          chatLog.appendChild(userMsg);
-          const botMsg = document.createElement("div");
-          botMsg.className = "message bot-message";
-          if (nextNode.children && nextNode.children.length > 0) {
-            botMsg.textContent = `Exploring deeper into "${nextNode.name}". Continue exploring or select an action.`;
-          } else {
-            botMsg.textContent = `Reached "${nextNode.name}". Please select an action.`;
-          }
-          chatLog.appendChild(botMsg);
-        } else {
-          const botMsg = document.createElement("div");
-          botMsg.className = "message bot-message";
-          botMsg.textContent = `No deeper topics found for "${currentNode.name}".`;
-          chatLog.appendChild(botMsg);
-        }
-      } else if (actionValue) {
-        // Process the selected action.
-        const userMsg = document.createElement("div");
-        userMsg.className = "message user-message";
-        userMsg.textContent = document.getElementById("actionSelect").selectedOptions[0].text;
-        chatLog.appendChild(userMsg);
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot-message";
-        if (actionValue === "papers") {
-          botMsg.innerHTML = `Recent papers on "${currentNode.name}": <a href="https://arxiv.org/search/?query=${encodeURIComponent(currentNode.name)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
-        } else if (actionValue === "researchers") {
-          botMsg.innerHTML = `Search researchers on "${currentNode.name}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(currentNode.name)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
-        } else if (actionValue === "chat") {
-          botMsg.innerHTML = `Join chat on "${currentNode.name}": <a href="chatroom.html?room=${currentNode.id}" target="_blank" style="color: #ff4081;">Join</a>`;
-        } else if (actionValue === "back") {
-          if (path.length > 1) {
-            path.pop();
-            currentNode = path[path.length - 1];
-            botMsg.textContent = `Went back to "${currentNode.name}".`;
-          } else {
-            botMsg.textContent = "Already at the root.";
-          }
-        }
-        chatLog.appendChild(botMsg);
-      }
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot-message";
+      botMsg.textContent = `You selected "${topicObj.name}". (Accumulated topics: ${selectedTopics.join(" + ")})`;
+      chatLog.appendChild(botMsg);
+
+      // UI 정리
       updateBreadcrumb();
-      updateExploreSelect();
+      document.getElementById("searchInput").value = "";
+      searchSelect.innerHTML = '<option value="" disabled selected>Select a topic...</option>';
       chatLog.scrollTop = chatLog.scrollHeight;
     }
 
-    // Initialize the interface.
+    // ---------------------------
+    // 4) Explore further
+    // ---------------------------
+    // 검색과 동일하게 전체 목록 중에서 선택
+    function populateExploreSelect() {
+      const exploreSelect = document.getElementById("exploreSelect");
+      exploreSelect.innerHTML = '<option value="" disabled selected>Explore further...</option>';
+      // root 제외
+      const list = allTopics.filter(t => t.id !== "root");
+      // 원한다면 정렬
+      // list.sort((a,b) => a.name.localeCompare(b.name));
+
+      list.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name;
+        exploreSelect.appendChild(opt);
+      });
+    }
+
+    // exploreSelect가 바뀌면 호출
+    function handleExplore() {
+      const exploreSelect = document.getElementById("exploreSelect");
+      const value = exploreSelect.value;
+      if (!value) return;
+
+      const topicObj = allTopics.find(t => t.id === value);
+      if (!topicObj) return;
+
+      if (!selectedTopics.includes(topicObj.name)) {
+        selectedTopics.push(topicObj.name);
+      }
+
+      // 채팅 로그 표시
+      const chatLog = document.getElementById("chatLog");
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user-message";
+      userMsg.textContent = topicObj.name;
+      chatLog.appendChild(userMsg);
+
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot-message";
+      botMsg.textContent = `Added "${topicObj.name}". (Accumulated topics: ${selectedTopics.join(" + ")})`;
+      chatLog.appendChild(botMsg);
+
+      // 초기화
+      exploreSelect.value = "";
+      updateBreadcrumb();
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // ---------------------------
+    // 5) 액션 처리 (papers, researchers, chat, back)
+    // ---------------------------
+    function handleAction() {
+      const actionSelect = document.getElementById("actionSelect");
+      const actionValue = actionSelect.value;
+      if (!actionValue) return;
+
+      const chatLog = document.getElementById("chatLog");
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user-message";
+      userMsg.textContent = actionSelect.selectedOptions[0].text;
+      chatLog.appendChild(userMsg);
+
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot-message";
+
+      if (actionValue === "back") {
+        // 마지막으로 추가된 키워드 제거
+        if (selectedTopics.length > 0) {
+          const removed = selectedTopics.pop();
+          botMsg.textContent = `Removed "${removed}". Current: [${selectedTopics.join(" + ") || "none"}]`;
+        } else {
+          botMsg.textContent = "No topics to remove.";
+        }
+      } else {
+        // 누적된 키워드로 검색
+        const query = selectedTopics.join(" ");
+        if (!query) {
+          botMsg.textContent = "No topics selected yet.";
+        } else {
+          if (actionValue === "papers") {
+            botMsg.innerHTML = `Recent papers for "<strong>${query}</strong>": 
+              <a href="https://arxiv.org/search/?query=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
+          } else if (actionValue === "researchers") {
+            botMsg.innerHTML = `Search researchers for "<strong>${query}</strong>": 
+              <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
+          } else if (actionValue === "chat") {
+            botMsg.innerHTML = `Join chat for "<strong>${query}</strong>": 
+              <a href="chatroom.html?room=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">Join</a>`;
+          }
+        }
+      }
+      chatLog.appendChild(botMsg);
+
+      // 액션 select 초기화
+      actionSelect.value = "";
+      updateBreadcrumb();
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // ---------------------------
+    // 초기화
+    // ---------------------------
     updateBreadcrumb();
-    updateExploreSelect();
-    updateSearchOptions();
+    populateExploreSelect();
+    updateSearchDropdown();
   </script>
 </body>
 </html>
