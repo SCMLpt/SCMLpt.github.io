@@ -215,7 +215,7 @@
   </div>
 
   <div class="container" id="domainContainer">
-    <h1>Domain Generalization</h1>
+    <h1>Time Dependent CDR Problem</h1>
     <div class="description">
       <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
       <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
@@ -231,7 +231,7 @@
   <!-- Chatbot -->
   <div id="chatbotContainer">
     <div id="chatLog">
-      <div class="message bot-message">What problem would you like to solve? (Boundary Layer Simulation, Domain Generalization, Static Reaction-Diffusion)</div>
+      <div class="message bot-message">What problem would you like to solve? (Boundary Layer Simulation, Time Dependent CDR Problem, Static Reaction-Diffusion)</div>
     </div>
     <div id="chatInputContainer">
       <input type="text" id="chatbotInput" placeholder="Type your response here..." />
@@ -254,7 +254,7 @@
 
       const containers = {
         'boundary layer simulation': 'scimlContainer',
-        'domain generalization': 'domainContainer',
+        'time dependent cdr problem': 'domainContainer',
         'static reaction-diffusion': 'staticDomainContainer'
       };
 
@@ -274,7 +274,7 @@
       } else {
         const botMessage = document.createElement("div");
         botMessage.className = "message bot-message";
-        botMessage.textContent = "Sorry, I didn't understand that. Please choose from: Boundary Layer Simulation, Domain Generalization, or Static Reaction-Diffusion.";
+        botMessage.textContent = "Sorry, I didn't understand that. Please choose from: Boundary Layer Simulation, Time Dependent CDR Problem, or Static Reaction-Diffusion.";
         chatLog.appendChild(botMessage);
       }
 
@@ -374,7 +374,7 @@
     }
 
     /************************************************************
-     * Domain Generalization JS
+     * Time Dependent CDR Problem JS
      ************************************************************/
     let domainPoints = [];
     let domainGd;
