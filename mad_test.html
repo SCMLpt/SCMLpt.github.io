@@ -26,7 +26,7 @@
     .container {
       width: 80%; margin: 30px auto; text-align: left;
       background: rgba(50, 50, 50, 0.2); padding: 20px; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: none; /* 처음엔 숨김 */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: none;
     }
     h1 { font-size: 2em; margin-bottom: 20px; text-align: center; color: #ffecb3; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
     .description { font-size: 1.1em; margin-bottom: 20px; color: #cdefff; line-height: 1.6; background-color: rgba(20, 20, 20, 0.6); padding: 15px; border-radius: 5px; box-shadow: inset 0 0 8px rgba(0,0,0,0.4); }
@@ -52,9 +52,9 @@
     <a href="about_scmlpt.html">About SCMLpt</a>
   </nav>
 
-  <!-- Task Containers -->
+  <!-- Static Reaction-Diffusion Container -->
   <div class="container" id="staticDomainContainer">
-    <h1>Static Reaction–Diffusion Simulation</h1>
+    <h1>Static Reaction-Diffusion</h1>
     <div class="description">
       <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
       <p>This simulation does not include time evolution so a static prediction is generated.</p>
@@ -67,8 +67,9 @@
     <div id="staticDomain2DPlot"></div>
   </div>
 
+  <!-- Boundary Layer Simulation Container -->
   <div class="container" id="scimlContainer">
-    <h1>Boundary layer Simulation</h1>
+    <h1>Boundary Layer Simulation</h1>
     <div class="description">
       <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
       <p>The PDE might look like:</p>
@@ -98,8 +99,9 @@
     <div id="scimlPlotDiv"></div>
   </div>
 
+  <!-- Domain Generalization Container -->
   <div class="container" id="domainContainer">
-    <h1>Domain generalization via time dependent 2D CDR equation.</h1>
+    <h1>Domain Generalization</h1>
     <div class="description">
       <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
       <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
@@ -114,8 +116,8 @@
 
   <!-- Chatbot -->
   <div id="chatbotContainer">
-    <h2>Welcome! Which task would you like to explore? (task1, task2, task3)</h2>
-    <input type="text" id="chatbotInput" placeholder="Type 'task1', 'task2', or 'task3'" />
+    <h2>Welcome! Which simulation would you like to explore? (Boundary Layer Simulation, Domain Generalization, Static Reaction-Diffusion)</h2>
+    <input type="text" id="chatbotInput" placeholder="Type a simulation name" />
     <button id="chatbotSubmit" onclick="handleChatbotInput()">Submit</button>
   </div>
 
@@ -124,9 +126,9 @@
     function handleChatbotInput() {
       const input = document.getElementById("chatbotInput").value.trim().toLowerCase();
       const containers = {
-        'task1': 'scimlContainer',
-        'task2': 'domainContainer',
-        'task3': 'staticDomainContainer'
+        'boundary layer simulation': 'scimlContainer',
+        'domain generalization': 'domainContainer',
+        'static reaction-diffusion': 'staticDomainContainer'
       };
 
       document.querySelectorAll('.container').forEach(container => {
@@ -141,9 +143,9 @@
         selectedContainer.insertAdjacentElement('afterend', chatbotContainer);
         document.getElementById('chatbotInput').value = '';
         document.getElementById('chatbotContainer').querySelector('h2').innerText = 
-          'What would you like to do next? (task1, task2, task3)';
+          'What would you like to do next? (Boundary Layer Simulation, Domain Generalization, Static Reaction-Diffusion)';
       } else {
-        alert("Please enter a valid task: 'task1', 'task2', or 'task3'");
+        alert("Please enter a valid simulation name: 'Boundary Layer Simulation', 'Domain Generalization', or 'Static Reaction-Diffusion'");
       }
     }
 
@@ -154,7 +156,7 @@
     });
 
     /************************************************************
-     * 1) SciML Simulation JS (task1)
+     * Boundary Layer Simulation JS
      ************************************************************/
     async function scimlSubmitInput() {
       const inputText = document.getElementById("scimlUserInput").value;
@@ -239,7 +241,7 @@
     }
 
     /************************************************************
-     * 2) Domain Creator JS (task2)
+     * Domain Generalization JS
      ************************************************************/
     let domainPoints = [];
     let domainGd;
@@ -456,7 +458,7 @@
     }
 
     /************************************************************
-     * 3) Static Reaction–Diffusion JS (task3)
+     * Static Reaction-Diffusion JS
      ************************************************************/
     let staticDomainPoints = [];
     let staticDomainGd;
