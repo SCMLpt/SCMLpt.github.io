@@ -199,7 +199,7 @@
             const searchSelect = document.getElementById("searchSelect");
             const filter = searchSelect.value;
             updateSearchSelect(filter);
-            // 입력 중 선택된 값을 유지하려면, 필터링 후에도 선택된 값 유지
+            // 입력 중 선택된 값을 유지
             if (selectedSearchId && allTopics.some(topic => topic.id === selectedSearchId)) {
                 searchSelect.value = selectedSearchId;
             }
@@ -248,6 +248,12 @@
                 updateTopicSelect();
                 // 선택된 값을 드롭다운에 반영
                 updateSearchSelect(foundNode.name);
+            } else {
+                const chatLog = document.getElementById("chatLog");
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                botMsg.textContent = `No match found for "${searchValue}". Please refine your search.`;
+                chatLog.appendChild(botMsg);
             }
             chatLog.scrollTop = chatLog.scrollHeight;
         }
@@ -260,18 +266,25 @@
             if (topicValue) {
                 // 하위 주제로 이동
                 const nextNode = currentNode.children.find(child => child.id === topicValue);
-                path.push(nextNode);
-                currentNode = nextNode;
-                const userMsg = document.createElement("div");
-                userMsg.className = "message user-message";
-                userMsg.textContent = nextNode.name;
-                chatLog.appendChild(userMsg);
-                const botMsg = document.createElement("div");
-                botMsg.className = "message bot-message";
-                botMsg.textContent = currentNode.children ? 
-                    `Selected "${nextNode.name}". Explore further or choose an action:` : 
-                    `Reached "${nextNode.name}". Select an action:`;
-                chatLog.appendChild(botMsg);
+                if (nextNode) {
+                    path.push(nextNode);
+                    currentNode = nextNode;
+                    const userMsg = document.createElement("div");
+                    userMsg.className = "message user-message";
+                    userMsg.textContent = nextNode.name;
+                    chatLog.appendChild(userMsg);
+                    const botMsg = document.createElement("div");
+                    botMsg.className = "message bot-message";
+                    botMsg.textContent = currentNode.children ? 
+                        `Selected "${nextNode.name}". Explore further or choose an action:` : 
+                        `Reached "${nextNode.name}". Select an action:`;
+                    chatLog.appendChild(botMsg);
+                } else {
+                    const botMsg = document.createElement("div");
+                    botMsg.className = "message bot-message";
+                    botMsg.textContent = `No subtopics found for the selection. Please try another topic.`;
+                    chatLog.appendChild(botMsg);
+                }
             } else if (actionValue) {
                 // 액션 처리
                 const userMsg = document.createElement("div");
