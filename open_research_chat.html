@@ -62,7 +62,7 @@
             font-weight: bold; 
             flex-basis: 100%; 
         }
-        #searchSelect, #topicSelect, #actionSelect {
+        #searchSelect, #exploreSelect, #actionSelect {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
@@ -82,7 +82,7 @@
             transition: background 0.3s ease;
         }
         #chatbotSubmit:hover { background: #f50057; }
-        #actionSelect { display: none; }
+        #exploreSelect, #actionSelect { display: none; }
     </style>
 </head>
 <body>
@@ -96,14 +96,16 @@
 
     <div id="chatbotContainer">
         <div id="chatLog">
-            <div class="message bot-message">Hi! Start by searching a topic or exploring below:</div>
+            <div class="message bot-message">Hi! Start by searching for diverse topics or exploring deeper into a specific area:</div>
         </div>
         <div id="chatInputContainer">
             <div id="breadcrumb"></div>
             <select id="searchSelect" oninput="filterSearch()" onchange="handleSearch()">
-                <option value="">Search topics (type to filter)...</option>
+                <option value="">Search diverse topics (type to filter)...</option>
             </select>
-            <select id="topicSelect"></select>
+            <select id="exploreSelect" onchange="handleExplore()">
+                <option value="">Explore further...</option>
+            </select>
             <select id="actionSelect">
                 <option value="">What do you want to do?</option>
                 <option value="papers">Find Recent Papers</option>
@@ -123,37 +125,65 @@
                 {
                     name: "AI & Machine Learning",
                     id: "ai-ml",
+                    popularity: 0.9, // 인기 지수 (0~1)
+                    related: ["Deep Learning", "Natural Language Processing"],
                     children: [
-                        { name: "Deep Learning", id: "deep-learning", children: [
-                            { name: "Convolutional Neural Networks", id: "cnn", children: [
-                                { name: "Image Classification", id: "image-classification" }
-                            ] }
-                        ] },
-                        { name: "Natural Language Processing", id: "nlp", children: [
-                            { name: "Language Models", id: "language-models", children: [
-                                { name: "Transformers", id: "transformers" }
-                            ] }
-                        ] }
+                        { 
+                            name: "Deep Learning", 
+                            id: "deep-learning", 
+                            popularity: 0.85,
+                            related: ["Convolutional Neural Networks", "Recurrent Neural Networks"],
+                            children: [
+                                { name: "Convolutional Neural Networks", id: "cnn", children: [
+                                    { name: "Image Classification", id: "image-classification" }
+                                ] }
+                            ]
+                        },
+                        { 
+                            name: "Natural Language Processing", 
+                            id: "nlp", 
+                            popularity: 0.8,
+                            related: ["Language Models", "Sentiment Analysis"],
+                            children: [
+                                { name: "Language Models", id: "language-models", children: [
+                                    { name: "Transformers", id: "transformers" }
+                                ] }
+                            ]
+                        }
                     ]
                 },
                 {
                     name: "Scientific Machine Learning",
                     id: "sciml",
+                    popularity: 0.7,
+                    related: ["Neural Network Applications", "Mathematical Modeling"],
                     children: [
-                        { name: "Neural Network Applications", id: "nn-applications", children: [
-                            { name: "Physics-Informed Neural Networks", id: "pinns", children: [
-                                { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
-                                    { name: "Turbulence Modeling", id: "turbulence", children: [
-                                        { name: "LES Methods", id: "les-methods" }
+                        { 
+                            name: "Neural Network Applications", 
+                            id: "nn-applications", 
+                            popularity: 0.65,
+                            related: ["Physics-Informed Neural Networks", "Quantum Neural Networks"],
+                            children: [
+                                { name: "Physics-Informed Neural Networks", id: "pinns", children: [
+                                    { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
+                                        { name: "Turbulence Modeling", id: "turbulence", children: [
+                                            { name: "LES Methods", id: "les-methods" }
+                                        ] }
                                     ] }
                                 ] }
-                            ] }
-                        ] },
-                        { name: "Mathematical Modeling", id: "math-modeling", children: [
-                            { name: "PDE Solving", id: "pde-solving", children: [
-                                { name: "Finite Difference Methods", id: "fdm" }
-                            ] }
-                        ] }
+                            ]
+                        },
+                        { 
+                            name: "Mathematical Modeling", 
+                            id: "math-modeling", 
+                            popularity: 0.6,
+                            related: ["PDE Solving", "ODE Integration"],
+                            children: [
+                                { name: "PDE Solving", id: "pde-solving", children: [
+                                    { name: "Finite Difference Methods", id: "fdm" }
+                                ] }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -161,14 +191,21 @@
 
         let currentNode = researchTree;
         let path = [];
-        let selectedSearchId = ""; // 선택된 검색 ID 추적
+        let selectedSearchIds = []; // 여러 주제 선택 가능하도록 배열로 변경
         let allTopics = [];
 
         // 트리를 평평하게 만들어 검색용 리스트 생성
-        function flattenTree(node, list = []) {
-            list.push({ name: node.name, id: node.id, path: buildPath(researchTree, node.id) });
+        function flattenTree(node, list = [], parentPath = []) {
+            const currentPath = [...parentPath, node];
+            list.push({ 
+                name: node.name, 
+                id: node.id, 
+                path: currentPath, 
+                popularity: node.popularity || 0, 
+                related: node.related || [] 
+            });
             if (node.children) {
-                node.children.forEach(child => flattenTree(child, list));
+                node.children.forEach(child => flattenTree(child, list, currentPath));
             }
             return list;
         }
@@ -180,18 +217,44 @@
             breadcrumb.textContent = path.length > 0 ? "Path: " + path.map(p => p.name).join(" > ") : "Path: Root";
         }
 
-        function updateTopicSelect() {
-            const select = document.getElementById("topicSelect");
-            select.innerHTML = '<option value="">Explore further...</option>';
+        function updateSearchSelect(filter = "") {
+            const searchSelect = document.getElementById("searchSelect");
+            const currentValue = searchSelect.value; // 현재 입력값 저장
+            searchSelect.innerHTML = '<option value="">Search diverse topics...</option>';
+            const filtered = allTopics.filter(topic => 
+                topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
+            ).sort((a, b) => b.popularity - a.popularity); // 인기순 정렬
+            filtered.forEach(topic => {
+                const option = document.createElement("option");
+                option.value = topic.id;
+                option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")}) - Popularity: ${Math.round(topic.popularity * 100)}%`;
+                searchSelect.appendChild(option);
+            });
+            // 여러 선택된 값 유지
+            if (selectedSearchIds.length > 0) {
+                selectedSearchIds.forEach(id => {
+                    if (filtered.some(topic => topic.id === id)) {
+                        const option = searchSelect.querySelector(`option[value="${id}"]`);
+                        if (option) option.selected = true;
+                    }
+                });
+            } else if (currentValue && filtered.some(topic => topic.id === currentValue)) {
+                searchSelect.value = currentValue;
+            }
+        }
+
+        function updateExploreSelect() {
+            const exploreSelect = document.getElementById("exploreSelect");
+            exploreSelect.innerHTML = '<option value="">Explore further...</option>';
             if (currentNode.children) {
                 currentNode.children.forEach(child => {
                     const option = document.createElement("option");
                     option.value = child.id;
-                    option.textContent = child.name;
-                    select.appendChild(option);
+                    option.textContent = `${child.name} (${child.popularity ? Math.round(child.popularity * 100) + "% popular" : "N/A"})`;
+                    exploreSelect.appendChild(option);
                 });
             }
-            select.style.display = currentNode.children ? "block" : "none";
+            exploreSelect.style.display = currentNode.children ? "block" : "none";
             document.getElementById("actionSelect").style.display = "block";
         }
 
@@ -199,144 +262,97 @@
             const searchSelect = document.getElementById("searchSelect");
             const filter = searchSelect.value;
             updateSearchSelect(filter);
-            // 입력 중 선택된 값을 유지
-            if (selectedSearchId && allTopics.some(topic => topic.id === selectedSearchId)) {
-                searchSelect.value = selectedSearchId;
-            }
-        }
-
-        function updateSearchSelect(filter = "") {
-            const searchSelect = document.getElementById("searchSelect");
-            const currentValue = searchSelect.value; // 현재 입력값 저장
-            searchSelect.innerHTML = '<option value="">Search topics...</option>';
-            const filtered = allTopics.filter(topic => 
-                topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
-            );
-            filtered.forEach(topic => {
-                const option = document.createElement("option");
-                option.value = topic.id;
-                option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")})`;
-                searchSelect.appendChild(option);
-            });
-            // 이전에 선택된 값 또는 입력값을 유지
-            if (selectedSearchId && filtered.some(topic => topic.id === selectedSearchId)) {
-                searchSelect.value = selectedSearchId;
-            } else if (currentValue && filtered.some(topic => topic.id === currentValue)) {
-                searchSelect.value = currentValue;
-            }
         }
 
         function handleSearch() {
-            const searchValue = document.getElementById("searchSelect").value;
-            if (!searchValue || searchValue === "") return;
+            const searchSelect = document.getElementById("searchSelect");
+            const selectedOptions = Array.from(searchSelect.selectedOptions).map(option => option.value);
+            if (!selectedOptions.length || selectedOptions[0] === "") return;
 
-            const foundNode = allTopics.find(topic => topic.id === searchValue);
-            if (foundNode) {
-                currentNode = foundNode.path[foundNode.path.length - 1];
-                path = foundNode.path;
-                selectedSearchId = searchValue; // 선택된 검색 ID 저장
+            selectedSearchIds = selectedOptions.filter(id => id !== ""); // 중복 제거 및 빈 값 제외
+            const chatLog = document.getElementById("chatLog");
+            selectedSearchIds.forEach(id => {
+                const foundNode = allTopics.find(topic => topic.id === id);
+                if (foundNode) {
+                    const userMsg = document.createElement("div");
+                    userMsg.className = "message user-message";
+                    userMsg.textContent = foundNode.name;
+                    chatLog.appendChild(userMsg);
+                    const botMsg = document.createElement("div");
+                    botMsg.className = "message bot-message";
+                    botMsg.textContent = `Found "${foundNode.name}". Explore related topics or select an action. Related topics: ${foundNode.related.join(", ") || "None"}`;
+                    chatLog.appendChild(botMsg);
+                }
+            });
+            currentNode = researchTree; // 검색 후 루트로 초기화, 필요 시 특정 노드로 설정 가능
+            path = [];
+            updateBreadcrumb();
+            updateExploreSelect();
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function handleExplore() {
+            const exploreValue = document.getElementById("exploreSelect").value;
+            if (!exploreValue) return;
+
+            const nextNode = currentNode.children.find(child => child.id === exploreValue);
+            if (nextNode) {
+                path.push(nextNode);
+                currentNode = nextNode;
                 const chatLog = document.getElementById("chatLog");
                 const userMsg = document.createElement("div");
                 userMsg.className = "message user-message";
-                userMsg.textContent = foundNode.name;
+                userMsg.textContent = nextNode.name;
                 chatLog.appendChild(userMsg);
                 const botMsg = document.createElement("div");
                 botMsg.className = "message bot-message";
-                botMsg.textContent = `Found "${foundNode.name}". Explore further or select an action.`;
+                botMsg.textContent = currentNode.children ? 
+                    `Exploring "${nextNode.name}". Go deeper or choose an action. Popularity: ${Math.round(nextNode.popularity * 100) || "N/A"}%` : 
+                    `Reached "${nextNode.name}". Select an action.`;
                 chatLog.appendChild(botMsg);
                 updateBreadcrumb();
-                updateTopicSelect();
-                // 선택된 값을 드롭다운에 반영
-                updateSearchSelect(foundNode.name);
-            } else {
-                const chatLog = document.getElementById("chatLog");
-                const botMsg = document.createElement("div");
-                botMsg.className = "message bot-message";
-                botMsg.textContent = `No match found for "${searchValue}". Please refine your search.`;
-                chatLog.appendChild(botMsg);
+                updateExploreSelect();
             }
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
         function handleInput() {
-            const topicValue = document.getElementById("topicSelect").value;
             const actionValue = document.getElementById("actionSelect").value;
+            if (!actionValue || actionValue === "") return;
+
             const chatLog = document.getElementById("chatLog");
-
-            if (topicValue) {
-                // 하위 주제로 이동
-                const nextNode = currentNode.children.find(child => child.id === topicValue);
-                if (nextNode) {
-                    path.push(nextNode);
-                    currentNode = nextNode;
-                    const userMsg = document.createElement("div");
-                    userMsg.className = "message user-message";
-                    userMsg.textContent = nextNode.name;
-                    chatLog.appendChild(userMsg);
-                    const botMsg = document.createElement("div");
-                    botMsg.className = "message bot-message";
-                    botMsg.textContent = currentNode.children ? 
-                        `Selected "${nextNode.name}". Explore further or choose an action:` : 
-                        `Reached "${nextNode.name}". Select an action:`;
-                    chatLog.appendChild(botMsg);
+            const userMsg = document.createElement("div");
+            userMsg.className = "message user-message";
+            userMsg.textContent = document.getElementById("actionSelect").selectedOptions[0].text;
+            chatLog.appendChild(userMsg);
+            const botMsg = document.createElement("div");
+            botMsg.className = "message bot-message";
+            const topic = currentNode.name;
+            if (actionValue === "papers") {
+                botMsg.innerHTML = `Recent papers on "${topic}": <a href="https://arxiv.org/search/?query=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
+            } else if (actionValue === "researchers") {
+                botMsg.innerHTML = `Search researchers on "${topic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
+            } else if (actionValue === "chat") {
+                botMsg.innerHTML = `Join chat on "${topic}": <a href="chatroom.html?room=${currentNode.id}" target="_blank" style="color: #ff4081;">Join</a>`;
+            } else if (actionValue === "back") {
+                if (path.length > 0) {
+                    path.pop();
+                    currentNode = path.length > 0 ? path[path.length - 1] : researchTree;
+                    botMsg.textContent = `Went back to "${currentNode.name}". Explore or select an action.`;
                 } else {
-                    const botMsg = document.createElement("div");
-                    botMsg.className = "message bot-message";
-                    botMsg.textContent = `No subtopics found for the selection. Please try another topic.`;
-                    chatLog.appendChild(botMsg);
+                    botMsg.textContent = "Already at the root.";
                 }
-            } else if (actionValue) {
-                // 액션 처리
-                const userMsg = document.createElement("div");
-                userMsg.className = "message user-message";
-                userMsg.textContent = document.getElementById("actionSelect").selectedOptions[0].text;
-                chatLog.appendChild(userMsg);
-                const botMsg = document.createElement("div");
-                botMsg.className = "message bot-message";
-                const topic = currentNode.name;
-                if (actionValue === "papers") {
-                    botMsg.innerHTML = `Recent papers on "${topic}": <a href="https://arxiv.org/search/?query=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
-                } else if (actionValue === "researchers") {
-                    botMsg.innerHTML = `Search researchers on "${topic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
-                } else if (actionValue === "chat") {
-                    botMsg.innerHTML = `Join chat on "${topic}": <a href="chatroom.html?room=${currentNode.id}" target="_blank" style="color: #ff4081;">Join</a>`;
-                } else if (actionValue === "back") {
-                    if (path.length > 0) {
-                        path.pop();
-                        currentNode = path.length > 0 ? path[path.length - 1] : researchTree;
-                        botMsg.textContent = `Went back to "${currentNode.name}". Explore or select an action.`;
-                    } else {
-                        botMsg.textContent = "Already at the root.";
-                    }
-                }
-                chatLog.appendChild(botMsg);
             }
-
+            chatLog.appendChild(botMsg);
             updateBreadcrumb();
-            updateTopicSelect();
+            updateExploreSelect();
             chatLog.scrollTop = chatLog.scrollHeight;
-        }
-
-        function buildPath(node, targetId) {
-            if (node.id === targetId) return [node];
-            if (node.children) {
-                for (let child of node.children) {
-                    const subPath = buildPath(child, targetId);
-                    if (subPath) return [node, ...subPath];
-                }
-            }
-            return null;
         }
 
         // 초기화
         updateBreadcrumb();
-        updateTopicSelect();
         updateSearchSelect();
-
-        // 검색 필터링 (입력 시 실시간 업데이트)
-        document.getElementById("searchSelect").addEventListener("input", (e) => {
-            filterSearch(e.target.value);
-        });
+        updateExploreSelect();
     </script>
 </body>
 </html>
