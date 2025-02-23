@@ -96,16 +96,14 @@
 
     <div id="chatbotContainer">
         <div id="chatLog">
-            <div class="message bot-message">Hi! Start by searching for diverse topics or exploring deeper into a specific area:</div>
+            <div class="message bot-message">Hi! Start by searching for a broad topic or exploring deeper:</div>
         </div>
         <div id="chatInputContainer">
             <div id="breadcrumb"></div>
             <select id="searchSelect" oninput="filterSearch()" onchange="handleSearch()">
-                <option value="">Search diverse topics (type to filter)...</option>
+                <option value="">Search topics (e.g., AI, Deep Learning, PINNs)...</option>
             </select>
-            <select id="exploreSelect" onchange="handleExplore()">
-                <option value="">Explore further...</option>
-            </select>
+            <select id="exploreSelect" onchange="handleExplore()"></select>
             <select id="actionSelect">
                 <option value="">What do you want to do?</option>
                 <option value="papers">Find Recent Papers</option>
@@ -125,65 +123,38 @@
                 {
                     name: "AI & Machine Learning",
                     id: "ai-ml",
-                    popularity: 0.9, // 인기 지수 (0~1)
-                    related: ["Deep Learning", "Natural Language Processing"],
                     children: [
-                        { 
-                            name: "Deep Learning", 
-                            id: "deep-learning", 
-                            popularity: 0.85,
-                            related: ["Convolutional Neural Networks", "Recurrent Neural Networks"],
-                            children: [
-                                { name: "Convolutional Neural Networks", id: "cnn", children: [
-                                    { name: "Image Classification", id: "image-classification" }
-                                ] }
-                            ]
-                        },
-                        { 
-                            name: "Natural Language Processing", 
-                            id: "nlp", 
-                            popularity: 0.8,
-                            related: ["Language Models", "Sentiment Analysis"],
-                            children: [
-                                { name: "Language Models", id: "language-models", children: [
-                                    { name: "Transformers", id: "transformers" }
-                                ] }
-                            ]
-                        }
+                        { name: "Deep Learning", id: "deep-learning", children: [
+                            { name: "Convolutional Neural Networks", id: "cnn", children: [
+                                { name: "Image Classification", id: "image-classification", children: [] }
+                            ] },
+                            { name: "Recurrent Neural Networks", id: "rnn", children: [] }
+                        ] },
+                        { name: "Natural Language Processing", id: "nlp", children: [
+                            { name: "Language Models", id: "language-models", children: [
+                                { name: "Transformers", id: "transformers", children: [] }
+                            ] }
+                        ] }
                     ]
                 },
                 {
                     name: "Scientific Machine Learning",
                     id: "sciml",
-                    popularity: 0.7,
-                    related: ["Neural Network Applications", "Mathematical Modeling"],
                     children: [
-                        { 
-                            name: "Neural Network Applications", 
-                            id: "nn-applications", 
-                            popularity: 0.65,
-                            related: ["Physics-Informed Neural Networks", "Quantum Neural Networks"],
-                            children: [
-                                { name: "Physics-Informed Neural Networks", id: "pinns", children: [
-                                    { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
-                                        { name: "Turbulence Modeling", id: "turbulence", children: [
-                                            { name: "LES Methods", id: "les-methods" }
-                                        ] }
+                        { name: "Neural Network Applications", id: "nn-applications", children: [
+                            { name: "Physics-Informed Neural Networks", id: "pinns", children: [
+                                { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
+                                    { name: "Turbulence Modeling", id: "turbulence", children: [
+                                        { name: "LES Methods", id: "les-methods", children: [] }
                                     ] }
                                 ] }
-                            ]
-                        },
-                        { 
-                            name: "Mathematical Modeling", 
-                            id: "math-modeling", 
-                            popularity: 0.6,
-                            related: ["PDE Solving", "ODE Integration"],
-                            children: [
-                                { name: "PDE Solving", id: "pde-solving", children: [
-                                    { name: "Finite Difference Methods", id: "fdm" }
-                                ] }
-                            ]
-                        }
+                            ] }
+                        ] },
+                        { name: "Mathematical Modeling", id: "math-modeling", children: [
+                            { name: "PDE Solving", id: "pde-solving", children: [
+                                { name: "Finite Difference Methods", id: "fdm", children: [] }
+                            ] }
+                        ] }
                     ]
                 }
             ]
@@ -191,21 +162,14 @@
 
         let currentNode = researchTree;
         let path = [];
-        let selectedSearchIds = []; // 여러 주제 선택 가능하도록 배열로 변경
+        let selectedSearchId = ""; // 선택된 검색 ID 추적
         let allTopics = [];
 
         // 트리를 평평하게 만들어 검색용 리스트 생성
         function flattenTree(node, list = [], parentPath = []) {
-            const currentPath = [...parentPath, node];
-            list.push({ 
-                name: node.name, 
-                id: node.id, 
-                path: currentPath, 
-                popularity: node.popularity || 0, 
-                related: node.related || [] 
-            });
+            list.push({ name: node.name, id: node.id, path: [...parentPath, node] });
             if (node.children) {
-                node.children.forEach(child => flattenTree(child, list, currentPath));
+                node.children.forEach(child => flattenTree(child, list, [...parentPath, node]));
             }
             return list;
         }
@@ -220,24 +184,19 @@
         function updateSearchSelect(filter = "") {
             const searchSelect = document.getElementById("searchSelect");
             const currentValue = searchSelect.value; // 현재 입력값 저장
-            searchSelect.innerHTML = '<option value="">Search diverse topics...</option>';
+            searchSelect.innerHTML = '<option value="">Search topics...</option>';
             const filtered = allTopics.filter(topic => 
                 topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
-            ).sort((a, b) => b.popularity - a.popularity); // 인기순 정렬
+            );
             filtered.forEach(topic => {
                 const option = document.createElement("option");
                 option.value = topic.id;
-                option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")}) - Popularity: ${Math.round(topic.popularity * 100)}%`;
+                option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")})`;
                 searchSelect.appendChild(option);
             });
-            // 여러 선택된 값 유지
-            if (selectedSearchIds.length > 0) {
-                selectedSearchIds.forEach(id => {
-                    if (filtered.some(topic => topic.id === id)) {
-                        const option = searchSelect.querySelector(`option[value="${id}"]`);
-                        if (option) option.selected = true;
-                    }
-                });
+            // 이전에 선택된 값 또는 입력값을 유지
+            if (selectedSearchId && filtered.some(topic => topic.id === selectedSearchId)) {
+                searchSelect.value = selectedSearchId;
             } else if (currentValue && filtered.some(topic => topic.id === currentValue)) {
                 searchSelect.value = currentValue;
             }
@@ -250,44 +209,54 @@
                 currentNode.children.forEach(child => {
                     const option = document.createElement("option");
                     option.value = child.id;
-                    option.textContent = `${child.name} (${child.popularity ? Math.round(child.popularity * 100) + "% popular" : "N/A"})`;
+                    option.textContent = child.name;
                     exploreSelect.appendChild(option);
                 });
+                exploreSelect.style.display = "block";
+            } else {
+                exploreSelect.style.display = "none";
             }
-            exploreSelect.style.display = currentNode.children ? "block" : "none";
-            document.getElementById("actionSelect").style.display = "block";
+            document.getElementById("actionSelect").style.display = currentNode.children ? "none" : "block";
         }
 
         function filterSearch() {
             const searchSelect = document.getElementById("searchSelect");
             const filter = searchSelect.value;
             updateSearchSelect(filter);
+            // 입력 중 선택된 값을 유지
+            if (selectedSearchId && allTopics.some(topic => topic.id === selectedSearchId)) {
+                searchSelect.value = selectedSearchId;
+            }
         }
 
         function handleSearch() {
-            const searchSelect = document.getElementById("searchSelect");
-            const selectedOptions = Array.from(searchSelect.selectedOptions).map(option => option.value);
-            if (!selectedOptions.length || selectedOptions[0] === "") return;
+            const searchValue = document.getElementById("searchSelect").value;
+            if (!searchValue || searchValue === "") return;
 
-            selectedSearchIds = selectedOptions.filter(id => id !== ""); // 중복 제거 및 빈 값 제외
-            const chatLog = document.getElementById("chatLog");
-            selectedSearchIds.forEach(id => {
-                const foundNode = allTopics.find(topic => topic.id === id);
-                if (foundNode) {
-                    const userMsg = document.createElement("div");
-                    userMsg.className = "message user-message";
-                    userMsg.textContent = foundNode.name;
-                    chatLog.appendChild(userMsg);
-                    const botMsg = document.createElement("div");
-                    botMsg.className = "message bot-message";
-                    botMsg.textContent = `Found "${foundNode.name}". Explore related topics or select an action. Related topics: ${foundNode.related.join(", ") || "None"}`;
-                    chatLog.appendChild(botMsg);
-                }
-            });
-            currentNode = researchTree; // 검색 후 루트로 초기화, 필요 시 특정 노드로 설정 가능
-            path = [];
-            updateBreadcrumb();
-            updateExploreSelect();
+            const foundNode = allTopics.find(topic => topic.id === searchValue);
+            if (foundNode) {
+                currentNode = foundNode.path[foundNode.path.length - 1];
+                path = foundNode.path;
+                selectedSearchId = searchValue; // 선택된 검색 ID 저장
+                const chatLog = document.getElementById("chatLog");
+                const userMsg = document.createElement("div");
+                userMsg.className = "message user-message";
+                userMsg.textContent = foundNode.name;
+                chatLog.appendChild(userMsg);
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                botMsg.textContent = `Found "${foundNode.name}". Explore further or select an action.`;
+                chatLog.appendChild(botMsg);
+                updateBreadcrumb();
+                updateExploreSelect();
+                updateSearchSelect(foundNode.name); // 검색 후 드롭다운 유지
+            } else {
+                const chatLog = document.getElementById("chatLog");
+                const botMsg = document.createElement("div");
+                botMsg.className = "message bot-message";
+                botMsg.textContent = `No match found for "${searchValue}". Please refine your search.`;
+                chatLog.appendChild(botMsg);
+            }
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
@@ -307,8 +276,8 @@
                 const botMsg = document.createElement("div");
                 botMsg.className = "message bot-message";
                 botMsg.textContent = currentNode.children ? 
-                    `Exploring "${nextNode.name}". Go deeper or choose an action. Popularity: ${Math.round(nextNode.popularity * 100) || "N/A"}%` : 
-                    `Reached "${nextNode.name}". Select an action.`;
+                    `Exploring "${nextNode.name}". Go deeper or choose an action:` : 
+                    `Reached "${nextNode.name}". Select an action:`;
                 chatLog.appendChild(botMsg);
                 updateBreadcrumb();
                 updateExploreSelect();
@@ -318,7 +287,7 @@
 
         function handleInput() {
             const actionValue = document.getElementById("actionSelect").value;
-            if (!actionValue || actionValue === "") return;
+            if (!actionValue) return;
 
             const chatLog = document.getElementById("chatLog");
             const userMsg = document.createElement("div");
@@ -338,14 +307,13 @@
                 if (path.length > 0) {
                     path.pop();
                     currentNode = path.length > 0 ? path[path.length - 1] : researchTree;
-                    botMsg.textContent = `Went back to "${currentNode.name}". Explore or select an action.`;
+                    botMsg.textContent = `Went back to "${currentNode.name}". Explore or search again.`;
                 } else {
                     botMsg.textContent = "Already at the root.";
                 }
+                updateExploreSelect();
             }
             chatLog.appendChild(botMsg);
-            updateBreadcrumb();
-            updateExploreSelect();
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
@@ -353,6 +321,11 @@
         updateBreadcrumb();
         updateSearchSelect();
         updateExploreSelect();
+
+        // 검색 필터링 (입력 시 실시간 업데이트)
+        document.getElementById("searchSelect").addEventListener("input", (e) => {
+            filterSearch(e.target.value);
+        });
     </script>
 </body>
 </html>
