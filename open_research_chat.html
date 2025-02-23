@@ -223,6 +223,33 @@
             'generative models': 'generative-models'
         };
 
+        const categories = {
+            'ai & machine learning': [
+                { name: 'foundation models', id: 'foundation-model' },
+                { name: 'deep learning', id: 'deep-learning' },
+                { name: 'reinforcement learning', id: 'reinforcement-learning' },
+                { name: 'natural language processing', id: 'natural-language-processing' }
+            ],
+            'scientific machine learning': [
+                { name: 'pde solving', id: 'pde-solving' },
+                { name: 'time dependent cdr', id: 'time-dependent-cdr' },
+                { name: 'physics-informed neural networks', id: 'physics-informed-nn' },
+                { name: 'molecular dynamics', id: 'molecular-dynamics' }
+            ],
+            'computational science': [
+                { name: 'gpu redistribution', id: 'gpu-redistribution' },
+                { name: 'quantum computing', id: 'quantum-computing' },
+                { name: 'numerical methods', id: 'numerical-methods' },
+                { name: 'high-performance computing', id: 'high-performance-computing' }
+            ],
+            'data science & applications': [
+                { name: 'data assimilation', id: 'data-assimilation' },
+                { name: 'climate modeling', id: 'climate-modeling' },
+                { name: 'bioinformatics', id: 'bioinformatics' },
+                { name: 'generative models', id: 'generative-models' }
+            ]
+        };
+
         function handleChatbotInput() {
             const input = document.getElementById("chatbotInput").value.trim().toLowerCase();
             if (!input) return;
@@ -235,11 +262,16 @@
 
             let response = '';
             const matchedRoom = Object.keys(chatRooms).find(key => input.includes(key));
+            const matchedCategory = Object.keys(categories).find(cat => input.includes(cat));
+
             if (matchedRoom) {
                 const roomId = chatRooms[matchedRoom];
                 response = `I found a chat room for "${matchedRoom}"! Click here to join: <a href="chatroom.html?room=${roomId}" style="color: #ff4081; text-decoration: underline;">Join ${matchedRoom}</a>`;
+            } else if (matchedCategory) {
+                const topics = categories[matchedCategory];
+                response = `"${matchedCategory}" includes these topics: ${topics.map(t => t.name).join(', ')}. Which one are you interested in?`;
             } else {
-                response = "Hmm, I couldn't find a specific room for that. Try asking about topics like 'foundation models', 'time dependent CDR', or 'quantum computing'. Or browse the rooms above!";
+                response = "Hmm, I couldn't find a specific room or category for that. Try asking about topics like 'foundation models', 'time dependent CDR', or 'quantum computing', or categories like 'Computational Science'.";
             }
 
             const botMessage = document.createElement("div");
