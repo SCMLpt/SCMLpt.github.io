@@ -21,7 +21,6 @@
     }
     nav a { color: lightblue; text-decoration: none; margin: 0 15px; font-weight: bold; transition: color 0.3s ease; }
     nav a:hover { color: #ff4081; }
-    
     #chatbotContainer {
       width: 80%;
       max-width: 800px;
@@ -29,9 +28,9 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(20,20,20,0.9);
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
       overflow: hidden;
     }
     #chatLog {
@@ -48,7 +47,6 @@
     }
     .bot-message { background: #333; color: #fff; align-self: flex-start; }
     .user-message { background: #ff4081; color: #fff; align-self: flex-end; margin-left: auto; }
-    
     #chatInputContainer {
       display: flex;
       flex-wrap: wrap;
@@ -63,8 +61,7 @@
       font-weight: bold;
       flex-basis: 100%;
     }
-    
-    /* 공통 스타일 */
+    /* 입력 및 선택 요소 공통 스타일 */
     #searchInput, #exploreSelect, #actionSelect {
       flex-grow: 1;
       padding: 10px;
@@ -105,15 +102,14 @@
 
     <div id="chatInputContainer">
       <div id="breadcrumb">Topics: [none]</div>
-      <!-- 1) 검색어 입력 (datalist를 연결) -->
+      <!-- 1) 검색어 입력 (datalist와 연결) -->
       <input type="text" id="searchInput" placeholder="Type to filter topics..." list="searchDatalist" oninput="updateSearchDropdown()">
-      <!-- 2) datalist: 입력과 함께 자동완성됨 -->
       <datalist id="searchDatalist"></datalist>
-      <!-- 3) Explore further: 전체 목록에서 추가 키워드 선택 -->
+      <!-- 2) Explore further: 추가 키워드 선택 -->
       <select id="exploreSelect" onchange="handleExplore()">
         <option value="" disabled selected>Explore further...</option>
       </select>
-      <!-- 4) 액션 선택 (papers, researchers, chat, back) -->
+      <!-- 3) 액션 선택 -->
       <select id="actionSelect">
         <option value="">What do you want to do?</option>
         <option value="papers">Find Recent Papers</option>
@@ -126,97 +122,147 @@
   </div>
 
   <script>
-    // ---------------------------
-    // 1) 트리 구조 및 평탄화
-    // ---------------------------
+    // 1) 확장된 연구 분야 트리
     const researchTree = {
       name: "Research Areas",
       id: "root",
       children: [
-        {
-          name: "AI & Machine Learning",
-          id: "ai-ml",
-          children: [
-            { name: "Deep Learning", id: "deep-learning", children: [
-                { name: "Convolutional Neural Networks", id: "cnn", children: [
-                    { name: "Image Classification", id: "image-classification" }
-                ]}
-            ]},
+        // 인공지능 및 관련 분야
+        { name: "Artificial Intelligence", id: "ai", children: [
+            { name: "Machine Learning", id: "ml", children: [
+                { name: "Deep Learning", id: "deep-learning", children: [
+                    { name: "Convolutional Neural Networks", id: "cnn", children: [
+                        { name: "Image Classification", id: "image-classification" },
+                        { name: "Object Detection", id: "object-detection" }
+                      ] 
+                    },
+                    { name: "Reinforcement Learning", id: "rl", children: [
+                        { name: "Q-Learning", id: "q-learning" },
+                        { name: "Policy Gradients", id: "policy-gradients" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
             { name: "Natural Language Processing", id: "nlp", children: [
                 { name: "Language Models", id: "language-models", children: [
-                    { name: "Transformers", id: "transformers" }
-                ]}
-            ]}
+                    { name: "Transformers", id: "transformers" },
+                    { name: "RNNs", id: "rnns" }
+                  ]
+                },
+                { name: "Text Mining", id: "text-mining", children: [
+                    { name: "Sentiment Analysis", id: "sentiment-analysis" },
+                    { name: "Topic Modeling", id: "topic-modeling" }
+                  ]
+                }
+              ]
+            }
           ]
         },
-        {
-          name: "Scientific Machine Learning",
-          id: "sciml",
-          children: [
-            { name: "Neural Network Applications", id: "nn-applications", children: [
-                { name: "Physics-Informed Neural Networks", id: "pinns", children: [
-                    { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
-                        { name: "Turbulence Modeling", id: "turbulence", children: [
-                            { name: "LES Methods", id: "les-methods" }
-                        ]}
-                    ]}
-                ]}
-            ]},
-            { name: "Mathematical Modeling", id: "math-modeling", children: [
-                { name: "PDE Solving", id: "pde-solving", children: [
-                    { name: "Finite Difference Methods", id: "fdm" }
-                ]}
-            ]}
+        // 데이터 사이언스
+        { name: "Data Science", id: "data-science", children: [
+            { name: "Statistical Analysis", id: "statistical-analysis" },
+            { name: "Big Data", id: "big-data", children: [
+                { name: "Hadoop", id: "hadoop" },
+                { name: "Spark", id: "spark" }
+              ]
+            }
+          ]
+        },
+        // 자연과학
+        { name: "Natural Sciences", id: "natural-sciences", children: [
+            { name: "Physics", id: "physics", children: [
+                { name: "Quantum Mechanics", id: "quantum-mechanics" },
+                { name: "Relativity", id: "relativity" }
+              ]
+            },
+            { name: "Chemistry", id: "chemistry", children: [
+                { name: "Organic Chemistry", id: "organic-chemistry" },
+                { name: "Inorganic Chemistry", id: "inorganic-chemistry" }
+              ]
+            },
+            { name: "Biology", id: "biology", children: [
+                { name: "Genetics", id: "genetics" },
+                { name: "Microbiology", id: "microbiology" }
+              ]
+            }
+          ]
+        },
+        // 공학
+        { name: "Engineering", id: "engineering", children: [
+            { name: "Electrical Engineering", id: "electrical-engineering", children: [
+                { name: "Signal Processing", id: "signal-processing" },
+                { name: "Communications", id: "communications" }
+              ]
+            },
+            { name: "Mechanical Engineering", id: "mechanical-engineering", children: [
+                { name: "Thermodynamics", id: "thermodynamics" },
+                { name: "Fluid Dynamics", id: "fluid-dynamics", children: [
+                    { name: "Turbulence", id: "turbulence" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        // 사회과학
+        { name: "Social Sciences", id: "social-sciences", children: [
+            { name: "Economics", id: "economics", children: [
+                { name: "Microeconomics", id: "microeconomics" },
+                { name: "Macroeconomics", id: "macroeconomics" }
+              ]
+            },
+            { name: "Psychology", id: "psychology", children: [
+                { name: "Cognitive Psychology", id: "cognitive-psychology" },
+                { name: "Behavioral Psychology", id: "behavioral-psychology" }
+              ]
+            }
+          ]
+        },
+        // 인문학
+        { name: "Humanities", id: "humanities", children: [
+            { name: "History", id: "history" },
+            { name: "Philosophy", id: "philosophy" },
+            { name: "Literature", id: "literature" }
           ]
         }
       ]
     };
 
-    // 모든 노드를 담을 배열 (root 제외)
+    // 2) 평탄화: 루트 제외 모든 노드를 배열에 저장
     const allTopics = [];
     function flattenTree(node) {
       const queue = [node];
       while (queue.length > 0) {
         const current = queue.shift();
         if(current.id !== "root") {
-          allTopics.push({
-            id: current.id,
-            name: current.name
-          });
+          allTopics.push({ id: current.id, name: current.name });
         }
-        if (current.children) {
+        if(current.children) {
           current.children.forEach(child => queue.push(child));
         }
       }
     }
     flattenTree(researchTree);
 
-    // ---------------------------
-    // 2) 누적 선택 토픽 관리
-    // ---------------------------
+    // 3) 누적 선택 토픽 관리
     let selectedTopics = []; // 예: ["Fluid Dynamics", "Physics-Informed Neural Networks"]
-
-    // breadcrumb 업데이트 (ex: "Topics: Fluid Dynamics + Physics-Informed Neural Networks")
     function updateBreadcrumb() {
       const breadcrumb = document.getElementById("breadcrumb");
-      if (selectedTopics.length === 0) {
+      if(selectedTopics.length === 0) {
         breadcrumb.textContent = "Topics: [none]";
       } else {
         breadcrumb.textContent = "Topics: " + selectedTopics.join(" + ");
       }
     }
 
-    // ---------------------------
-    // 3) 검색(datalist) 갱신
-    // ---------------------------
+    // 4) 검색(datalist) 갱신
     function updateSearchDropdown() {
       const searchValue = document.getElementById("searchInput").value.toLowerCase();
       const dataList = document.getElementById("searchDatalist");
       dataList.innerHTML = "";
-      
-      const filtered = allTopics.filter(t =>
-        t.name.toLowerCase().includes(searchValue)
-      );
+      const filtered = allTopics.filter(t => t.name.toLowerCase().includes(searchValue));
       filtered.forEach(t => {
         const option = document.createElement("option");
         option.value = t.name;
@@ -224,35 +270,29 @@
       });
     }
 
-    // 사용자가 입력창에서 선택 후 엔터 또는 포커스 변경 시 실행
+    // 입력창 변경 시 선택 처리
     document.getElementById("searchInput").addEventListener("change", function() {
       const text = this.value.trim();
-      if (!text) return;
-      // allTopics에서 이름으로 검색 (대소문자 무시)
+      if(!text) return;
       const topicObj = allTopics.find(t => t.name.toLowerCase() === text.toLowerCase());
-      if (topicObj && !selectedTopics.includes(topicObj.name)) {
+      if(topicObj && !selectedTopics.includes(topicObj.name)) {
         selectedTopics.push(topicObj.name);
-        
         const chatLog = document.getElementById("chatLog");
         const userMsg = document.createElement("div");
         userMsg.className = "message user-message";
         userMsg.textContent = topicObj.name;
         chatLog.appendChild(userMsg);
-        
         const botMsg = document.createElement("div");
         botMsg.className = "message bot-message";
         botMsg.textContent = `You selected "${topicObj.name}".`;
         chatLog.appendChild(botMsg);
-        
         updateBreadcrumb();
         this.value = "";
         chatLog.scrollTop = chatLog.scrollHeight;
       }
     });
 
-    // ---------------------------
-    // 4) Explore further
-    // ---------------------------
+    // 5) Explore further 처리
     function populateExploreSelect() {
       const exploreSelect = document.getElementById("exploreSelect");
       exploreSelect.innerHTML = '<option value="" disabled selected>Explore further...</option>';
@@ -263,85 +303,71 @@
         exploreSelect.appendChild(opt);
       });
     }
+    populateExploreSelect();
 
     function handleExplore() {
       const exploreSelect = document.getElementById("exploreSelect");
       const value = exploreSelect.value;
-      if (!value) return;
+      if(!value) return;
       const topicObj = allTopics.find(t => t.id === value);
-      if (topicObj && !selectedTopics.includes(topicObj.name)) {
+      if(topicObj && !selectedTopics.includes(topicObj.name)) {
         selectedTopics.push(topicObj.name);
-        
         const chatLog = document.getElementById("chatLog");
         const userMsg = document.createElement("div");
         userMsg.className = "message user-message";
         userMsg.textContent = topicObj.name;
         chatLog.appendChild(userMsg);
-        
         const botMsg = document.createElement("div");
         botMsg.className = "message bot-message";
         botMsg.textContent = `Added "${topicObj.name}".`;
         chatLog.appendChild(botMsg);
-        
         updateBreadcrumb();
         exploreSelect.value = "";
         chatLog.scrollTop = chatLog.scrollHeight;
       }
     }
 
-    // ---------------------------
-    // 5) 액션 처리 (papers, researchers, chat, back)
-    // ---------------------------
+    // 6) 액션 처리 (papers, researchers, chat, back)
     function handleAction() {
       const actionSelect = document.getElementById("actionSelect");
       const actionValue = actionSelect.value;
-      if (!actionValue) return;
-      
+      if(!actionValue) return;
       const chatLog = document.getElementById("chatLog");
       const userMsg = document.createElement("div");
       userMsg.className = "message user-message";
       userMsg.textContent = actionSelect.selectedOptions[0].text;
       chatLog.appendChild(userMsg);
-      
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-      
-      if (actionValue === "back") {
-        if (selectedTopics.length > 0) {
+      if(actionValue === "back") {
+        if(selectedTopics.length > 0) {
           const removed = selectedTopics.pop();
-          botMsg.textContent = `Removed "${removed}". Current: [${selectedTopics.join(" + ") || "none"}]`;
+          botMsg.textContent = `Removed "${removed}".`;
         } else {
           botMsg.textContent = "No topics to remove.";
         }
       } else {
         const query = selectedTopics.join("+");
-        if (!query) {
+        if(!query) {
           botMsg.textContent = "No topics selected yet.";
         } else {
-          if (actionValue === "papers") {
+          if(actionValue === "papers") {
             botMsg.innerHTML = `Recent papers for "<strong>${query}</strong>": 
               <a href="https://arxiv.org/search/?query=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">arXiv</a>`;
-          } else if (actionValue === "researchers") {
+          } else if(actionValue === "researchers") {
             botMsg.innerHTML = `Search researchers for "<strong>${query}</strong>": 
               <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">Google Scholar</a>`;
-          } else if (actionValue === "chat") {
+          } else if(actionValue === "chat") {
             botMsg.innerHTML = `Join chat for "<strong>${query}</strong>": 
               <a href="chatroom.html?room=${encodeURIComponent(query)}" target="_blank" style="color: #ff4081;">Join</a>`;
           }
         }
       }
       chatLog.appendChild(botMsg);
-      
       actionSelect.value = "";
       updateBreadcrumb();
       chatLog.scrollTop = chatLog.scrollHeight;
     }
-
-    // ---------------------------
-    // 초기화
-    // ---------------------------
-    updateBreadcrumb();
-    populateExploreSelect();
   </script>
 </body>
 </html>
