@@ -166,10 +166,11 @@
         let allTopics = [];
 
         // 트리를 평평하게 만들어 검색용 리스트 생성
-        function flattenTree(node, list = []) {
-            list.push({ name: node.name, id: node.id, path: buildPath(researchTree, node.id) });
+        function flattenTree(node, list = [], parentPath = []) {
+            const currentPath = [...parentPath, node];
+            list.push({ name: node.name, id: node.id, path: currentPath });
             if (node.children) {
-                node.children.forEach(child => flattenTree(child, list));
+                node.children.forEach(child => flattenTree(child, list, currentPath));
             }
             return list;
         }
@@ -251,7 +252,7 @@
                 const foundNode = allTopics.find(topic => topic.id === searchValue);
                 if (foundNode) {
                     currentNode = foundNode.path[foundNode.path.length - 1];
-                    path = foundNode.path;
+                    path = foundNode.path; // 검색된 주제의 전체 경로 설정
                     const userMsg = document.createElement("div");
                     userMsg.className = "message user-message";
                     userMsg.textContent = foundNode.name;
@@ -276,7 +277,7 @@
                 // 더 깊은 탐색
                 const nextNode = currentNode.children.find(child => child.id === exploreValue);
                 if (nextNode) {
-                    path.push(nextNode);
+                    path.push(nextNode); // 하위 노드 추가
                     currentNode = nextNode;
                     const userMsg = document.createElement("div");
                     userMsg.className = "message user-message";
