@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interactive Task Selector with Chatbot</title>
+  
+  <!-- Plotly.js for 3D/2D plotting -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  
+  <!-- MathJax for LaTeX rendering (optional) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <style>
+    /* 기본 리셋 및 폰트 설정 */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #000 0%, #111 100%);
+      color: lightblue;
+      text-align: center;
+      min-height: 100vh;
+    }
+    nav {
+      background: linear-gradient(to right, #1a1a1a, #111);
+      display: flex; justify-content: center; align-items: center;
+      padding: 10px 0; font-size: 1.2em;
+    }
+    nav a {
+      color: lightblue; text-decoration: none; margin: 0 15px;
+      font-weight: bold; transition: color 0.3s ease;
+    }
+    nav a:hover {
+      color: #ff4081;
+    }
+    .container {
+      width: 80%; margin: 30px auto; text-align: left;
+      background: rgba(50, 50, 50, 0.2);
+      padding: 20px; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+    h1 {
+      font-size: 2em; margin-bottom: 20px; text-align: center;
+      color: #ffecb3;
+    }
+    .description {
+      font-size: 1.1em; margin-bottom: 20px; color: #cdefff;
+      line-height: 1.6;
+      background-color: rgba(20, 20, 20, 0.6);
+      padding: 15px; border-radius: 5px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+    }
+    pre {
+      background-color: #222; color: #eee; padding: 10px; border-radius: 5px;
+    }
+    textarea {
+      width: 80%; height: 150px; font-size: 1.2em; padding: 10px;
+      margin-bottom: 20px;
+      background-color: #111; color: lightblue; border: 1px solid #333;
+      border-radius: 5px; outline: none;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.2) inset;
+    }
+    button {
+      background: #ff4081; color: white; border: none;
+      padding: 10px 25px; font-size: 1.2em;
+      cursor: pointer; border-radius: 5px; margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #f50057; transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 64, 129, 0.5);
+    }
+    .result {
+      margin-top: 20px; font-size: 1.2em;
+      background-color: #222; padding: 20px; border-radius: 5px;
+      word-wrap: break-word; color: #fff;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+    /* 챗봇 인터페이스 */
+    .chatbot {
+      width: 80%; margin: 20px auto;
+      background: rgba(20,20,20,0.8);
+      padding: 10px; border-radius: 8px; color: #eee;
+    }
+    .chat-output {
+      height: 150px; overflow-y: auto; border: 1px solid #333;
+      padding: 10px; margin-bottom: 10px; background-color: #111;
+    }
+    .chat-input {
+      width: 80%; padding: 10px;
+      border: 1px solid #333; border-radius: 5px;
+    }
+    /* Task별 Plot 영역 스타일 (필요시 조정) */
+    #scimlPlotDiv, #domainPlot, #domain3DPlot, #staticDomainPlot, #staticDomain2DPlot {
+      margin: 20px auto;
+    }
+    #scimlPlotDiv { width: 80%; height: 600px; border: 2px solid #555; border-radius: 5px; }
+    #domainPlot { width: 600px; height: 400px; background-color: #222; border: 2px solid #555; border-radius: 5px; }
+    #domain3DPlot { width: 800px; height: 600px; border: 2px solid #555; border-radius: 5px; background-color: #111; }
+    #staticDomainPlot { width: 600px; height: 400px; background-color: #222; border: 2px solid #555; border-radius: 5px; }
+    #staticDomain2DPlot { width: 600px; height: 400px; background-color: #111; border: 2px solid #555; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#" onclick="showTask('taskSelector')">Task 선택</a>
+  </nav>
+  
+  <!-- Task 선택 인터페이스 -->
+  <div class="container" id="taskSelector" style="display:block;">
+    <h1>원하는 Task를 입력하세요</h1>
+    <p>예: <code>task1</code>, <code>task2</code>, <code>task3</code></p>
+    <input type="text" id="taskInput" placeholder="예: task1" class="chat-input" />
+    <button onclick="handleTaskSelection()">선택</button>
+  </div>
+  
+  <!-- Task 1: SciML Simulation Container -->
+  <div class="container" id="task1Container">
+    <h1>Boundary layer Simulation</h1>
+    <div class="description">
+      <p>This is an example of a foundational model on the domain \( [0,1]\times[0,1] \).</p>
+      <p>The PDE might look like:</p>
+      <p style="text-align:center;">
+        $$
+        -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
+        $$
+      </p>
+      <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+      <pre>
+{
+  "known": [
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.4, 0.4, 0.8]
+    ]
+  ],
+  "epsilons": [0.01]
+}
+      </pre>
+    </div>
+    <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+    <br />
+    <button onclick="scimlSubmitInput()">Submit</button>
+    <div class="result" id="scimlResultDisplay"></div>
+    <div id="scimlPlotDiv"></div>
+  </div>
+  
+  <!-- Task 2: Domain Creator Container -->
+  <div class="container" id="task2Container">
+    <h1>Domain generalization via time dependent 2D CDR equation.</h1>
+    <div class="description">
+      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
+      <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+    </div>
+    <div id="domainPlot"></div>
+    <div id="domainFeedback">No points clicked yet.</div>
+    <button onclick="domainClear()">Clear Domain</button>
+    <button onclick="domainSubmit()">Submit Domain</button>
+    <div id="domainPredDisplay"></div>
+    <div id="domain3DPlot"></div>
+  </div>
+  
+  <!-- Task 3: Static Reaction–Diffusion Container -->
+  <div class="container" id="task3Container">
+    <h1>Static Reaction–Diffusion Simulation</h1>
+    <div class="description">
+      <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+      <p>This simulation does not include time evolution so a static prediction is generated.</p>
+    </div>
+    <div id="staticDomainPlot"></div>
+    <div id="staticDomainFeedback">No points clicked yet.</div>
+    <button onclick="staticDomainClear()">Clear Domain</button>
+    <button onclick="staticDomainSubmit()">Submit Domain</button>
+    <div id="staticDomainPredDisplay"></div>
+    <div id="staticDomain2DPlot"></div>
+  </div>
+  
+  <!-- 챗봇 인터페이스 (공통) -->
+  <div class="chatbot" id="chatbotInterface">
+    <h2>Chatbot</h2>
+    <div class="chat-output" id="chatOutput"></div>
+    <input type="text" id="chatInput" class="chat-input" placeholder="메시지를 입력하세요..." />
+    <button onclick="sendChatMessage()">전송</button>
+  </div>
+  
+  <script>
+    // 모든 task 컨테이너를 숨기고 선택한 task만 보여줌
+    function showTask(taskId) {
+      const tasks = ['taskSelector', 'task1Container', 'task2Container', 'task3Container'];
+      tasks.forEach(id => {
+        document.getElementById(id).style.display = (id === taskId) ? 'block' : 'none';
+      });
+    }
+    
+    // 사용자가 입력한 task에 따라 해당 컨테이너를 표시
+    function handleTaskSelection() {
+      const task = document.getElementById("taskInput").value.trim().toLowerCase();
+      if (task === "task1" || task === "task2" || task === "task3") {
+        showTask(task + "Container");
+        addChatMessage("System", "You selected " + task + ". How can I help you further regarding this task?");
+      } else {
+        alert("유효한 task를 입력하세요. 예: task1, task2, task3");
+      }
+    }
+    
+    // 챗봇 메시지 추가 함수 (간단한 예시)
+    function addChatMessage(sender, message) {
+      const chatOutput = document.getElementById("chatOutput");
+      chatOutput.innerHTML += "<p><strong>" + sender + ":</strong> " + message + "</p>";
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+    
+    // 챗봇 메시지 전송 함수 (간단한 에코 챗봇 예제)
+    function sendChatMessage() {
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+      if (message !== "") {
+        addChatMessage("User", message);
+        // 실제 API 연동 시 이 부분에서 추가 로직을 구현할 수 있음.
+        setTimeout(() => {
+          addChatMessage("Chatbot", "Echo: " + message);
+        }, 500);
+        input.value = "";
+      }
+    }
+    
+    /************************************************************
+     * Task 1: SciML Simulation Functions
+     ************************************************************/
+    async function scimlSubmitInput() {
+      const inputText = document.getElementById("scimlUserInput").value;
+      let jsonData;
+      try {
+        jsonData = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      // unknown 데이터 자동 생성 (없을 경우)
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        jsonData.unknown = [unknownTokens];
+      }
+      try {
+        // 서버 URL 교체
+        const serverURL = "https://2a42-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(serverURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        });
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.error) {
+          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
+        } else {
+          if (data.output) {
+            createSurfacePlot(jsonData.unknown, data.output);
+          } else if (data.result) {
+            createSurfacePlot(jsonData.unknown, data.result);
+          } else {
+            document.getElementById("scimlResultDisplay").innerText =
+              "No 'output' or 'result' field found in response.";
+          }
+        }
+      } catch (err) {
+        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+      }
+    }
+    
+    function createSurfacePlot(unknownData, outputData) {
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0];
+      }
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
+        outputData = outputData[0];
+      }
+      let size = 10;
+      let X = [], Y = [], Z = [];
+      for (let i = 0; i < size; i++) {
+        X.push([]); Y.push([]); Z.push([]);
+      }
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let row = Math.floor(idx / size);
+        let col = idx % size;
+        let pt = unknownData[idx];
+        let xVal = pt[0], yVal = pt[1];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
+        X[row][col] = xVal;
+        Y[row][col] = yVal;
+        Z[row][col] = zVal;
+      }
+      let trace = {
+        type: "surface",
+        x: X, y: Y, z: Z,
+        colorscale: "Viridis"
+      };
+      let layout = {
+        title: "Surface Plot of Predicted u(x,y)",
+        scene: {
+          xaxis: { title: "x" },
+          yaxis: { title: "y" },
+          zaxis: { title: "u(x,y)" }
+        }
+      };
+      Plotly.newPlot("scimlPlotDiv", [trace], layout);
+    }
+    
+    /************************************************************
+     * Task 2: Domain Creator Functions
+     ************************************************************/
+    let domainPoints = [];
+    let domainGd;
+    let polygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(255,0,0,0.2)',
+      line: { color: 'red' },
+      marker: { color: 'cyan', size: 8 },
+      name: "Polygon"
+    };
+    let domainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1.5], title: "x" },
+      yaxis: { range: [0, 1.5], title: "y" }
+    };
+    
+    Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
+      domainGd = plotDiv;
+      domainGd.addEventListener("mousedown", domainOnMouseDown);
+    });
+    
+    function domainOnMouseDown(evt) {
+      if (domainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = domainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = domainGd._fullLayout.xaxis;
+      let yAxis = domainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+    
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+    
+      domainPoints.push([xData, yData]);
+    
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
+      Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+    
+      domainUpdateFeedback();
+    }
+    
+    function domainUpdateFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("domainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, i) => {
+        msg += "Point " + (i+1) + ": (" + pt[0].toFixed(3) + ", " + pt[1].toFixed(3) + ")<br>";
+      });
+      document.getElementById("domainFeedback").innerHTML = msg;
+    }
+    
+    function domainClear() {
+      domainPoints = [];
+      Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      domainUpdateFeedback();
+      document.getElementById("domainPredDisplay").innerText = "";
+      document.getElementById("domain3DPlot").innerHTML = "";
+    }
+    
+    function domainSubmit() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+      fetch("https://2a42-125-186-24-176.ngrok-free.app/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_points:", data);
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createTimeLapse3D(data.plot_points);
+          }
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
+      });
+    }
+    
+    function createTimeLapse3D(plot_points) {
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
+        console.log("No times in plot_points!");
+        return;
+      }
+      let allZ = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        for (let pt of arr) {
+          allZ.push(pt[2]);
+        }
+      }
+      let minZ = Math.min(...allZ);
+      let maxZ = Math.max(...allZ);
+    
+      let initialTime = times[0];
+      let arr0 = plot_points[initialTime];
+      let x0 = arr0.map(pt => pt[0]);
+      let y0 = arr0.map(pt => pt[1]);
+      let z0 = arr0.map(pt => pt[2]);
+    
+      let initialData = [{
+        type: 'scatter3d',
+        mode: 'markers',
+        x: x0, y: y0, z: z0,
+        marker: {
+          size: 4,
+          color: z0,
+          cmin: minZ, cmax: maxZ,
+          colorscale: 'Viridis',
+          showscale: true
+        }
+      }];
+    
+      let frames = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+        frames.push({
+          name: t,
+          data: [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: xArr, y: yArr, z: zArr,
+            marker: {
+              size: 4,
+              color: zArr,
+              cmin: minZ, cmax: maxZ,
+              colorscale: 'Viridis',
+              showscale: true
+            }
+          }]
+        });
+      }
+    
+      let layout = {
+        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
+        scene: { xaxis: { title: "X" }, yaxis: { title: "Y" }, zaxis: { title: "Pred Value" } },
+        margin: { l: 0, r: 0, b: 0, t: 50 },
+        updatemenus: [{
+          type: 'buttons',
+          showactive: false,
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
+          pad: { t: 50, r: 10 },
+          buttons: [{
+            label: 'Play',
+            method: 'animate',
+            args: [null, {
+              fromcurrent: true,
+              frame: { redraw: true, duration: 500 },
+              transition: { duration: 300 }
+            }]
+          }]
+        }],
+        sliders: [{
+          pad: { l: 130, t: 70 },
+          currentvalue: {
+            visible: true,
+            prefix: 't* = ',
+            xanchor: 'right',
+            font: { size: 20, color: '#666' }
+          },
+          steps: times.map(t => {
+            return {
+              label: t,
+              method: 'animate',
+              args: [[t], {
+                mode: 'immediate',
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
+              }]
+            };
+          })
+        }]
+      };
+    
+      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
+        Plotly.addFrames('domain3DPlot', frames);
+      });
+    }
+    
+    /************************************************************
+     * Task 3: Static Reaction–Diffusion Functions
+     ************************************************************/
+    let staticDomainPoints = [];
+    let staticDomainGd;
+    let staticPolygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(0,255,0,0.2)',
+      line: { color: 'green' },
+      marker: { color: 'yellow', size: 8 },
+      name: "Polygon"
+    };
+    let staticDomainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [1, 2], title: "x" },
+      yaxis: { range: [1, 2], title: "y" }
+    };
+    
+    Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
+      staticDomainGd = plotDiv;
+      staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
+    });
+    
+    function staticDomainOnMouseDown(evt) {
+      if (staticDomainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = staticDomainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = staticDomainGd._fullLayout.xaxis;
+      let yAxis = staticDomainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+    
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+    
+      staticDomainPoints.push([xData, yData]);
+    
+      let xs = staticDomainPoints.map(pt => pt[0]);
+      let ys = staticDomainPoints.map(pt => pt[1]);
+      Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
+    
+      staticDomainUpdateFeedback();
+    }
+    
+    function staticDomainUpdateFeedback() {
+      if (staticDomainPoints.length === 0) {
+        document.getElementById("staticDomainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + staticDomainPoints.length + " point(s):<br>";
+      staticDomainPoints.forEach((pt, i) => {
+        msg += "Point " + (i+1) + ": (" + pt[0].toFixed(3) + ", " + pt[1].toFixed(3) + ")<br>";
+      });
+      document.getElementById("staticDomainFeedback").innerHTML = msg;
+    }
+    
+    function staticDomainClear() {
+      staticDomainPoints = [];
+      Plotly.update("staticDomainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      staticDomainUpdateFeedback();
+      document.getElementById("staticDomainPredDisplay").innerText = "";
+      document.getElementById("staticDomain2DPlot").innerHTML = "";
+    }
+    
+    function staticDomainSubmit() {
+      if (staticDomainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: staticDomainPoints };
+      fetch("https://2a42-125-186-24-176.ngrok-free.app/predict_no_time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_no_time:", data);
+        let displayDiv = document.getElementById("staticDomainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createStatic2DPlot(data.plot_points);
+          }
+          if (data.relative_error !== undefined) {
+            let errDiv = document.createElement("div");
+            errDiv.innerText = "Relative Error: " + data.relative_error.toFixed(4);
+            displayDiv.appendChild(errDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
+      });
+    }
+    
+    function createStatic2DPlot(plot_points) {
+      let xVals = [];
+      let yVals = [];
+      let zVals = [];
+      for (let i = 0; i < plot_points.length; i++) {
+        xVals.push(plot_points[i][0]);
+        yVals.push(plot_points[i][1]);
+        zVals.push(plot_points[i][2]);
+      }
+      let trace = {
+        x: xVals,
+        y: yVals,
+        mode: 'markers',
+        marker: {
+          size: 12,
+          color: zVals,
+          colorscale: 'Viridis',
+          colorbar: { title: 'u(x,y)' }
+        },
+        type: 'scatter'
+      };
+      let layout = {
+        title: 'Static Prediction Plot',
+        xaxis: { title: 'x' },
+        yaxis: { title: 'y' }
+      };
+      Plotly.newPlot("staticDomain2DPlot", [trace], layout);
+    }
+  </script>
+</body>
+</html>
