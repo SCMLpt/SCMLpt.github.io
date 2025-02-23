@@ -100,7 +100,7 @@
         </div>
         <div id="chatInputContainer">
             <div id="breadcrumb"></div>
-            <select id="searchSelect" onchange="handleSearch()">
+            <select id="searchSelect" oninput="filterSearch()" onchange="handleSearch()">
                 <option value="">Search topics (type to filter)...</option>
             </select>
             <select id="topicSelect"></select>
@@ -195,9 +195,19 @@
             document.getElementById("actionSelect").style.display = "block";
         }
 
+        function filterSearch() {
+            const searchSelect = document.getElementById("searchSelect");
+            const filter = searchSelect.value;
+            updateSearchSelect(filter);
+            // 입력 중 선택된 값을 유지하려면, 필터링 후에도 선택된 값 유지
+            if (selectedSearchId && allTopics.some(topic => topic.id === selectedSearchId)) {
+                searchSelect.value = selectedSearchId;
+            }
+        }
+
         function updateSearchSelect(filter = "") {
             const searchSelect = document.getElementById("searchSelect");
-            const currentValue = searchSelect.value; // 현재 선택된 값 저장
+            const currentValue = searchSelect.value; // 현재 입력값 저장
             searchSelect.innerHTML = '<option value="">Search topics...</option>';
             const filtered = allTopics.filter(topic => 
                 topic.name.toLowerCase().includes(filter.toLowerCase()) && topic.id !== "root"
@@ -208,17 +218,17 @@
                 option.textContent = `${topic.name} (${topic.path.map(p => p.name).join(" > ")})`;
                 searchSelect.appendChild(option);
             });
-            // 이전에 선택된 값 복원
-            if (currentValue && filtered.some(topic => topic.id === currentValue)) {
-                searchSelect.value = currentValue;
-            } else if (selectedSearchId && filtered.some(topic => topic.id === selectedSearchId)) {
+            // 이전에 선택된 값 또는 입력값을 유지
+            if (selectedSearchId && filtered.some(topic => topic.id === selectedSearchId)) {
                 searchSelect.value = selectedSearchId;
+            } else if (currentValue && filtered.some(topic => topic.id === currentValue)) {
+                searchSelect.value = currentValue;
             }
         }
 
         function handleSearch() {
             const searchValue = document.getElementById("searchSelect").value;
-            if (!searchValue) return;
+            if (!searchValue || searchValue === "") return;
 
             const foundNode = allTopics.find(topic => topic.id === searchValue);
             if (foundNode) {
@@ -236,6 +246,8 @@
                 chatLog.appendChild(botMsg);
                 updateBreadcrumb();
                 updateTopicSelect();
+                // 선택된 값을 드롭다운에 반영
+                updateSearchSelect(foundNode.name);
             }
             chatLog.scrollTop = chatLog.scrollHeight;
         }
@@ -310,7 +322,7 @@
 
         // 검색 필터링 (입력 시 실시간 업데이트)
         document.getElementById("searchSelect").addEventListener("input", (e) => {
-            updateSearchSelect(e.target.value);
+            filterSearch(e.target.value);
         });
     </script>
 </body>
