@@ -111,7 +111,7 @@
       <select id="searchSelect" onchange="handleSearch()">
         <option value="" disabled selected>Select a topic...</option>
       </select>
-      <!-- 3) Explore further: 트리 관계 상관없이 전체 목록에서 추가 키워드 선택 -->
+      <!-- 3) Explore further: 전체 목록에서 추가 키워드 선택 -->
       <select id="exploreSelect" onchange="handleExplore()">
         <option value="" disabled selected>Explore further...</option>
       </select>
@@ -177,11 +177,9 @@
     // 모든 노드를 담을 배열
     const allTopics = [];
     function flattenTree(node) {
-      // 큐/스택 방식으로 반복
       const queue = [node];
       while (queue.length > 0) {
         const current = queue.shift();
-        // root는 제외할 수도 있지만, 일단 포함해서 관리
         allTopics.push({
           id: current.id,
           name: current.name
@@ -230,7 +228,7 @@
       });
     }
 
-    // 사용자가 검색 결과에서 주제를 선택하면 selectedTopics에 추가
+    // 검색 드롭다운에서 주제를 선택하면 selectedTopics에 추가
     function handleSearch() {
       const searchSelect = document.getElementById("searchSelect");
       const value = searchSelect.value;
@@ -253,7 +251,8 @@
 
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-      botMsg.textContent = `You selected "${topicObj.name}". (Accumulated topics: ${selectedTopics.join(" + ")})`;
+      // (Accumulated topics: ...) 문구 삭제
+      botMsg.textContent = `You selected "${topicObj.name}".`;
       chatLog.appendChild(botMsg);
 
       // UI 정리
@@ -272,8 +271,6 @@
       exploreSelect.innerHTML = '<option value="" disabled selected>Explore further...</option>';
       // root 제외
       const list = allTopics.filter(t => t.id !== "root");
-      // 원한다면 정렬
-      // list.sort((a,b) => a.name.localeCompare(b.name));
 
       list.forEach(t => {
         const opt = document.createElement("option");
@@ -305,7 +302,8 @@
 
       const botMsg = document.createElement("div");
       botMsg.className = "message bot-message";
-      botMsg.textContent = `Added "${topicObj.name}". (Accumulated topics: ${selectedTopics.join(" + ")})`;
+      // (Accumulated topics: ...) 문구 삭제
+      botMsg.textContent = `Added "${topicObj.name}".`;
       chatLog.appendChild(botMsg);
 
       // 초기화
@@ -340,8 +338,9 @@
           botMsg.textContent = "No topics to remove.";
         }
       } else {
-        // 누적된 키워드로 검색
-        const query = selectedTopics.join(" ");
+        // 누적된 키워드를 '+'로 연결하여 검색
+        // 예: "Fluid+Dynamics+Physics-Informed+Neural+Networks"
+        const query = selectedTopics.join("+");
         if (!query) {
           botMsg.textContent = "No topics selected yet.";
         } else {
@@ -374,6 +373,7 @@
   </script>
 </body>
 </html>
+
 
 
 
