@@ -64,7 +64,7 @@
             background: #111;
             border-top: 1px solid #333;
         }
-        #categorySelect, #topicSelect {
+        #categorySelect, #topicSelect, #actionSelect {
             flex-grow: 1;
             padding: 10px;
             font-size: 1.1em;
@@ -87,7 +87,7 @@
         #chatbotSubmit:hover {
             background: #f50057;
         }
-        #topicSelect {
+        #topicSelect, #actionSelect {
             display: none; /* 초기에는 숨김 */
         }
     </style>
@@ -111,11 +111,17 @@
                 <option value="">Select a research area...</option>
                 <option value="ai & machine learning">AI & Machine Learning</option>
                 <option value="scientific machine learning">Scientific Machine Learning</option>
-                <option value="computational science">Computational Science</option>
-                <option value="data science & applications">Data Science & Applications</option>
+        <option value="computational science">Computational Science</option>
+        <option value="data science & applications">Data Science & Applications</option>
             </select>
             <select id="topicSelect" onchange="handleTopicSelect()">
                 <option value="">Select a specific topic...</option>
+            </select>
+            <select id="actionSelect" onchange="handleActionSelect()">
+                <option value="">Select an action...</option>
+                <option value="1">Find Related Papers</option>
+                <option value="2">Discover Influential Researchers</option>
+                <option value="3">Join the Open Chat</option>
             </select>
             <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
         </div>
@@ -155,17 +161,25 @@
 
         function handleCategorySelect() {
             const category = document.getElementById("categorySelect").value.trim().toLowerCase().replaceAll('&', 'and').replaceAll(' ', '-');
-            if (category && category !== "select-a-research-area") {
+            if (category && category !== "") {
                 handleChatbotInput(category);
                 document.getElementById("categorySelect").value = ""; // 선택 후 초기화
             }
         }
 
         function handleTopicSelect() {
-            const topic = document.getElementById("topicSelect").value.trim().toLowerCase().replaceAll(' ', '-').replaceAll('&', 'and');
-            if (topic && topic !== "select-a-specific-topic") {
-                handleChatbotInput(topic);
+            const topic = document.getElementById("topicSelect").value.trim();
+            if (topic && topic !== "") {
+                handleChatbotInput(topic.toLowerCase());
                 document.getElementById("topicSelect").value = ""; // 선택 후 초기화
+            }
+        }
+
+        function handleActionSelect() {
+            const action = document.getElementById("actionSelect").value.trim();
+            if (action && action !== "") {
+                handleChatbotInput(action);
+                document.getElementById("actionSelect").value = ""; // 선택 후 초기화
             }
         }
 
@@ -192,15 +206,16 @@
 
                     // 세부 주제 드롭다운 업데이트 및 표시
                     const topicSelect = document.getElementById("topicSelect");
-                    topicSelect.innerHTML = '<option value="select-a-specific-topic">Select a specific topic...</option>';
+                    topicSelect.innerHTML = '<option value="">Select a specific topic...</option>';
                     topics.forEach(topic => {
                         const option = document.createElement("option");
-                        option.value = topic.id; // ID 사용 (하이픈 포함)
+                        option.value = topic.id; // ID 사용 (하이픈 포함, 예: "pde-solving-with-ml")
                         option.textContent = topic.name;
                         topicSelect.appendChild(option);
                     });
                     topicSelect.style.display = 'block'; // 드롭다운 표시
                     document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
+                    document.getElementById("actionSelect").style.display = 'none'; // 액션 드롭다운 숨김
                 } else {
                     response = "Sorry, I didn't recognize that category. Please choose from: AI & Machine Learning, Scientific Machine Learning, Computational Science, or Data Science & Applications.";
                 }
@@ -210,12 +225,14 @@
                     const matchedTopic = topics.find(t => userInput === t.id); // ID로 정확히 매칭
                     if (matchedTopic) {
                         selectedTopic = matchedTopic.name;
-                        response = `Great, you selected "${matchedTopic.name}". Would you like to (1) find related papers, (2) discover influential researchers, or (3) join the open chat for this topic?`;
+                        response = `Great, you selected "${matchedTopic.name}". Please select an action from the dropdown below: (1) Find Related Papers, (2) Discover Influential Researchers, or (3) Join the Open Chat for this topic.`;
                         nextState = 'action';
 
-                        // 세부 주제 드롭다운 숨김, 카테고리 드롭다운 표시
-                        document.getElementById("topicSelect").style.display = 'none';
-                        document.getElementById("categorySelect").style.display = 'block';
+                        // 액션 드롭다운 업데이트 및 표시
+                        const actionSelect = document.getElementById("actionSelect");
+                        actionSelect.style.display = 'block'; // 액션 드롭다운 표시
+                        document.getElementById("topicSelect").style.display = 'none'; // 세부 주제 드롭다운 숨김
+                        document.getElementById("categorySelect").style.display = 'none'; // 카테고리 드롭다운 숨김
                     } else {
                         response = `Sorry, I couldn't find a specific topic in "${selectedCategory.replaceAll('&', '& ').replaceAll('and', '&').replaceAll('-', ' ')}". Please choose from: ${categories[selectedCategory].map(t => t.name).join(', ')}.`;
                     }
@@ -223,28 +240,31 @@
                     response = "Let's start again. Please select a broad research area to get started:";
                     nextState = 'category';
                     document.getElementById("topicSelect").style.display = 'none';
+                    document.getElementById("actionSelect").style.display = 'none';
                     document.getElementById("categorySelect").style.display = 'block';
                 }
             } else if (currentState === 'action') {
                 if (selectedTopic) {
                     const topicId = categories[selectedCategory].find(t => t.name === selectedTopic).id;
-                    if (userInput.includes('paper') || userInput.includes('1')) {
+                    if (userInput === '1') {
                         response = `Here are some resources for related papers on "${selectedTopic}": <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://arxiv.org/search/?query=${encodeURIComponent(selectedTopic)}" target="_blank" style="color: #ff4081; text-decoration: underline;">arXiv</a>. What would you like to do next?`;
-                    } else if (userInput.includes('researcher') || userInput.includes('2')) {
+                    } else if (userInput === '2') {
                         response = `Here are some influential researchers for "${selectedTopic}": You can search on <a href="https://scholar.google.com/" target="_blank" style="color: #ff4081; text-decoration: underline;">Google Scholar</a> or <a href="https://www.researchgate.net/" target="_blank" style="color: #ff4081; text-decoration: underline;">ResearchGate</a>. What would you like to do next?`;
-                    } else if (userInput.includes('chat') || userInput.includes('3')) {
+                    } else if (userInput === '3') {
                         response = `I found a chat room for "${selectedTopic}"! Click here to join: <a href="chatroom.html?room=${topicId}" style="color: #ff4081; text-decoration: underline;">Join ${selectedTopic}</a>`;
                         nextState = 'category'; // 대화 초기화
                         selectedCategory = '';
                         selectedTopic = '';
+                        document.getElementById("actionSelect").style.display = 'none';
                         document.getElementById("topicSelect").style.display = 'none';
                         document.getElementById("categorySelect").style.display = 'block';
                     } else {
-                        response = `Please specify (1) for related papers, (2) for influential researchers, or (3) to join the open chat for "${selectedTopic}".`;
+                        response = `Please select an action from the dropdown: (1) Find Related Papers, (2) Discover Influential Researchers, or (3) Join the Open Chat for "${selectedTopic}".`;
                     }
                 } else {
                     response = "Let's start again. Please select a broad research area to get started:";
                     nextState = 'category';
+                    document.getElementById("actionSelect").style.display = 'none';
                     document.getElementById("topicSelect").style.display = 'none';
                     document.getElementById("categorySelect").style.display = 'block';
                 }
@@ -268,5 +288,4 @@
     </script>
 </body>
 </html>
-
 
