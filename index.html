@@ -315,7 +315,7 @@
         jsonData.unknown = [unknownTokens];
       }
       try {
-        const serverURL = "https://d12f-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict";
+        const serverURL = "https://a45a-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict";
         const response = await fetch(serverURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -566,7 +566,7 @@
       }
       let payload = { points: domainPoints };
 
-      fetch("https://d12f-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict_points", {
+      fetch("https://a45a-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict_points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -679,7 +679,7 @@
       }
       let payload = { points: staticDomainPoints };
 
-      fetch("https://d12f-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict_no_time", {
+      fetch("https://a45a-2001-2d8-7381-8b9a-4cb2-2f1d-f131-9fdf.ngrok-free.app/predict_no_time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
