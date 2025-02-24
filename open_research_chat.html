@@ -1,8 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Tag Manager -->
+  <script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-N632F7P6');
+  </script>
+  <!-- End Google Tag Manager -->
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Open Research Chat - SCMLpt (Huge Menu)</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,7 +76,7 @@
       font-weight: bold;
       flex-basis: 100%;
     }
-    /* 입력 및 선택 요소 공통 스타일 */
+    /* Input and select elements styling */
     #searchInput, #exploreSelect, #actionSelect {
       flex-grow: 1;
       padding: 10px;
@@ -90,13 +100,17 @@
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N632F7P6" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
   <nav>
     <img src="https://scmlpt.github.io/logo.jpg" alt="SCMLpt Logo" onerror="this.src='https://via.placeholder.com/40?text=Logo'; console.log('Logo failed to load: ' + this.src);" />
     <a href="index.html">Home</a>
-    <a href="publications.html">Publications</a>
-    <a href="activities.html">Activities</a>
-    <a href="philosophy.html">Philosophy</a>
-    <a href="contact.html">Contact</a>
+    <a href="open_research_chat.html">Open Research Chat</a>
+    <a href="about_scmlpt.html">About SCMLpt</a>
   </nav>
 
   <div id="chatbotContainer">
@@ -108,14 +122,14 @@
 
     <div id="chatInputContainer">
       <div id="breadcrumb">Topics: [none]</div>
-      <!-- 1) 검색어 입력 (datalist와 연결) -->
+      <!-- 1) Search input (connected to datalist) -->
       <input type="text" id="searchInput" placeholder="Type to filter topics..." list="searchDatalist" oninput="updateSearchDropdown()">
       <datalist id="searchDatalist"></datalist>
-      <!-- 2) Explore further: 추가 키워드 선택 -->
+      <!-- 2) Explore further: additional keyword selection -->
       <select id="exploreSelect" onchange="handleExplore()">
         <option value="" disabled selected>Explore further...</option>
       </select>
-      <!-- 3) 액션 선택 -->
+      <!-- 3) Action selection -->
       <select id="actionSelect">
         <option value="">What do you want to do?</option>
         <option value="papers">Find Recent Papers</option>
@@ -128,12 +142,12 @@
   </div>
 
   <script>
-    // 1) 확장된 연구 분야 트리
+    // 1) Extended research field tree
     const researchTree = {
       name: "Research Areas",
       id: "root",
       children: [
-        // 인공지능 및 관련 분야
+        // Artificial Intelligence and related fields
         { name: "Artificial Intelligence", id: "ai", children: [
             { name: "Machine Learning", id: "ml", children: [
                 { name: "Deep Learning", id: "deep-learning", children: [
@@ -166,7 +180,7 @@
             }
           ]
         },
-        // 데이터 사이언스
+        // Data Science
         { name: "Data Science", id: "data-science", children: [
             { name: "Statistical Analysis", id: "statistical-analysis" },
             { name: "Big Data", id: "big-data", children: [
@@ -176,7 +190,7 @@
             }
           ]
         },
-        // 자연과학
+        // Natural Sciences
         { name: "Natural Sciences", id: "natural-sciences", children: [
             { name: "Physics", id: "physics", children: [
                 { name: "Quantum Mechanics", id: "quantum-mechanics" },
@@ -195,7 +209,7 @@
             }
           ]
         },
-        // 공학
+        // Engineering
         { name: "Engineering", id: "engineering", children: [
             { name: "Electrical Engineering", id: "electrical-engineering", children: [
                 { name: "Signal Processing", id: "signal-processing" },
@@ -212,7 +226,7 @@
             }
           ]
         },
-        // 사회과학
+        // Social Sciences
         { name: "Social Sciences", id: "social-sciences", children: [
             { name: "Economics", id: "economics", children: [
                 { name: "Microeconomics", id: "microeconomics" },
@@ -226,7 +240,7 @@
             }
           ]
         },
-        // 인문학
+        // Humanities
         { name: "Humanities", id: "humanities", children: [
             { name: "History", id: "history" },
             { name: "Philosophy", id: "philosophy" },
@@ -236,7 +250,7 @@
       ]
     };
 
-    // 2) 평탄화: 루트 제외 모든 노드를 배열에 저장
+    // 2) Flatten the tree: store all nodes (except the root) in an array
     const allTopics = [];
     function flattenTree(node) {
       const queue = [node];
@@ -252,8 +266,8 @@
     }
     flattenTree(researchTree);
 
-    // 3) 누적 선택 토픽 관리
-    let selectedTopics = []; // 예: ["Fluid Dynamics", "Physics-Informed Neural Networks"]
+    // 3) Manage cumulative topic selection
+    let selectedTopics = [];
     function updateBreadcrumb() {
       const breadcrumb = document.getElementById("breadcrumb");
       if(selectedTopics.length === 0) {
@@ -263,7 +277,7 @@
       }
     }
 
-    // 4) 검색(datalist) 갱신
+    // 4) Update search datalist
     function updateSearchDropdown() {
       const searchValue = document.getElementById("searchInput").value.toLowerCase();
       const dataList = document.getElementById("searchDatalist");
@@ -276,7 +290,7 @@
       });
     }
 
-    // 입력창 변경 시 선택 처리
+    // When the search input changes, select topic if available
     document.getElementById("searchInput").addEventListener("change", function() {
       const text = this.value.trim();
       if(!text) return;
@@ -298,7 +312,7 @@
       }
     });
 
-    // 5) Explore further 처리
+    // 5) Explore further handling
     function populateExploreSelect() {
       const exploreSelect = document.getElementById("exploreSelect");
       exploreSelect.innerHTML = '<option value="" disabled selected>Explore further...</option>';
@@ -333,7 +347,7 @@
       }
     }
 
-    // 6) 액션 처리 (papers, researchers, chat, back)
+    // 6) Action handling (papers, researchers, chat, back)
     function handleAction() {
       const actionSelect = document.getElementById("actionSelect");
       const actionValue = actionSelect.value;
@@ -377,6 +391,7 @@
   </script>
 </body>
 </html>
+
 
 
 
