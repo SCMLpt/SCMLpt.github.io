@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-3192627407292290">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-N632F7P6');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCMLpt - Cutting-edge Research in AI & Machine Learning</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="SCMLpt is a research agent dedicated to supporting cutting-edge technologies, empowering innovative projects and advancing scientific discovery.">
+  <meta name="keywords" content="SCMLpt, AI Research, Machine Learning, Scientific Discovery, SCMLpt GitHub">
+  <meta name="author" content="SCMLpt Team">
+
+  <!-- Open Graph for Social Sharing -->
+  <meta property="og:title" content="SCMLpt - Cutting-edge Research in AI & Machine Learning">
+  <meta property="og:description" content="Empowering innovative projects and advancing scientific discovery through AI research.">
+  <meta property="og:url" content="https://scmlpt.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://scmlpt.github.io/logo.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SCMLpt - Cutting-edge Research in AI & Machine Learning">
+  <meta name="twitter:description" content="Empowering innovative projects and advancing scientific discovery through AI research.">
+  <meta name="twitter:image" content="https://scmlpt.github.io/logo.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://scmlpt.github.io/logo.jpg" type="image/jpeg">
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "SCMLpt",
+    "url": "https://scmlpt.github.io/",
+    "logo": "https://scmlpt.github.io/logo.jpg",
+    "sameAs": [
+      "https://x.com/KamuiTranslator",
+      "https://www.linkedin.com/in/dongseok-lee-71885026b/"
+    ],
+    "description": "SCMLpt is a research agent dedicated to supporting cutting-edge technologies, empowering innovative projects and advancing scientific discovery."
+  }
+  </script>
+
+  <!-- Plotly and MathJax -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .matrix-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            background: url('images/matrix-pattern.png') repeat;
+        }
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 255, 0, 0.2);
+        }
+        .navbar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 5px #00FF00;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-logo img {
+            height: 40px;
+            margin-right: 15px;
+        }
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .navbar-item {
+            position: relative;
+        }
+        .navbar-item a {
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+        .navbar-item a:hover {
+            color: #00FF00;
+            text-shadow: 0 0 5px #00FF00;
+        }
+        .main-content {
+            margin-top: 60px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 60px);
+        }
+        .container {
+            text-align: center;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 80%;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+            min-height: 200px;
+            background: #1a1a1a;
+            border: 2px solid #00FF00;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: bold;
+            margin-bottom: 1.5vh;
+            letter-spacing: 0.3vw;
+            text-shadow: 0 0 10px #00FF00;
+        }
+        .description {
+            font-size: clamp(0.8rem, 1.5vw, 1.5rem);
+            margin-bottom: 3vh;
+            text-align: left;
+            padding: 10px;
+        }
+        textarea {
+            background: #000;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            width: 80%;
+            height: 150px;
+            font-size: 1.2em;
+        }
+        button {
+            background-color: #000;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            padding: 1vh 2vw;
+            font-size: clamp(0.7rem, 1vw, 1rem);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #00FF00;
+            color: #000;
+            box-shadow: 0 0 15px #00FF00;
+        }
+        .result {
+            margin-top: 1.5vh;
+            font-size: 1rem;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #00FF00;
+            color: #00FF00;
+        }
+        #scimlPlotDiv, #domainPlot, #staticDomainPlot, #domain3DPlot, #staticDomain2DPlot {
+            margin-top: 1.5vh;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            border: 1px solid #00FF00;
+            border-radius: 5px;
+            background-color: #000;
+        }
+        #domainFeedback, #domainPredDisplay, #staticDomainFeedback, #staticDomainPredDisplay {
+            margin-top: 1.5vh;
+            font-size: 1rem;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #00FF00;
+            color: #00FF00;
+        }
+        /* Chatbot GUI */
+        #chatbotContainer {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            border: 2px solid #00FF00;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #chatLog {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            max-width: 70%;
+        }
+        .bot-message {
+            background: #000;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            align-self: flex-start;
+        }
+        .user-message {
+            background: #00FF00;
+            color: #000;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        #chatInputContainer {
+            display: flex;
+            padding: 10px;
+            background: #1a1a1a;
+            border-top: 1px solid #00FF00;
+        }
+        #chatbotInput {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1.1em;
+            background: #000;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+        #chatbotSubmit {
+            padding: 10px 20px;
+            background: #000;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #chatbotSubmit:hover {
+            background: #00FF00;
+            color: #000;
+            box-shadow: 0 0 15px #00FF00;
+        }
+        @media (max-width: 768px) {
+            .navbar-menu {
+                gap: 10px;
+            }
+            .navbar-item a {
+                font-size: 0.9rem;
+            }
+            h1 {
+                font-size: clamp(1.2rem, 5vw, 2.5rem);
+            }
+            .description {
+                font-size: clamp(0.7rem, 2vw, 1.2rem);
+            }
+            button {
+                font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+                padding: 1.5vh 3vw;
+            }
+            .container {
+                padding: 10px 10px;
+                max-width: 85%;
+            }
+            textarea {
+                width: 100%;
+            }
+            #scimlPlotDiv, #domainPlot, #staticDomainPlot, #domain3DPlot, #staticDomain2DPlot {
+                height: 300px;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .navbar-menu {
+                flex-direction: column;
+                gap: 5px;
+                margin-top: 10px;
+            }
+            .navbar-item a {
+                font-size: 0.8rem;
+            }
+            h1 {
+                font-size: clamp(1rem, 5vw, 2rem);
+            }
+            .description {
+                font-size: clamp(0.6rem, 2.5vw, 1rem);
+            }
+            button {
+                font-size: clamp(0.6rem, 2vw, 0.8rem);
+                padding: 2vh 4vw;
+            }
+            .container {
+                padding: 5px 5px;
+                max-width: 90%;
+            }
+        }
+        @media (max-width: 360px) {
+            h1 {
+                font-size: clamp(0.9rem, 4vw, 1.8rem);
+            }
+            .description {
+                font-size: clamp(0.5rem, 2vw, 0.9rem);
+            }
+            button {
+                font-size: clamp(0.5rem, 1.8vw, 0.7rem);
+                padding: 2vh 4vw;
+            }
+            .container {
+                padding: 5px 5px;
+                max-width: 95%;
+            }
+        }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N632F7P6"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="navbar">
+    <div class="navbar-logo">
+      <img src="https://scmlpt.github.io/logo.jpg" alt="SCMLpt Logo" />
+      SCMLpt
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-item"><a href="index.html">Home</a></div>
+      <div class="navbar-item"><a href="open_research_chat.html">Open Research Chat</a></div>
+      <div class="navbar-item"><a href="about_scmlpt.html">About SCMLpt</a></div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="matrix-background"></div>
+
+    <!-- Simulation Containers -->
+    <div class="container" id="staticDomainContainer">
+      <h1>Static Reaction-Diffusion</h1>
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click.</p>
+        <p>This simulation does not include time evolution so a static prediction is generated.</p>
+      </div>
+      <div id="staticDomainPlot"></div>
+      <div id="staticDomainFeedback">No points clicked yet.</div>
+      <button onclick="staticDomainClear()">Clear Domain</button>
+      <button onclick="staticDomainSubmit()">Submit Domain</button>
+      <div id="staticDomainPredDisplay"></div>
+      <div id="staticDomain2DPlot"></div>
+    </div>
+
+    <div class="container" id="scimlContainer">
+      <h1>Boundary Layer Simulation</h1>
+      <div class="description">
+        <p>This is an example of a foundational model on the domain \([0,1]\times[0,1]\).</p>
+        <p>The PDE might look like:</p>
+        <p style="text-align:center;">
+          $$ 
+          -\epsilon \Delta u^\epsilon \;-\; u^\epsilon_x \;=\; f(x,y),\quad u^\epsilon = 0 \quad \text{on } \partial\Omega.
+          $$
+        </p>
+        <p>Please provide your JSON input with <strong>known</strong> and <strong>epsilons</strong>.</p>
+        <pre style="background:#000; color:#00FF00; padding:10px; border-radius:5px; border: 1px solid #00FF00;">
+{
+  "known": [
+    [
+      [0.1, 0.2, 0.9],
+      [0.2, 0.3, 0.7],
+      [0.4, 0.4, 0.8]
+    ]
+  ],
+  "epsilons": [0.01]
+}
+        </pre>
+      </div>
+      <textarea id="scimlUserInput" placeholder='{"known": [...], "epsilons": [...]}'></textarea>
+      <br />
+      <button onclick="scimlSubmitInput()">Submit</button>
+      <div class="result" id="scimlResultDisplay"></div>
+      <div id="scimlPlotDiv"></div>
+    </div>
+
+    <div class="container" id="domainContainer">
+      <h1>Time Dependent CDR Problem</h1>
+      <div class="description">
+        <p>Click exactly 4 points in the plot. The polygon domain will be drawn in the order you click with a solid fill.</p>
+        <p>After the 4th click, no more clicks are allowed. Use the “Clear Domain” button to reset.</p>
+      </div>
+      <div id="domainPlot"></div>
+      <div id="domainFeedback">No points clicked yet.</div>
+      <button onclick="domainClear()">Clear Domain</button>
+      <button onclick="domainSubmit()">Submit Domain</button>
+      <div id="domainPredDisplay"></div>
+      <div id="domain3DPlot"></div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbotContainer">
+      <div id="chatLog">
+        <div class="message bot-message">What problem would you like to solve? (Boundary Layer Simulation, Time Dependent CDR Problem, Static Reaction-Diffusion)</div>
+      </div>
+      <div id="chatInputContainer">
+        <input type="text" id="chatbotInput" placeholder="Type your response here..." />
+        <button id="chatbotSubmit" onclick="handleChatbotInput()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matrix Effect Script -->
+  <script>
+    function createMatrixEffect() {
+      const matrix = document.createElement('canvas');
+      matrix.width = window.innerWidth;
+      matrix.height = window.innerHeight;
+      document.body.appendChild(matrix);
+      const ctx = matrix.getContext('2d');
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+      ctx.fillRect(0, 0, matrix.width, matrix.height);
+
+      class Symbol {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+          this.value = String.fromCharCode(65 + Math.random() * 57);
+          this.speed = 1 + Math.random() * 5;
+        }
+        draw() {
+          ctx.fillStyle = '#00FF00';
+          ctx.fillText(this.value, this.x, this.y);
+          this.y += this.speed;
+          if (this.y > matrix.height) {
+            this.y = -20;
+            this.x = Math.random() * matrix.width;
+          }
+        }
+      }
+
+      const symbols = [];
+      for (let i = 0; i < 100; i++) {
+        symbols.push(new Symbol(Math.random() * matrix.width, Math.random() * matrix.height));
+      }
+
+      function animate() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, matrix.width, matrix.height);
+        symbols.forEach(symbol => symbol.draw());
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+    window.onload = createMatrixEffect;
+  </script>
+
+  <!-- Original JavaScript -->
+  <script>
+    // 챗봇 입력 처리
+    function handleChatbotInput() {
+      const input = document.getElementById("chatbotInput").value.trim().toLowerCase();
+      if (!input) return;
+
+      const chatLog = document.getElementById("chatLog");
+      const userMessage = document.createElement("div");
+      userMessage.className = "message user-message";
+      userMessage.textContent = input;
+      chatLog.appendChild(userMessage);
+
+      const containers = {
+        'boundary layer simulation': 'scimlContainer',
+        'time dependent cdr problem': 'domainContainer',
+        'static reaction-diffusion': 'staticDomainContainer'
+      };
+
+      if (containers[input]) {
+        const selectedContainer = document.getElementById(containers[input]);
+        document.querySelectorAll('.container').forEach(container => {
+          container.style.display = 'none';
+        });
+        selectedContainer.style.display = 'flex';
+        selectedContainer.scrollIntoView({ behavior: 'smooth' });
+
+        const botMessage = document.createElement("div");
+        botMessage.className = "message bot-message";
+        botMessage.textContent = `Great! Here's the ${input.replaceAll('-', ' ')} simulation. What would you like to do next?`;
+        chatLog.appendChild(botMessage);
+      } else {
+        const botMessage = document.createElement("div");
+        botMessage.className = "message bot-message";
+        botMessage.textContent = "Sorry, I didn't understand that. Please choose from: Boundary Layer Simulation, Time Dependent CDR Problem, or Static Reaction-Diffusion.";
+        chatLog.appendChild(botMessage);
+      }
+
+      document.getElementById("chatbotInput").value = '';
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    document.getElementById("chatbotInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        handleChatbotInput();
+      }
+    });
+
+    /************************************************************
+     * Boundary Layer Simulation JS
+     ************************************************************/
+    async function scimlSubmitInput() {
+      const inputText = document.getElementById("scimlUserInput").value;
+      let jsonData;
+      try {
+        jsonData = JSON.parse(inputText);
+      } catch (e) {
+        alert("Invalid JSON input!");
+        return;
+      }
+      if (!jsonData.hasOwnProperty("unknown")) {
+        let unknownTokens = [];
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 10; j++) {
+            unknownTokens.push([i * 0.1, j * 0.1, -1]);
+          }
+        }
+        jsonData.unknown = [unknownTokens];
+      }
+      try {
+        const serverURL = "https://f39e-125-186-24-176.ngrok-free.app/predict";
+        const response = await fetch(serverURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData),
+        });
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.error) {
+          document.getElementById("scimlResultDisplay").innerText = "Error: " + data.error;
+        } else {
+          if (data.output) {
+            createSurfacePlot(jsonData.unknown, data.output);
+          } else if (data.result) {
+            createSurfacePlot(jsonData.unknown, data.result);
+          } else {
+            document.getElementById("scimlResultDisplay").innerText =
+              "No 'output' or 'result' field found in response.";
+          }
+        }
+      } catch (err) {
+        document.getElementById("scimlResultDisplay").innerText = "Error: " + err;
+      }
+    }
+
+    function createSurfacePlot(unknownData, outputData) {
+      if (Array.isArray(unknownData[0]) && Array.isArray(unknownData[0][0])) {
+        unknownData = unknownData[0];
+      }
+      if (Array.isArray(outputData[0]) && Array.isArray(outputData[0][0])) {
+        outputData = outputData[0];
+      }
+      let size = 10;
+      let X = [], Y = [], Z = [];
+      for (let i = 0; i < size; i++) {
+        X.push([]); Y.push([]); Z.push([]);
+      }
+      for (let idx = 0; idx < unknownData.length; idx++) {
+        let row = Math.floor(idx / size);
+        let col = idx % size;
+        let pt = unknownData[idx];
+        let xVal = pt[0], yVal = pt[1];
+        let zVal = Array.isArray(outputData[idx]) ? outputData[idx][0] : outputData[idx];
+        X[row][col] = xVal;
+        Y[row][col] = yVal;
+        Z[row][col] = zVal;
+      }
+      let trace = {
+        type: "surface",
+        x: X, y: Y, z: Z,
+        colorscale: "Viridis"
+      };
+      let layout = {
+        title: "Surface Plot of Predicted u(x,y)",
+        scene: {
+          xaxis: { title: "x" },
+          yaxis: { title: "y" },
+          zaxis: { title: "u(x,y)" }
+        }
+      };
+      Plotly.newPlot("scimlPlotDiv", [trace], layout);
+    }
+
+    /************************************************************
+     * Time Dependent CDR Problem JS
+     ************************************************************/
+    let domainPoints = [];
+    let domainGd;
+    let polygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(255,0,0,0.2)',
+      line: { color: 'red' },
+      marker: { color: 'cyan', size: 8 },
+      name: "Polygon"
+    };
+    let domainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [0, 1.5], title: "x" },
+      yaxis: { range: [0, 1.5], title: "y" }
+    };
+
+    Plotly.newPlot("domainPlot", [polygonTrace], domainLayout).then(function(plotDiv) {
+      domainGd = plotDiv;
+      domainGd.addEventListener("mousedown", domainOnMouseDown);
+    });
+
+    function domainOnMouseDown(evt) {
+      if (domainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = domainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = domainGd._fullLayout.xaxis;
+      let yAxis = domainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
+      domainPoints.push([xData, yData]);
+
+      let xs = domainPoints.map(pt => pt[0]);
+      let ys = domainPoints.map(pt => pt[1]);
+      Plotly.update("domainPlot", { x: [xs], y: [ys] }, {}, [0]);
+
+      domainUpdateFeedback();
+    }
+
+    function domainUpdateFeedback() {
+      if (domainPoints.length === 0) {
+        document.getElementById("domainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + domainPoints.length + " point(s):<br>";
+      domainPoints.forEach((pt, i) => {
+        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      });
+      document.getElementById("domainFeedback").innerHTML = msg;
+    }
+
+    function domainClear() {
+      domainPoints = [];
+      Plotly.update("domainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      domainUpdateFeedback();
+      document.getElementById("domainPredDisplay").innerText = "";
+      document.getElementById("domain3DPlot").innerHTML = "";
+    }
+
+    function createTimeLapse3D(plot_points) {
+      let times = Object.keys(plot_points).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (times.length === 0) {
+        console.log("No times in plot_points!");
+        return;
+      }
+      let allZ = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        for (let pt of arr) {
+          allZ.push(pt[2]);
+        }
+      }
+      let minZ = Math.min(...allZ);
+      let maxZ = Math.max(...allZ);
+
+      let initialTime = times[0];
+      let arr0 = plot_points[initialTime];
+      let x0 = arr0.map(pt => pt[0]);
+      let y0 = arr0.map(pt => pt[1]);
+      let z0 = arr0.map(pt => pt[2]);
+
+      let initialData = [{
+        type: 'scatter3d',
+        mode: 'markers',
+        x: x0, y: y0, z: z0,
+        marker: {
+          size: 4,
+          color: z0,
+          cmin: minZ, cmax: maxZ,
+          colorscale: 'Viridis',
+          showscale: true
+        }
+      }];
+
+      let frames = [];
+      for (let t of times) {
+        let arr = plot_points[t];
+        let xArr = arr.map(pt => pt[0]);
+        let yArr = arr.map(pt => pt[1]);
+        let zArr = arr.map(pt => pt[2]);
+        frames.push({
+          name: t,
+          data: [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: xArr, y: yArr, z: zArr,
+            marker: {
+              size: 4,
+              color: zArr,
+              cmin: minZ, cmax: maxZ,
+              colorscale: 'Viridis',
+              showscale: true
+            }
+          }]
+        });
+      }
+
+      let layout = {
+        title: "Time-lapse 3D Plot (Scatter3D Colored by Z)",
+        scene: { xaxis: { title: "X" }, yaxis: { title: "Y" }, zaxis: { title: "Pred Value" } },
+        margin: { l: 0, r: 0, b: 0, t: 50 },
+        updatemenus: [{
+          type: 'buttons',
+          showactive: false,
+          x: 0, y: 0, xanchor: 'left', yanchor: 'top',
+          pad: { t: 50, r: 10 },
+          buttons: [{
+            label: 'Play',
+            method: 'animate',
+            args: [null, {
+              fromcurrent: true,
+              frame: { redraw: true, duration: 500 },
+              transition: { duration: 300 }
+            }]
+          }]
+        }],
+        sliders: [{
+          pad: { l: 130, t: 70 },
+          currentvalue: {
+            visible: true,
+            prefix: 't* = ',
+            xanchor: 'right',
+            font: { size: 20, color: '#666' }
+          },
+          steps: times.map(t => {
+            return {
+              label: t,
+              method: 'animate',
+              args: [[t], {
+                mode: 'immediate',
+                frame: { redraw: true, duration: 300 },
+                transition: { duration: 300 }
+              }]
+            };
+          })
+        }]
+      };
+
+      Plotly.newPlot('domain3DPlot', initialData, layout).then(function() {
+        Plotly.addFrames('domain3DPlot', frames);
+      });
+    }
+
+    function domainSubmit() {
+      if (domainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: domainPoints };
+
+      fetch("https://f39e-125-186-24-176.ngrok-free.app/predict_points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_points:", data);
+        let displayDiv = document.getElementById("domainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createTimeLapse3D(data.plot_points);
+          }
+          if (data.pred) {
+            let predDiv = document.createElement("div");
+            predDiv.innerText = "Prediction: " + JSON.stringify(data.pred);
+            displayDiv.appendChild(predDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("domainPredDisplay").innerText = "Error: " + err;
+      });
+    }
+
+    /************************************************************
+     * Static Reaction-Diffusion JS
+     ************************************************************/
+    let staticDomainPoints = [];
+    let staticDomainGd;
+    let staticPolygonTrace = {
+      x: [],
+      y: [],
+      mode: 'lines+markers',
+      fill: 'toself',
+      fillcolor: 'rgba(0,255,0,0.2)',
+      line: { color: 'green' },
+      marker: { color: 'yellow', size: 8 },
+      name: "Polygon"
+    };
+    let staticDomainLayout = {
+      title: "Click exactly 4 points",
+      xaxis: { range: [1, 2], title: "x" },
+      yaxis: { range: [1, 2], title: "y" }
+    };
+
+    Plotly.newPlot("staticDomainPlot", [staticPolygonTrace], staticDomainLayout).then(function(plotDiv) {
+      staticDomainGd = plotDiv;
+      staticDomainGd.addEventListener("mousedown", staticDomainOnMouseDown);
+    });
+
+    function staticDomainOnMouseDown(evt) {
+      if (staticDomainPoints.length >= 4) {
+        alert("You already have 4 points. Click 'Clear Domain' to reset.");
+        return;
+      }
+      let rect = staticDomainGd.getBoundingClientRect();
+      let xPixel = evt.clientX - rect.left;
+      let yPixel = evt.clientY - rect.top;
+      let xAxis = staticDomainGd._fullLayout.xaxis;
+      let yAxis = staticDomainGd._fullLayout.yaxis;
+      let xMinPix = xAxis._offset;
+      let xMaxPix = xAxis._offset + xAxis._length;
+      let yMinPix = yAxis._offset + yAxis._length;
+      let yMaxPix = yAxis._offset;
+      let xDataMin = xAxis.range[0];
+      let xDataMax = xAxis.range[1];
+      let yDataMin = yAxis.range[0];
+      let yDataMax = yAxis.range[1];
+
+      let xData = xDataMin + (xPixel - xMinPix) / (xMaxPix - xMinPix) * (xDataMax - xDataMin);
+      let yData = yDataMin + (yMinPix - yPixel) / (yMinPix - yMaxPix) * (yDataMax - yDataMin);
+
+      staticDomainPoints.push([xData, yData]);
+
+      let xs = staticDomainPoints.map(pt => pt[0]);
+      let ys = staticDomainPoints.map(pt => pt[1]);
+      Plotly.update("staticDomainPlot", { x: [xs], y: [ys] }, {}, [0]);
+
+      staticDomainUpdateFeedback();
+    }
+
+    function staticDomainUpdateFeedback() {
+      if (staticDomainPoints.length === 0) {
+        document.getElementById("staticDomainFeedback").innerText = "No points clicked yet.";
+        return;
+      }
+      let msg = "Clicked " + staticDomainPoints.length + " point(s):<br>";
+      staticDomainPoints.forEach((pt, i) => {
+        msg += `Point ${i+1}: (${pt[0].toFixed(3)}, ${pt[1].toFixed(3)})<br>`;
+      });
+      document.getElementById("staticDomainFeedback").innerHTML = msg;
+    }
+
+    function staticDomainClear() {
+      staticDomainPoints = [];
+      Plotly.update("staticDomainPlot", { x: [[]], y: [[]] }, {}, [0]);
+      staticDomainUpdateFeedback();
+      document.getElementById("staticDomainPredDisplay").innerText = "";
+      document.getElementById("staticDomain2DPlot").innerHTML = "";
+    }
+
+    function staticDomainSubmit() {
+      if (staticDomainPoints.length !== 4) {
+        alert("Please select exactly 4 points before submitting.");
+        return;
+      }
+      let payload = { points: staticDomainPoints };
+
+      fetch("https://f39e-125-186-24-176.ngrok-free.app/predict_no_time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response from /predict_no_time:", data);
+        let displayDiv = document.getElementById("staticDomainPredDisplay");
+        displayDiv.innerHTML = "";
+        if (data.error) {
+          displayDiv.innerText = "Error: " + data.error;
+        } else {
+          if (data.plot_points) {
+            createStatic2DPlot(data.plot_points);
+          }
+          if (data.relative_error !== undefined) {
+            let errDiv = document.createElement("div");
+            errDiv.innerText = "Relative Error: " + data.relative_error.toFixed(4);
+            displayDiv.appendChild(errDiv);
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("staticDomainPredDisplay").innerText = "Error: " + err;
+      });
+    }
+
+    function createStatic2DPlot(plot_points) {
+      let xVals = [];
+      let yVals = [];
+      let zVals = [];
+      for (let i = 0; i < plot_points.length; i++) {
+        xVals.push(plot_points[i][0]);
+        yVals.push(plot_points[i][1]);
+        zVals.push(plot_points[i][2]);
+      }
+      let trace = {
+        x: xVals,
+        y: yVals,
+        mode: 'markers',
+        marker: {
+          size: 12,
+          color: zVals,
+          colorscale: 'Viridis',
+          colorbar: { title: 'u(x,y)' }
+        },
+        type: 'scatter'
+      };
+      let layout = {
+        title: 'Static Prediction Plot',
+        xaxis: { title: 'x' },
+        yaxis: { title: 'y' }
+      };
+      Plotly.newPlot("staticDomain2DPlot", [trace], layout);
+    }
+  </script>
+</body>
+</html>
